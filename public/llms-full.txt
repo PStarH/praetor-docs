@@ -2,12 +2,27 @@
 
 Source: https://github.com/PStarH/Commander
 Documentation: https://pstarh.github.io/commander-docs/
+Machine-readable index: https://pstarh.github.io/commander-docs/llms.txt
 
 Commander is alpha. Current enterprise evaluation: historical Shadow Phase A,
 https://github.com/PStarH/Commander/blob/codex/release-20260810/docs/pilot/shadow/README.md
 This path does not execute or authorize external actions. Live Kubernetes rollback is frozen.
 
-Read the public pages in this order: quick start, deployment, operations,
-security, SDKs, benchmarks, then support and limits. Do not infer production
-multi-tenant readiness, compliance certification, or production SLO attainment
-from benchmark or CI material.
+What Commander does: deliberation classifies each task and selects one of five
+canonical topologies (SINGLE, CHAIN, DISPATCH, ORCHESTRATOR, REVIEW); 25 LLM
+providers with a configurable auto-failover chain; 18 built-in tools plus
+MCP-compatible external tools; five quality gates where the verification
+pipeline is enabled; and governed external writes through the Architecture V2
+effect broker with capability tokens, policy decisions, approvals, and signed
+evidence.
+
+Read the public pages in this order: overview, quick start, CLI reference, HTTP
+API, configuration, tools, providers, MCP, web console, packages, SDK and API
+overview, architecture, workflows, deployment, operations, troubleshooting,
+security, benchmarks, then support and limits.
+
+Do not infer production multi-tenant readiness, compliance certification, or
+production SLO attainment from benchmark or CI material. The Enterprise Gateway
+is alpha and tenant isolation is not production-proven. Audit tamper-evidence,
+compensation, and capability-token revocation all have documented limits — see
+the "Limits and honest caveats" section of the security page.

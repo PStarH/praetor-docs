@@ -1,17 +1,54 @@
 # Commander
 
 Commander is a local-first multi-agent orchestration tool for engineering work.
+It runs on your machine, streams task activity, and lets you choose the level of
+automation appropriate for the task.
+
+Commander is alpha. The current enterprise evaluation is Shadow Phase A, a
+customer-operated evaluation of historical observations against a pinned policy.
+It does not execute or authorize external actions. Live Kubernetes rollback is
+frozen.
 
 ## Public documentation
 
+### Get started
+
+- Overview: https://pstarh.github.io/commander-docs/index.html
 - Quick start: https://pstarh.github.io/commander-docs/getting-started.html
+
+### Reference
+
+- CLI reference: https://pstarh.github.io/commander-docs/cli.html
+- HTTP API: https://pstarh.github.io/commander-docs/api.html
+- Configuration: https://pstarh.github.io/commander-docs/configuration.html
+- Tools: https://pstarh.github.io/commander-docs/tools.html
+- Providers: https://pstarh.github.io/commander-docs/providers.html
+- MCP: https://pstarh.github.io/commander-docs/mcp.html
+- Web console: https://pstarh.github.io/commander-docs/web-console.html
+- Packages and SDKs: https://pstarh.github.io/commander-docs/packages.html
+- SDK and API overview: https://pstarh.github.io/commander-docs/sdk.html
+
+### Concepts
+
+- Architecture: https://pstarh.github.io/commander-docs/architecture.html
+- Workflows and automation: https://pstarh.github.io/commander-docs/workflows.html
+
+### Run it
+
 - Deployment: https://pstarh.github.io/commander-docs/deployment.html
 - Operations and rollback: https://pstarh.github.io/commander-docs/operations.html
+- Troubleshooting: https://pstarh.github.io/commander-docs/troubleshooting.html
+
+### Trust
+
 - Security and privacy: https://pstarh.github.io/commander-docs/security.html
-- SDKs and API: https://pstarh.github.io/commander-docs/sdk.html
 - Benchmarks: https://pstarh.github.io/commander-docs/benchmarks.html
 - Support and limits: https://pstarh.github.io/commander-docs/support.html
+
+### Enterprise evaluation
+
 - Enterprise Shadow Phase A: https://github.com/PStarH/Commander/blob/codex/release-20260810/docs/pilot/shadow/README.md
+- Shadow Phase A alpha package: https://github.com/PStarH/Commander/releases/tag/shadow-phase-a-0.1.0-alpha.20260910
 
 ## Product boundary
 
@@ -21,3 +58,4 @@ Commander is a local-first multi-agent orchestration tool for engineering work.
 - Local web interface: http://localhost:3000
 - Enterprise Gateway is alpha, not production-proven multi-tenant SaaS.
 - Benchmarks are CI or harness evidence, not production SLA or certification.
+- ISO 42001 and NIST AI RMF material is reporting support, not certification.
