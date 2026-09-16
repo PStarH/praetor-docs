@@ -4,6 +4,7 @@ node_modules/
 .worktrees/
 .vitepress/dist/
 .vitepress/cache/
+.vitepress/config.mts.timestamp-*.mjs
 .DS_Store
 *.zip
 *.log

@@ -4,7 +4,27 @@ import { join, relative } from 'node:path'
 
 const root = process.cwd()
 const locales = ['zh', 'ja', 'ko', 'es', 'fr']
-const pages = ['index.md', 'getting-started.md', 'deployment.md', 'operations.md', 'security.md', 'sdk.md', 'benchmarks.md', 'support.md']
+const pages = [
+  'index.md',
+  'getting-started.md',
+  'cli.md',
+  'api.md',
+  'configuration.md',
+  'architecture.md',
+  'web-console.md',
+  'packages.md',
+  'deployment.md',
+  'operations.md',
+  'security.md',
+  'sdk.md',
+  'troubleshooting.md',
+  'benchmarks.md',
+  'support.md',
+  'tools.md',
+  'providers.md',
+  'mcp.md',
+  'workflows.md',
+]
 const errors = []
 
 for (const locale of locales) {
@@ -25,7 +45,12 @@ function walk(dir, out = []) {
 
 const forbidden = [
   [/localhost:3001/, 'Commander API must not use port 3001'],
-  [/\/api\/v1/, 'legacy API routes are not public documentation'],
+  // Legacy versioned aliases are not a public integration surface. The current
+  // observability router is legitimately mounted under the same prefix.
+  [/\/api\/v1(?!\/observability)/, 'legacy API routes are not public documentation'],
+  // Match a port followed by the path (an actual endpoint URL), so that prose
+  // explaining the correct name is not flagged.
+  [/\d\/readyz|\d\/livez/, 'readiness is /ready — there is no /readyz or /livez route'],
   [/6700\+ tests/, 'fragile test-count marketing is not a public claim'],
   [/OpenClaw|PinchBench/, 'unverified competitive benchmark claim'],
   [/100% defense/i, 'benchmark claim needs an evidence level, not an absolute'],

@@ -7,12 +7,23 @@ ROOT = Path(__file__).resolve().parents[1]
 PAGES = [
     "index.md",
     "getting-started.md",
+    "cli.md",
+    "api.md",
+    "configuration.md",
+    "architecture.md",
+    "web-console.md",
+    "packages.md",
     "deployment.md",
     "operations.md",
     "security.md",
     "sdk.md",
+    "troubleshooting.md",
     "benchmarks.md",
     "support.md",
+    "tools.md",
+    "providers.md",
+    "mcp.md",
+    "workflows.md",
 ]
 LOCALES = {
     "zh": "简体中文",

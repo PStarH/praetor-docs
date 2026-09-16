@@ -19,9 +19,45 @@ Download the [Shadow Phase A alpha package](https://github.com/PStarH/Commander/
 - **Enterprise Gateway:** an alpha `/v1` server path. It is not a
   production-proven multi-tenant SaaS.
 
-Start with [Quick start](/getting-started), then use [Deployment](/deployment)
-for a supported local installation. Read [Security and privacy](/security)
-before connecting customer data or third-party tools.
+## What Commander does
+
+- **Deliberation** classifies each task, estimates complexity, and selects one of
+  five canonical topologies (`SINGLE`, `CHAIN`, `DISPATCH`, `ORCHESTRATOR`,
+  `REVIEW`).
+- **25 providers** with a configurable auto-failover chain — set one API key to
+  start. See [Providers](/providers).
+- **18 built-in tools** plus MCP-compatible external tools. See [Tools](/tools).
+- **Five quality gates** on paths where the verification pipeline is enabled:
+  hallucination, consistency, completeness, accuracy, safety.
+- **Durability:** circuit breakers, a dead letter queue, saga compensation, and
+  crash-safe checkpointing.
+- **Governed external writes** through the Architecture V2 effect broker, with
+  capability tokens, policy decisions, approvals, and signed evidence.
+
+## Start here
+
+| Page | What it covers |
+| --- | --- |
+| [Quick start](/getting-started) | Install, run the simulated demo, start the interfaces |
+| [CLI reference](/cli) | Every command, subcommand, and flag |
+| [HTTP API](/api) | Endpoints, authentication, and the `/v1` Gateway |
+| [Configuration](/configuration) | Environment variables and storage backends |
+| [Tools](/tools) | The 18 built-in tools, trust tiers, and MCP filtering |
+| [Providers](/providers) | All 25 providers, env variables, failover, model tiers |
+| [MCP](/mcp) | The stdio MCP server, both modes, and the command allowlist |
+| [Web console](/web-console) | Console routes and how to start it |
+| [Architecture](/architecture) | Topologies, quality gates, and the V2 plane |
+| [Workflows and automation](/workflows) | Workflows, scheduler, webhooks, background jobs |
+| [Packages and SDKs](/packages) | Workspace packages, TypeScript/Python SDKs, plugins |
+| [Deployment](/deployment) | Supported local installation and profiles |
+| [Operations and rollback](/operations) | Health checks, recovery, and rollback limits |
+| [Security and privacy](/security) | Authentication, sandboxing, governed writes, caveats |
+| [Troubleshooting](/troubleshooting) | Common failures and how to fix them |
+| [Benchmarks](/benchmarks) | What the benchmarks do and do not prove |
+| [Support and limits](/support) | Current product boundary |
+
+Read [Security and privacy](/security) before connecting customer data or
+third-party tools.
 
 ## What this site promises
 

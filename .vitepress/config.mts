@@ -12,19 +12,52 @@ function theme(locale: string): DefaultTheme.Config {
     nav: [
       { text: 'Overview', link: link('/') },
       { text: 'Quick start', link: link('/getting-started') },
-      { text: 'Deployment', link: link('/deployment') },
+      { text: 'CLI', link: link('/cli') },
+      { text: 'API', link: link('/api') },
+      { text: 'MCP', link: link('/mcp') },
       { text: 'Security', link: link('/security') },
     ],
     sidebar: [
       {
-        text: 'Commander',
+        text: 'Get started',
         items: [
           { text: 'Overview', link: link('/') },
           { text: 'Quick start', link: link('/getting-started') },
+        ],
+      },
+      {
+        text: 'Reference',
+        items: [
+          { text: 'CLI reference', link: link('/cli') },
+          { text: 'HTTP API', link: link('/api') },
+          { text: 'Configuration', link: link('/configuration') },
+          { text: 'Tools', link: link('/tools') },
+          { text: 'Providers', link: link('/providers') },
+          { text: 'MCP', link: link('/mcp') },
+          { text: 'Web console', link: link('/web-console') },
+          { text: 'Packages and SDKs', link: link('/packages') },
+          { text: 'SDK and API overview', link: link('/sdk') },
+        ],
+      },
+      {
+        text: 'Concepts',
+        items: [
+          { text: 'Architecture', link: link('/architecture') },
+          { text: 'Workflows and automation', link: link('/workflows') },
+        ],
+      },
+      {
+        text: 'Run it',
+        items: [
           { text: 'Deployment', link: link('/deployment') },
           { text: 'Operations and rollback', link: link('/operations') },
+          { text: 'Troubleshooting', link: link('/troubleshooting') },
+        ],
+      },
+      {
+        text: 'Trust',
+        items: [
           { text: 'Security and privacy', link: link('/security') },
-          { text: 'SDKs and API', link: link('/sdk') },
           { text: 'Benchmarks', link: link('/benchmarks') },
           { text: 'Support and limits', link: link('/support') },
         ],
