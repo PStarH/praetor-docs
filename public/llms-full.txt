@@ -5,7 +5,7 @@ Documentation: https://pstarh.github.io/commander-docs/
 Machine-readable index: https://pstarh.github.io/commander-docs/llms.txt
 
 Commander is alpha. Current enterprise evaluation: historical Shadow Phase A,
-https://github.com/PStarH/Commander/blob/codex/release-20260810/docs/pilot/shadow/README.md
+https://github.com/PStarH/Commander/blob/shadow-phase-a-0.1.0-alpha.20260910/docs/pilot/shadow/README.md
 This path does not execute or authorize external actions. Live Kubernetes rollback is frozen.
 
 What Commander does: deliberation classifies each task and selects one of five

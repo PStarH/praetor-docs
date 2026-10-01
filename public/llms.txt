@@ -47,7 +47,7 @@ frozen.
 
 ### Enterprise evaluation
 
-- Enterprise Shadow Phase A: https://github.com/PStarH/Commander/blob/codex/release-20260810/docs/pilot/shadow/README.md
+- Enterprise Shadow Phase A: https://github.com/PStarH/Commander/blob/shadow-phase-a-0.1.0-alpha.20260910/docs/pilot/shadow/README.md
 - Shadow Phase A alpha package: https://github.com/PStarH/Commander/releases/tag/shadow-phase-a-0.1.0-alpha.20260910
 
 ## Product boundary

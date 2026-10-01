@@ -7,13 +7,13 @@
 - **Node.js 22.x** and **pnpm 9** (Corepack selects the pinned version).
 - No provider credentials are needed for the first simulated demo.
 
-Enterprise customers should start with [Shadow Phase A](https://github.com/PStarH/Commander/blob/codex/release-20260810/docs/pilot/shadow/README.md),
+Enterprise customers should start with [Shadow Phase A](https://github.com/PStarH/Commander/blob/shadow-phase-a-0.1.0-alpha.20260910/docs/pilot/shadow/README.md),
 which evaluates historical observations without external actions.
 
 ## 1. Install and run the simulated demo
 
 ```bash
-git clone --branch codex/release-20260810 --single-branch https://github.com/PStarH/Commander.git
+git clone https://github.com/PStarH/Commander.git
 cd Commander
 corepack enable
 pnpm install --frozen-lockfile

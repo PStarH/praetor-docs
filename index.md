@@ -6,7 +6,7 @@ of automation appropriate for the task.
 
 ## Enterprise evaluation
 
-Commander is alpha. The current enterprise evaluation is [Shadow Phase A](https://github.com/PStarH/Commander/blob/codex/release-20260810/docs/pilot/shadow/README.md): a customer-operated evaluation of historical observations against a pinned policy. It does not execute or authorize external actions. Live Kubernetes rollback remains frozen.
+Commander is alpha. The current enterprise evaluation is [Shadow Phase A](https://github.com/PStarH/Commander/blob/shadow-phase-a-0.1.0-alpha.20260910/docs/pilot/shadow/README.md): a customer-operated evaluation of historical observations against a pinned policy. It does not execute or authorize external actions. Live Kubernetes rollback remains frozen.
 
 Download the [Shadow Phase A alpha package](https://github.com/PStarH/Commander/releases/tag/shadow-phase-a-0.1.0-alpha.20260910), including the setup guide, exact source revision, package checksums, and evaluation limits. This is not a production release of the general CLI or Gateway.
 
