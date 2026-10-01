@@ -77,11 +77,6 @@ evaluation, and signed campaign report export/verification.
 - Commands: `manifest register`, `import`, `batch close`, `report export`,
   `report verify`, `campaign withdraw`, `retention run`, `status`
 
-### `@commander/python-sdk`
-
-The Python client is built from the `packages/python-sdk` workspace package and
-published to PyPI as `commander-ai`.
-
 ## SDKs
 
 ### `@commander/sdk` (TypeScript)
@@ -95,16 +90,11 @@ Two clients:
 
 Also exports `verifyActionEvidence()` for Ed25519 JWS receipts.
 
-> The `Topology` enum exported by the SDK is **stale**. It still lists
-> `SINGLE`, `SEQUENTIAL`, `PARALLEL`, `HIERARCHICAL`, `HYBRID`, `DEBATE`,
-> `ENSEMBLE`, and `EVALUATOR_OPTIMIZER`, and does not include the canonical
-> `CHAIN`, `DISPATCH`, `ORCHESTRATOR`, or `REVIEW` values. If you set a topology
-> through the SDK, use a raw string with a canonical value and verify it against
-> the server rather than trusting the enum.
+> **Topology naming:** The `Topology` enum exported by `@commander/sdk` retains legacy names for backward compatibility. To use canonical topologies (`SINGLE`, `CHAIN`, `DISPATCH`, `ORCHESTRATOR`, `REVIEW`), pass the canonical string value directly when configuring agents or submitting runs.
 
 ### `commander-ai` (Python)
 
-Install with `pip install commander-ai`; import as `commander`. Python ≥ 3.10.
+Install with `pip install commander-ai`; import as `commander`. Python ≥ 3.10. Built from `packages/python-sdk`.
 
 - `CommanderGatewayClient` — reads `COMMANDER_API_URL`, defaults to
   `http://127.0.0.1:4000`. Use this one.

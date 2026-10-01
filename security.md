@@ -36,8 +36,9 @@ be effective, and several are opt-in.
 | `COMMANDER_API_KEY` | Required startup secret in production, and Commander's own credential toward the Action Gateway. It is **not** the inbound request key store |
 | `COMMANDER_CAPABILITY_TOKEN_KEY` | Required in production. HMAC key for API-surface capability tokens |
 | `COMMANDER_INTEGRITY_KEY` | Required in production. HMAC key for WAL event signing |
+| `COMMANDER_EVIDENCE_JWKS_JSON` | Required in Compose deployments. Public JWKS string used by the API to verify Ed25519-signed action evidence |
 
-In **production**, a missing or weak value for the five secrets above aborts
+In **production**, a missing or weak value for startup secrets aborts
 startup. Outside production, a missing value is a warning, not a failure —
 except `JWT_SECRET`, which is always required.
 

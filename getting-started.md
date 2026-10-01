@@ -30,19 +30,31 @@ your checkout, dependency cache, and build output.
 This path is development/demo evidence only. It is not a published-package
 install, an E1 governed-write proof, or evidence of production readiness.
 
-## 2. Optional provider-backed development
+## 2. Provider-backed read-only review (recommended first trial)
 
-Configure a provider credential through your secret-management process before
-running the command below. Task content may leave your machine, provider fees
-may apply, and enabled tools can change local state. This is not the enterprise
-Shadow evaluation.
+For your first real-provider test, use the bounded read-only code review rather than general autonomous execution. The model receives no execution tools, preventing unintended commands, file edits, or external writes:
 
 ```bash
+# Choose one provider explicitly
 export OPENAI_API_KEY=sk-...
-pnpm exec tsx packages/core/src/cliEntry.ts run "summarize this repository"
+pnpm exec tsx packages/core/src/cliEntry.ts review \
+  --commit HEAD --real --provider=openai
 ```
 
-## 3. Local interfaces
+This command reads the selected Git diff and local review guidelines, sends at most 15,000 diff characters to the selected provider, and caps the response at 4,000 tokens and 8 MiB. Transport aborts after 120 seconds. Read [Security and privacy](/security) before sending repository material.
+
+## 3. GitHub action pilot (governed writes & recovery)
+
+To inspect the governed write lifecycle (propose → approve → inspect → recover) without external credentials, run the offline contract tests:
+
+```bash
+pnpm test:github:offline
+pnpm demo:github --help
+```
+
+See the [GitHub pilot guide](https://github.com/PStarH/Commander/blob/master/docs/pilot/github/README.md) for running against a configured Enterprise Gateway.
+
+## 4. Local interfaces
 
 | Interface | Command | URL |
 | --- | --- | --- |

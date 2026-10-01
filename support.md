@@ -15,8 +15,6 @@ repository `SECURITY.md`; do not open public vulnerability issues.
   before applying it.
 - Benchmark fixtures and CI baselines are not customer SLAs or certifications.
 
-## Before a customer pilot
+## Enterprise readiness checklist
 
-Agree on the data boundary, provider credentials, permitted tools, rollback
-owner, support contact, and success measures. Do not infer any unlisted
-compliance certification from Commander documentation.
+For technical due diligence, compliance reviews, and pilot sign-off, consult [ENTERPRISE_READINESS.md](https://github.com/PStarH/Commander/blob/master/ENTERPRISE_READINESS.md) in the Commander repository. It tracks the explicit status (✅ wired, 🟡 documented gap, ❌ pending) and line-level evidence pointers for SOC 2 controls, multi-tenancy isolation primitives, SLO baselines, and data governance.

@@ -1,21 +1,22 @@
 # Commander
 
-Commander is a local-first tool for orchestrating multi-agent engineering work.
-It runs on your machine, streams task activity, and lets you choose the level
-of automation appropriate for the task.
+Approval and recovery for Coding and DevOps agents, starting with GitHub pull requests.
 
-## Enterprise evaluation
+Once an agent's action reaches an external system, a timeout or crash can leave three questions open: did it happen, how many times, and with what payload? Retrying blindly can duplicate the write; giving up can lose it. Commander records the approved request and its execution state outside the agent, looks up the outcome after an ambiguous response, and stops in an explicit unknown state when the evidence is not conclusive.
 
-Commander is alpha. The current enterprise evaluation is [Shadow Phase A](https://github.com/PStarH/Commander/blob/shadow-phase-a-0.1.0-alpha.20260910/docs/pilot/shadow/README.md): a customer-operated evaluation of historical observations against a pinned policy. It does not execute or authorize external actions. Live Kubernetes rollback remains frozen.
+## Enterprise evaluation & pilots
 
-Download the [Shadow Phase A alpha package](https://github.com/PStarH/Commander/releases/tag/shadow-phase-a-0.1.0-alpha.20260910), including the setup guide, exact source revision, package checksums, and evaluation limits. This is not a production release of the general CLI or Gateway.
+Commander is alpha. Two evaluation paths are available:
+
+- **GitHub Pilot (governed actions & recovery):** A narrow pilot for same-repository PR creation from existing branches. An agent proposes the action; a human approves the exact request. When network responses drop, recovery queries GitHub using persisted action identity rather than creating duplicate PRs. See the [GitHub pilot guide](https://github.com/PStarH/Commander/blob/master/docs/pilot/github/README.md).
+- **Shadow Phase A (historical evaluation):** Customer-operated evaluation of historical observations against a pinned policy. It executes no external actions. Download the [Shadow Phase A release package](https://github.com/PStarH/Commander/releases/tag/shadow-phase-a-0.1.0-alpha.20260910).
+- **Enterprise Pilot Readiness:** An explicit checklist of security, multi-tenancy, SLO, and data governance controls with code and baseline evidence pointers. Review [ENTERPRISE_READINESS.md](https://github.com/PStarH/Commander/blob/master/ENTERPRISE_READINESS.md) before production pilots.
 
 ## Development product paths
 
 - **Local CLI:** the supported default for one developer or a local team.
 - **Web console:** a local interface served with the API.
-- **Enterprise Gateway:** an alpha `/v1` server path. It is not a
-  production-proven multi-tenant SaaS.
+- **Enterprise Gateway:** an alpha `/v1` server path (`apps/api` → `@commander/kernel` Postgres → worker-plane + effect-broker). It is not a production-proven multi-tenant SaaS.
 
 ## What Commander does
 
@@ -47,6 +48,7 @@ Download the [Shadow Phase A alpha package](https://github.com/PStarH/Commander/
 | [Architecture](/architecture) | Topologies, quality gates, and the V2 plane |
 | [Workflows and automation](/workflows) | Workflows, scheduler, webhooks, background jobs |
 | [Packages and SDKs](/packages) | Workspace packages, TypeScript/Python SDKs, plugins |
+| [SDK and API overview](/sdk) | SDKs, OpenAPI documents, and client usage |
 | [Deployment](/deployment) | Supported local installation and profiles |
 | [Operations and rollback](/operations) | Health checks, recovery, and rollback limits |
 | [Security and privacy](/security) | Authentication, sandboxing, governed writes, caveats |

@@ -16,13 +16,15 @@ code has no default of its own.
 | `JWT_SECRET` | HS256 signing key for access and refresh tokens. Minimum 32 characters; known public defaults are rejected. **Always required**, in every environment |
 | `COMMANDER_CAPABILITY_TOKEN_KEY` | HMAC key for API-surface capability tokens |
 | `COMMANDER_INTEGRITY_KEY` | HMAC key for WAL event signing. Distinct from `COMMANDER_AUDIT_CHAIN_KEY` |
+| `COMMANDER_EVIDENCE_JWKS_JSON` | Public JWKS string used by the API to verify Ed25519-signed action evidence. Required by the base Compose file (`${COMMANDER_EVIDENCE_JWKS_JSON:?}`) |
 | `ADMIN_PASSWORD` | Initial admin password. Minimum 16 characters; the default value is rejected |
 
 **Enforcement differs by environment.** In production, a missing or weak value for
 these aborts startup with `process.exit(1)`. Outside production, a missing value
 produces a warning and startup continues — except `JWT_SECRET`, which is always
 required. `ADMIN_PASSWORD` is required only in production or when
-`COMMANDER_API_REPLICAS > 1`.
+`COMMANDER_API_REPLICAS > 1`. `DATABASE_URL` (connecting as role `commander_app`)
+is strictly required by the API server's auth subsystem in all environments.
 
 Generate each secret with `openssl rand -hex 32`.
 

@@ -79,6 +79,7 @@ in one place.
 | `@commander/contracts` | Versioned shared types, error codes, state machine, event envelope, OpenAPI V1. Pure — no runtime imports |
 | `@commander/kernel` | Sole authority for durable run/step lifecycle: leases, idempotency, outbox, recovery, migrations |
 | `@commander/effect-broker` | The only sanctioned path for external writes. Two-phase `admit()` → `executeAdmitted()`, Ed25519 capability tokens, policy decisions, quotas, fencing, signed evidence |
+| `@commander/action-adapters` | External-mutation adapters (GitHub pull request, ServiceNow incident, Kubernetes rollback) with conformance test suite |
 | `@commander/worker-plane` | The only place a leased step executes. Fail-closed bootstrap |
 | `@commander/adapter-ops` | Compensation and reconciliation drain daemon |
 | `@commander/postgres-runtime` | Hardened `pg.Pool` factory: `sslmode=verify-full`, CA file, SPKI pinning |
@@ -95,10 +96,13 @@ in one place.
 2. Steps are leased by workers with capability-aware leasing.
 3. Any step that needs an external write must go through the effect broker,
    which verifies a capability token, binds the request hash, evaluates policy
-   and quotas, and records evidence.
+   and quotas, and records signed evidence.
 4. Consequential actions require approval; approvals are bound to the returned
    digest and policy snapshot.
-5. If a step fails after a partial write, compensation runs through
+5. Mutations execute through dedicated action adapters (`@commander/action-adapters`).
+   If response transport is interrupted, the adapter queries external systems
+   for existing outcomes before attempting retries, preventing duplicate mutations.
+6. If a step fails after a partial write, compensation runs through
    `adapter-ops` and is reconciled.
 
 ### Storage and durability

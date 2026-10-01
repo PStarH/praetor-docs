@@ -37,10 +37,9 @@ pnpm install --frozen-lockfile
 
 ### The API exits immediately on startup
 
-A required startup secret is missing. The API refuses to start without
-`COMMANDER_API_KEY`, `COMMANDER_MASTER_KEY`, `JWT_SECRET`,
-`COMMANDER_CAPABILITY_TOKEN_KEY`, `COMMANDER_INTEGRITY_KEY`, and
-`ADMIN_PASSWORD`. Generate each with `openssl rand -hex 32`.
+A required startup secret or the database connection is missing. The API refuses to start without `COMMANDER_API_KEY`, `COMMANDER_MASTER_KEY`, `JWT_SECRET`, `COMMANDER_CAPABILITY_TOKEN_KEY`, `COMMANDER_INTEGRITY_KEY`, `COMMANDER_EVIDENCE_JWKS_JSON`, and `ADMIN_PASSWORD`.
+
+Additionally, the authentication subsystem strictly requires PostgreSQL: if `DATABASE_URL` is absent, the API exits with `AUTH_DATABASE_URL_REQUIRED`. In containerized deployments, boot the PostgreSQL-backed stack using `-f docker-compose.yml -f docker-compose.v2.yml -f docker-compose.kernel-tls.yml --profile v2 up -d --build`.
 
 ### `StoreBackendConfigError` in production
 
@@ -81,27 +80,18 @@ name. A `kernel-ops` instance in probe-only wiring also returns `503` from
 `/ready` by design.
 
 ## Docker Compose
+ 
+### Container exits with AUTH_DATABASE_URL_REQUIRED
 
-### `docker compose up` starts only the API
-
-That is the default. The web console is behind a profile:
+The base `docker-compose.yml` deliberately injects no database DSN. Running `docker compose up` by itself causes the API container to fail fast on missing auth database configuration. Always use the `v2` profile with its accompanying files to launch PostgreSQL and verified TLS:
 
 ```bash
-docker compose --profile web up
+docker compose -f docker-compose.yml -f docker-compose.v2.yml -f docker-compose.kernel-tls.yml --profile v2 up -d --build
 ```
-
-### Port already in use
-
-The default ports are `4000` (API), `3000` (web), `3001` (Grafana), `9090`
-(Prometheus), `16686` (Jaeger), `5432` (Postgres, not published by default), and
-`6379` (Redis, not published by default). Port `3001` is Grafana and is not a
-Commander API port.
 
 ### Compose asks for variables that are not in `.env`
 
-The `api` service marks several secrets as required with `${VAR:?}`, so Compose
-fails fast when they are unset. Fill in the required startup credentials listed
-above.
+The Compose files mark several secrets as required with `${VAR:?}`, including `COMMANDER_EVIDENCE_JWKS_JSON`. Generate each secret and populate your `.env` file before starting Compose.
 
 ## CLI
 

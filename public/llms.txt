@@ -1,13 +1,12 @@
 # Commander
 
-Commander is a local-first multi-agent orchestration tool for engineering work.
-It runs on your machine, streams task activity, and lets you choose the level of
-automation appropriate for the task.
+Approval and recovery for Coding and DevOps agents, starting with GitHub pull requests.
+Commander preserves approved requests and execution state outside the agent, queries
+outcomes after response loss, and governs external mutations through Architecture V2.
 
-Commander is alpha. The current enterprise evaluation is Shadow Phase A, a
-customer-operated evaluation of historical observations against a pinned policy.
-It does not execute or authorize external actions. Live Kubernetes rollback is
-frozen.
+Commander is alpha. Two evaluation paths are available: the GitHub Pilot for governed
+writes and response-loss recovery, and Shadow Phase A for customer-operated historical
+evaluation. Live Kubernetes rollback is frozen.
 
 ## Public documentation
 
@@ -45,10 +44,12 @@ frozen.
 - Benchmarks: https://pstarh.github.io/commander-docs/benchmarks.html
 - Support and limits: https://pstarh.github.io/commander-docs/support.html
 
-### Enterprise evaluation
+### Enterprise evaluation & pilots
 
+- GitHub action pilot: https://github.com/PStarH/Commander/blob/master/docs/pilot/github/README.md
 - Enterprise Shadow Phase A: https://github.com/PStarH/Commander/blob/shadow-phase-a-0.1.0-alpha.20260910/docs/pilot/shadow/README.md
-- Shadow Phase A alpha package: https://github.com/PStarH/Commander/releases/tag/shadow-phase-a-0.1.0-alpha.20260910
+- Shadow Phase A release package: https://github.com/PStarH/Commander/releases/tag/shadow-phase-a-0.1.0-alpha.20260910
+- Enterprise readiness checklist: https://github.com/PStarH/Commander/blob/master/ENTERPRISE_READINESS.md
 
 ## Product boundary
 

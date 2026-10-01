@@ -2,39 +2,40 @@
 
 > This page is synchronized from the canonical English documentation. Español navigation is available; commands and product limits are identical in every locale.
 
-## Supported local deployment
+## Supported deployment
 
-Copy the environment template and set the required startup credentials plus at
-least one provider key, then start the local stack:
+The API server's authentication authorities (users, API keys, refresh tokens, auth failures, rate limits) are backed by PostgreSQL: `apps/api/src/authDb.ts` fails closed with `AUTH_DATABASE_URL_REQUIRED` when `DATABASE_URL` is absent. A bare `docker compose up` without PostgreSQL will fail on startup.
+
+For a lightweight local interface without Docker or PostgreSQL, run `pnpm gui` from the source checkout (starts the API in local development mode on port `4000` with SQLite storage, and the Vite dev server on port `5173`).
+
+### Complete V2 stack with PostgreSQL
+
+To boot the containerized deployment with its required PostgreSQL backend, kernel, and worker plane:
 
 ```bash
 cp .env.example .env
-# Required: COMMANDER_API_KEY, COMMANDER_MASTER_KEY, JWT_SECRET,
+# Required credentials in .env:
+# COMMANDER_API_KEY, COMMANDER_MASTER_KEY, JWT_SECRET,
 # COMMANDER_CAPABILITY_TOKEN_KEY, COMMANDER_INTEGRITY_KEY, ADMIN_PASSWORD.
 # Generate each secret with `openssl rand -hex 32`.
-# Also set at least one provider key (for example OPENAI_API_KEY).
-docker compose up
+# Also set COMMANDER_EVIDENCE_JWKS_JSON (public JWKS for action evidence verification)
+# and at least one provider key (for example OPENAI_API_KEY).
+
+# Generate database TLS certificates for the verified pool:
+sh deploy/docker/kernel-tls/generate-certificates.sh ./.commander/db-tls
+export COMMANDER_DATABASE_TLS_HOST_DIR="$PWD/.commander/db-tls"
+export COMMANDER_DATABASE_TLS_EXPECTED_SERVER_SPKI_SHA256=<printed by generator>
+
+docker compose -f docker-compose.yml -f docker-compose.v2.yml -f docker-compose.kernel-tls.yml --profile v2 up -d --build
 ```
 
-`docker compose up` with no profile starts **only the API**:
-
-- API — `http://localhost:4000`, bound to loopback (`127.0.0.1:4000:4000`)
-
-The base stack is explicitly local: `NODE_ENV=development`,
-`COMMANDER_KERNEL_ENABLED=0`, and `API_STORE_BACKEND=sqlite`. It needs no
-database and starts no kernel, which is why it can boot without PostgreSQL.
-
-The web console is behind a profile. Add it explicitly:
+Add `--profile web` to include the web console on port `3000`:
 
 ```bash
-docker compose --profile web up
+docker compose -f docker-compose.yml -f docker-compose.v2.yml -f docker-compose.kernel-tls.yml --profile v2 --profile web up -d --build
 ```
 
-- Web console — `http://localhost:3000` (nginx, reverse-proxying to the API),
-  also bound to loopback
-
-The web service waits for the API to pass its health check
-(`depends_on: condition: service_healthy`), so it starts in dependency order.
+The web service waits for the API to pass its health check (`depends_on: condition: service_healthy`).
 
 Check the API after startup:
 
