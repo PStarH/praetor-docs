@@ -55,18 +55,40 @@ Commander's security benchmark runner evaluates defenses against indirect prompt
 2. **Tool boundary:** Ed25519 / HMAC capability-token verification, argument structure validation, and trust tiers (`trusted` vs `untrusted` tools).
 3. **Output boundary:** Configured quality gates (`HALLUCINATION_CHECK`, `CONSISTENCY`, `COMPLETENESS`, `ACCURACY`, `SAFETY`) scanning for exfiltration patterns and unauthorized tool calls.
 
-### Chaos engineering & fault recovery
+### Reasoning Benchmarks vs. Infrastructure Resilience Benchmarks
 
-The Chaos 255 runner (`benchmarks/chaos-runner`) introduces systematic runtime perturbations:
+In academic and consumer AI, benchmarks like SWE-bench, WebArena, or GAIA measure **model reasoning ability**: whether an LLM can figure out the solution to a bug or browser task under ideal execution conditions.
 
-- **Provider faults:** Timeout injection, 429 rate limits, malformed JSON responses, and token truncation.
-- **Process faults:** Worker SIGKILL crashes mid-execution, database connection drops, and lease expiration.
-- **State faults:** Event-log corruption, replay gaps, and dead letter queue (DLQ) accumulation.
+In enterprise production infrastructure, **the primary obstacle to deploying autonomous agents is not reasoning IQ, but system resilience under failure**:
+- What happens when an LLM provider returns a 504 Gateway Timeout or 429 Rate Limit mid-mutation?
+- What happens when a tool times out after creating a remote resource?
+- What happens when a worker container is evicted by Kubernetes (OOMKilled / SIGKILL)?
+- What happens when an attacker injects indirect prompt injection into tool outputs?
+- What happens when network latency causes a split-brain condition between concurrent workers?
 
-The harness validates that:
-- Checkpoints survive worker termination (<5s recovery target).
-- Circuit breakers transition reliably (`CLOSED` → `OPEN` → `HALF-OPEN`) on provider errors.
-- Unresolved steps transition to explicit compensation or DLQ with full diagnostic context.
+Commander's benchmark infrastructure explicitly prioritizes **fault injection, recovery determinism, and defensive robustness**. Rather than claiming model-level intelligence, Commander proves that the surrounding execution plane guarantees idempotency, cryptographic verification, and state recovery when upstream models and downstream networks fail.
+
+### Chaos engineering & fault recovery (Chaos 255)
+
+The Chaos 255 runner (`benchmarks/chaos-runner`) introduces systematic runtime perturbations across **255 test cases** (200 synthetic + 55 mutation scenarios) anchored in 47 real-world production incidents, exercising 641 mock tools and 802 agent roles with 496 assertions:
+
+- **4-Layer Fault Hierarchy:**
+  - **L1 (LLM Faults):** Provider timeout injection, 429 rate limits, malformed JSON streaming, token truncation, and failover latency.
+  - **L2 (Tool Faults):** 10 distinct failure modes (HTTP 5xx, HTTP 4xx, disk full, OOM, process crash, state corruption, dependency unavailable, clock drift, auth expiry, socket timeout).
+  - **L3 (System Faults):** Monotone step lease expiry, PostgreSQL connection loss, SQLite WAL lock contention, and worker SIGKILL termination mid-flight.
+  - **L4 (Tenant & Concurrency Faults):** Multi-tenant blast radius containment, noisy-neighbor rate limit throttling, and cross-tenant isolation fuzzing.
+
+- **3 Mutation Axes:**
+  - **Telemetry Gap (Fog of War):** Partial observation loss, missing execution receipts, and ambiguous network responses.
+  - **Stochastic / Gray Failure:** Intermittent socket hangs and high-percentile tail latency spikes.
+  - **Security-Stability Convergence:** Simultaneous prompt injection attacks during active runtime recovery.
+
+- **Core Resilience Coverage:**
+  - **Circuit Breaking (255 cases):** Automatic 3-state transition (`CLOSED` → `OPEN` → `HALF-OPEN`) on provider degradation.
+  - **Governed Rollback & SAGA (164 cases):** Registered compensation execution when partial mutations fail.
+  - **Dead Letter Queue (139 cases):** Append-only NDJSON capture with 7 failure taxonomy buckets and replay verification.
+  - **Timeout & Lease Handling (128 cases):** Safe lease expiration and new worker recovery without duplicate execution.
+  - **Idempotency & Preflight (34 cases):** Remote state querying before retry to prevent duplicate mutations.
 
 ## Reliability targets (CI baselines)
 
