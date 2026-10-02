@@ -1,7 +1,5 @@
 import { defineConfig, type DefaultTheme } from 'vitepress'
 
-const locales = ['zh', 'ja', 'ko', 'es', 'fr'] as const
-
 function prefix(locale: string, path: string) {
   return locale === 'en' ? path : `/${locale}${path}`
 }
@@ -75,6 +73,82 @@ function theme(locale: string): DefaultTheme.Config {
   }
 }
 
+function themeZh(): DefaultTheme.Config {
+  const link = (path: string) => prefix('zh', path)
+  return {
+    nav: [
+      { text: '概览', link: link('/') },
+      { text: '快速入门', link: link('/getting-started') },
+      { text: '命令行 (CLI)', link: link('/cli') },
+      { text: 'HTTP API', link: link('/api') },
+      { text: 'MCP 协议', link: link('/mcp') },
+      { text: '安全合规', link: link('/security') },
+    ],
+    sidebar: [
+      {
+        text: '开始使用',
+        items: [
+          { text: '产品全貌概览', link: link('/') },
+          { text: '快速入门指南', link: link('/getting-started') },
+        ],
+      },
+      {
+        text: '参考手册',
+        items: [
+          { text: 'CLI 命令行参考', link: link('/cli') },
+          { text: 'HTTP API 接口', link: link('/api') },
+          { text: '环境变量与配置', link: link('/configuration') },
+          { text: '内置工具与权能分级', link: link('/tools') },
+          { text: '模型供应商与容灾', link: link('/providers') },
+          { text: 'MCP 协议支持', link: link('/mcp') },
+          { text: 'Web 可视化控制台', link: link('/web-console') },
+          { text: '模块包生态与架构', link: link('/packages') },
+          { text: 'Python / TS SDK', link: link('/sdk') },
+        ],
+      },
+      {
+        text: '核心架构',
+        items: [
+          { text: '架构设计与 V2 控制面', link: link('/architecture') },
+          { text: '工作流编排与拓扑', link: link('/workflows') },
+        ],
+      },
+      {
+        text: '部署运维',
+        items: [
+          { text: '生产部署方案', link: link('/deployment') },
+          { text: '运维操作与事务回滚', link: link('/operations') },
+          { text: '故障排查与诊断指南', link: link('/troubleshooting') },
+        ],
+      },
+      {
+        text: '信任与安全',
+        items: [
+          { text: '安全体系与隐私保护', link: link('/security') },
+          { text: '性能基准与开销评测', link: link('/benchmarks') },
+          { text: '支持策略与诚实边界', link: link('/support') },
+        ],
+      },
+    ],
+    socialLinks: [{ icon: 'github', link: 'https://github.com/PStarH/Commander' }],
+    editLink: {
+      pattern: 'https://github.com/PStarH/commander-docs/edit/master/:path',
+      text: '在 GitHub 上编辑此页',
+    },
+    lastUpdated: {
+      text: '最后更新于',
+    },
+    docFooter: {
+      prev: '上一篇',
+      next: '下一篇',
+    },
+    footer: {
+      message: '采用 MIT 许可证开源。',
+      copyright: '版权所有 © 2026 Commander 贡献者',
+    },
+  }
+}
+
 export default defineConfig({
   title: 'Commander',
   description: 'Approval and recovery for Coding and DevOps agents, starting with GitHub pull requests.',
@@ -86,11 +160,35 @@ export default defineConfig({
   themeConfig: theme('en'),
   locales: {
     root: { label: 'English', lang: 'en-US', themeConfig: theme('en') },
-    ...Object.fromEntries(locales.map((locale) => [locale, {
-      label: locale.toUpperCase(),
-      lang: locale,
-      link: `/${locale}/`,
-      themeConfig: theme(locale),
-    }])),
+    zh: {
+      label: '简体中文',
+      lang: 'zh-CN',
+      link: '/zh/',
+      themeConfig: themeZh(),
+    },
+    ja: {
+      label: '日本語',
+      lang: 'ja-JP',
+      link: '/ja/',
+      themeConfig: theme('ja'),
+    },
+    ko: {
+      label: '한국어',
+      lang: 'ko-KR',
+      link: '/ko/',
+      themeConfig: theme('ko'),
+    },
+    es: {
+      label: 'Español',
+      lang: 'es-ES',
+      link: '/es/',
+      themeConfig: theme('es'),
+    },
+    fr: {
+      label: 'Français',
+      lang: 'fr-FR',
+      link: '/fr/',
+      themeConfig: theme('fr'),
+    },
   },
 })

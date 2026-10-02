@@ -26,7 +26,7 @@ PAGES = [
     "workflows.md",
 ]
 LOCALES = {
-    "zh": "简体中文",
+    # zh is maintained manually as a fully localized first-class translation
     "ja": "日本語",
     "ko": "한국어",
     "es": "Español",

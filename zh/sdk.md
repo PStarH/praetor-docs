@@ -1,46 +1,41 @@
-# SDKs and API
+# SDK 与 API 集成指南
 
-> This page is synchronized from the canonical English documentation. 简体中文 navigation is available; commands and product limits are identical in every locale.
+## 核心交互形态概览 (Interfaces)
 
-## Interfaces
+| 交互界面 | 核心入口 | 成熟度状态 | 适用定位 |
+| --- | --- | --- | --- |
+| 本地命令行 (Local CLI) | `commander run <task>` | **正式支持 (Primary Supported)** | 官方主推的本地多智能体审查与执行界面 |
+| 本地 HTTP API | `http://localhost:4000` | **本地正式支持** | 单机与私有化环境的 Express 5 API 接口 |
+| 企业网关 `/v1` API | `POST /v1/runs` | **Alpha 预览** | 面向生产集成的 Action Gateway 端点 |
+| TypeScript SDK | `@commander/sdk` | **Alpha 预览** | 官方 TypeScript / Node.js 客户端开发包 |
+| Python SDK | `commander-ai`（代码中 `import commander`） | **Alpha 预览** | 官方 Python (≥ 3.10) 客户端开发包 |
+| MCP 标准服务端 | `commander-mcp-server` | **Alpha 预览** | 基于 Stdio JSON-RPC 暴露受治理工具的标准协议服务 |
 
-| Interface | Entry point | Status |
-| --- | --- | --- |
-| Local CLI | `commander run <task>` | Primary supported interface |
-| HTTP API | `http://localhost:4000` | Supported locally |
-| Gateway `/v1` API | `POST /v1/runs` | Alpha |
-| TypeScript SDK | `@commander/sdk` | Alpha |
-| Python SDK | `commander-ai` (import `commander`) | Alpha |
-| MCP server | `commander-mcp-server` | Alpha |
+- 完整命令行手册详见 [CLI 参考手册](/zh/cli)。
+- 全量端点列表与认证说明详见 [HTTP API 接口规范](/zh/api)。
 
-Full command list: [CLI reference](/cli). Endpoint list: [HTTP API](/api).
+## OpenAPI 规范契约导出 (OpenAPI Document)
 
-## OpenAPI document
-
-The running server publishes its OpenAPI 3.1 document at:
+运行中的 API 服务会在以下标准端点对外发布其 OpenAPI 3.1 契约定义：
 
 ```bash
 curl http://localhost:4000/v1/openapi.json
 ```
 
-The standard profile also exposes `http://localhost:4000/api/openapi.json`,
-which is marked deprecated and returns `410 Gone` in the enterprise profile.
-There is no plain `/openapi.json` path.
+在标准画像（Standard Profile）下，服务还会暴露兼容路由 `http://localhost:4000/api/openapi.json`（该路由已标记废弃，在企业企业版画像下直接返回 `410 Gone`）。请注意：系统不存在根路径 `/openapi.json`。
 
-## TypeScript SDK
+## TypeScript SDK 集成
 
-`@commander/sdk` ships two clients:
+`@commander/sdk` 提供了两套客户端实现：
 
-- `CommanderGatewayClient` — HTTP client for the `/v1` Gateway API. Needs no
-  local runtime. This is the current server path.
-- `CommanderClient` — in-process client that dynamically imports
-  `@commander/core`. Alpha; it can initialize local state and configured tools.
+- `CommanderGatewayClient`：专为生产环境设计的标准 HTTP 客户端，直接对接 `/v1` 网关端点。无需在调用端引入本地运行时或数据库依赖，是推荐的服务端集成路径。
+- `CommanderClient`：进程内客户端，会动态加载 `@commander/core` 并在本地直接初始化状态与工具链（处于 Alpha 阶段）。
 
 ```typescript
 import { CommanderGatewayClient } from '@commander/sdk';
 
 const client = new CommanderGatewayClient({
-  baseUrl: process.env.COMMANDER_API_URL!,
+  baseUrl: process.env.COMMANDER_API_URL || 'http://127.0.0.1:4000',
   apiKey: process.env.COMMANDER_API_KEY!,
 });
 
@@ -51,11 +46,14 @@ const result = await client.submitRun({
 });
 ```
 
-## Python SDK
+## Python SDK 集成
 
-The Python package contains a legacy client and a Gateway client. Use the
-Gateway client (`CommanderGatewayClient`) for the current server path: it reads
-`COMMANDER_API_URL` and defaults to `http://127.0.0.1:4000`.
+Python 官方开发包通过 PyPI 发布，支持 Python 3.10 及以上环境：
+```bash
+pip install commander-ai
+```
+
+在代码中统一通过 `CommanderGatewayClient` 进行调用。该客户端会自动读取环境变量 `COMMANDER_API_URL`（缺省连接到 `http://127.0.0.1:4000`）：
 
 ```python
 from commander import CommanderGatewayClient
@@ -63,14 +61,9 @@ from commander import CommanderGatewayClient
 client = CommanderGatewayClient(base_url="http://127.0.0.1:4000")
 ```
 
-The legacy `CommanderClient` / `CommanderClientSync` pair does **not** read
-`COMMANDER_API_URL`; it still defaults to port `3001`, which is **not** a
-Commander API port — that port belongs to Grafana in the observability profile.
-Always pass an explicit `base_url` when using the legacy client.
+> [!WARNING]
+> 旧版遗留客户端 `CommanderClient` / `CommanderClientSync` **不会**自动读取 `COMMANDER_API_URL`，且历史实现中默认指向了监控端口。若因历史原因必须调用旧版客户端，请务必显式传入 `base_url` 参数，或推荐全面迁移至 `CommanderGatewayClient`。
 
-## Boundaries
+## 系统集成演进与边界 (Boundaries)
 
-Treat legacy API material as a compatibility-only implementation detail, not a
-public integration contract. Some product routes are also mounted under a legacy
-versioned alias for backward compatibility; those aliases are not documented
-here and are not an integration surface. Use the `/v1` Gateway instead.
+请将旧版非版本化或内部 API 视为历史兼容层，而非长期稳定的公开外部集成契约。部分产品路由虽然挂载了历史版本号别名以防破坏旧系统，但这些别名并未包含在对外公开支持的集成标准中。企业系统在对接多智能体编排与写操作治理时，请统一基于 `/v1` 标准企业网关展开集成。

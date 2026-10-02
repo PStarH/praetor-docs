@@ -1,25 +1,22 @@
-# Quick start
+# 快速入门指南
 
-> This page is synchronized from the canonical English documentation. 简体中文 navigation is available; commands and product limits are identical in every locale.
+## 环境依赖与前置条件
 
-## Prerequisites
+- **Node.js 22.x** 与 **pnpm 9**（可通过 Corepack 自动锁定指定版本）。
+- 首次体验模拟演示环境**无需任何大模型提供商 API Key 凭据**。
 
-- **Node.js 22.x** and **pnpm 9** (Corepack selects the pinned version).
-- No provider credentials are needed for the first simulated demo.
+企业客户建议首先阅读 [Shadow Phase A（影子评估指南）](https://github.com/PStarH/Commander/blob/shadow-phase-a-0.1.0-alpha.20260910/docs/pilot/shadow/README.md)，该模式可在完全不产生任何外部写副作用的前提下回放评估历史真实调用。
 
-Enterprise customers should start with [Shadow Phase A](https://github.com/PStarH/Commander/blob/shadow-phase-a-0.1.0-alpha.20260910/docs/pilot/shadow/README.md),
-which evaluates historical observations without external actions.
+## 选择你的首次体验路径
 
-## Choose your first experience
-
-| What you want to do | Path | Credentials needed |
+| 体验目标 | 推荐路径 | 所需凭据与前置准备 |
 | --- | --- | --- |
-| **Experience multi-agent deliberation & quality gates** | [1. Simulated demo](#_1-install-and-run-the-simulated-demo) | None (in-memory simulation) |
-| **Review real Git diffs with LLM-as-a-judge** | [2. Provider read-only review](#_2-provider-backed-read-only-review-recommended-first-trial) | 1 API Key (OpenAI / Anthropic / DeepSeek) |
-| **Test network response-loss recovery & idempotency** | [3. GitHub pilot offline tests](#_3-github-action-pilot-governed-writes-recovery) | None (mocked offline harness) |
-| **Launch the visual control center** | [4. Local interfaces](#_4-local-interfaces) | None (`pnpm gui` starts local dev console) |
+| **体验多智能体审议与质量门禁** | [1. 轻量化模拟演示](#_1-安装并运行模拟演示) | 零凭据（纯内存 Mock 模拟） |
+| **真实审查 Git 代码变更 (LLM 裁判)** | [2. 大模型只读代码审查](#_2-基于真实模型的只读代码审查-推荐首选体验) | 1 个大模型 API Key (OpenAI / Anthropic / DeepSeek) |
+| **验证网络丢包故障自愈与幂等性** | [3. GitHub Action 试点离线测试](#_3-github-action-试点受治理写操作与故障恢复) | 零凭据（离线契约测试套件） |
+| **启动可视化控制大屏** | [4. 本地可视化界面](#_4-本地可视化界面) | 零凭据（`pnpm gui` 启动本地开发控制台） |
 
-## 1. Install and run the simulated demo
+## 1. 安装并运行模拟演示
 
 ```bash
 git clone https://github.com/PStarH/Commander.git
@@ -33,59 +30,50 @@ pnpm exec tsx packages/core/src/cliEntry.ts doctor --offline
 pnpm demo:l4-a
 ```
 
-`doctor --offline` checks local prerequisites without contacting a provider.
-`demo:l4-a` uses simulated in-memory dependencies and loopback servers: no
-provider call, no external write. The clone, install, and build still write to
-your checkout, dependency cache, and build output.
+- `doctor --offline` 在完全不连接外部提供商网络的前提下检查本地运行环境依赖。
+- `demo:l4-a` 启动内置内存依赖与环回模拟服务：无外部大模型调用，无真实外部写入。clone、install 与 build 仅写入本地检出目录、依赖缓存与构建产物。
+- 该路径仅作为本地开发演练与逻辑验证，不作为生产就绪性背书。
 
-This path is development/demo evidence only. It is not a published-package
-install, an E1 governed-write proof, or evidence of production readiness.
+## 2. 基于真实模型的只读代码审查 (推荐首选体验)
 
-## 2. Provider-backed read-only review (recommended first trial)
-
-For your first real-provider test, use the bounded read-only code review rather than general autonomous execution. The model receives no execution tools, preventing unintended commands, file edits, or external writes:
+进行首次真实提供商测试时，强烈推荐使用严格受限的只读代码审查能力，而非开放自主执行权限。该命令下模型**不挂载任何执行工具**，从根本上防止非预期的 Shell 命令、文件修改或外部写变更：
 
 ```bash
-# Choose one provider explicitly
+# 显式指定并导出所选提供商的 API Key
 export OPENAI_API_KEY=sk-...
-pnpm exec tsx packages/core/src/cliEntry.ts review \
-  --commit HEAD --real --provider=openai
+pnpm exec tsx packages/core/src/cliEntry.ts review   --commit HEAD --real --provider=openai
 ```
 
-This command reads the selected Git diff and local review guidelines, sends at most 15,000 diff characters to the selected provider, and caps the response at 4,000 tokens and 8 MiB. Transport aborts after 120 seconds. Read [Security and privacy](/security) before sending repository material.
+该命令读取当前 Git 选定提交的 Diff 与本地审查规范，向指定模型发送最多 15,000 字符的 Diff 内容，并严格将响应限制在 4,000 Token 及 8 MiB 大小内。网络传输超过 120 秒自动超时熔断中止。在发送仓库真实代码前，请先阅读 [安全体系与隐私保护](/zh/security)。
 
-## 3. GitHub action pilot (governed writes & recovery)
+## 3. GitHub Action 试点（受治理写操作与故障恢复）
 
-To inspect the governed write lifecycle (propose → approve → inspect → recover) without external credentials, run the offline contract tests:
+要在零外部凭据的前提下检视受治理的写操作全生命周期（提议 propose → 审批 approve → 检查 inspect → 恢复 recover），请执行离线契约验证：
 
 ```bash
 pnpm test:github:offline
 pnpm demo:github --help
 ```
 
-See the [GitHub pilot guide](https://github.com/PStarH/Commander/blob/master/docs/pilot/github/README.md) for running against a configured Enterprise Gateway.
+若需在配置好的 Enterprise Gateway 上体验完整流程，请参阅 [GitHub 试点实战指南](https://github.com/PStarH/Commander/blob/master/docs/pilot/github/README.md)。
 
-## 4. Local interfaces
+## 4. 本地可视化界面
 
-| Interface | Command | URL |
+| 界面工具 | 启动命令 | 本地访问地址 |
 | --- | --- | --- |
-| Web console (dev) | `pnpm gui` | `http://localhost:5173` (API on `4000`) |
-| Web console (Compose) | `docker compose --profile web up` | `http://localhost:3000` |
-| API | any of the above | `http://localhost:4000` |
+| Web 控制台 (开发态) | `pnpm gui` | `http://localhost:5173`（API 服务监听在 `4000` 端口） |
+| Web 控制台 (Docker Compose) | `docker compose --profile web up` | `http://localhost:3000` |
+| HTTP API 服务 | 伴随上述任一命令启动 | `http://localhost:4000` |
 
-`pnpm gui` starts the API and the Vite dev server from your checkout. In
-development the API defaults to SQLite and only warns about missing secrets; run
-it with a production environment and it instead requires a durable store plus
-`JWT_SECRET` and `ADMIN_PASSWORD`.
+`pnpm gui` 会同时拉起 API 服务与前端 Vite 开发服务器。在开发环境下，API 默认使用轻量 SQLite，仅对缺失的敏感密钥输出警告；但在生产环境下，服务强制要求配置持久化数据库以及 `JWT_SECRET` 和 `ADMIN_PASSWORD`。
 
-Grafana, when the `observability` profile is enabled, uses port `3001`. It is
-not a Commander API port.
+启用 `observability` 监控剖面时，Grafana 默认监听在 `3001` 端口，注意这并不是 Commander API 的端口。
 
-## Next steps
+## 下一步
 
-- [CLI reference](/cli) — every command and flag.
-- [HTTP API](/api) — endpoints, authentication, and the `/v1` Gateway.
-- [Configuration](/configuration) — environment variables and storage backends.
-- [Deployment](/deployment) for local configuration and health checks.
-- [Security and privacy](/security) before connecting external systems.
-- [Support and limits](/support) for the current product boundary.
+- [CLI 命令行参考](/zh/cli) — 查看每个命令与参数细节。
+- [HTTP API 接口](/zh/api) — 端点规范、鉴权机制与 `/v1` Gateway 协议。
+- [环境变量配置](/zh/configuration) — 环境变量字典与后端存储选择。
+- [生产部署方案](/zh/deployment) — 本地与容器化部署指南与健康检查。
+- [安全体系与隐私](/zh/security) — 接入外部系统前必读的安全规范。
+- [支持策略与诚实边界](/zh/support) — 了解当前系统的真实能力与边界声明。

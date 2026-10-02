@@ -1,134 +1,134 @@
 # Commander
 
-> This page is synchronized from the canonical English documentation. 简体中文 navigation is available; commands and product limits are identical in every locale.
+面向 Coding 与 DevOps AI 智能体的安全审批与状态恢复平面
 
-Approval and Recovery Plane for Coding & DevOps AI Agents
+*杜绝重复外部变更 · 网络丢包与超时安全恢复 · 密码学签名存证链*
 
-*Prevent duplicate mutations · Recover from dropped network responses · Cryptographically signed evidence*
+自主智能体正在迅速接管关键生产任务：修改代码库、提交 Pull Request、运行数据库迁移以及配置云端基础设施。然而，当智能体发起外部写操作时，**网络超时、连接断开或节点崩溃会使系统陷入无法确认的不确定状态：该写入究竟是否已经发生？被执行了几次？提交了什么载荷？**
 
-Autonomous agents are rapidly taking on mission-critical workflows: modifying codebases, opening pull requests, running database migrations, and provisioning cloud infrastructure. But when an agent makes an external write, **a network timeout, dropped socket, or worker restart leaves the system in an ambiguous state: did the write happen, how many times, and with what payload?**
+盲目重试会导致重复的 PR、多次重复扣款/计费或底层状态污染；而直接放弃又会留下悬空的外部孤立副作用。
 
-Blindly retrying creates duplicate PRs, double transactions, and corrupted state. Simply giving up leaves orphaned mutations.
+Commander 从系统底层解决了这一经典分布式系统难题。它在智能体外部独立记录审批后的请求与其执行状态，执行 **Preflight（执行前排重查询）** 来探测外部实体是否已生效；当证据模糊存疑时，系统明确停止在 `UNKNOWN` 状态并告警，坚决杜绝盲目猜测或重复执行。
 
-Commander solves this fundamental distributed systems problem. It records the approved request and its execution state outside the agent, performs **preflight query-before-retry** to detect whether a mutation already took effect, and stops in an explicit `UNKNOWN` state when the evidence is ambiguous rather than making dangerous assumptions.
+<p align="center">
+  <img src="/commander-overview-zh.png" alt="Commander 核心架构与安全治理全景" width="100%" />
+</p>
+
+<details>
+<summary><b>查看纯文本架构示意图 (ASCII)</b></summary>
 
 ```
    ┌────────────────────────────────────────────────────────┐
-   │        AI Agent Frameworks & LLMs                      │
+   │             AI 智能体框架与大语言模型                  │
    │  Claude Code · Cursor · OpenAI Agents · LangGraph      │
    └──────────────────────────┬─────────────────────────────┘
-                              │ 1. Propose Mutation (No direct write tokens)
+                              │ 1. 提议变更（智能体不直接持有写权限凭据）
                               ▼
    ┌────────────────────────────────────────────────────────┐
-   │            Commander Control Plane                     │
+   │             Commander 治理与恢复控制面                 │
    │  ┌─────────────────────────┐ ┌──────────────────────┐  │
-   │  │ Preflight Idempotency   │ │ Two-Phase Human Gate │  │
+   │  │ 重试前预检 (幂等性保证) │ │ 人类双阶段密码学审批 │  │
    │  │ (Query-Before-Retry)    │ │ (Cryptographic Hash) │  │
    │  └─────────────────────────┘ └──────────────────────┘  │
    │  ┌─────────────────────────┐ ┌──────────────────────┐  │
-   │  │ Durable Postgres Kernel │ │ Tamper-Evident Audit │  │
-   │  │ (Crash-safe step lease) │ │ (Ed25519 Signed JWS) │  │
+   │  │ 持久化 PostgreSQL 内核  │ │ 防篡改数字签名存证   │  │
+   │  │ (崩溃安全 Step Lease)   │ │ (Ed25519 Signed JWS) │  │
    │  └─────────────────────────┘ └──────────────────────┘  │
    └──────────────────────────┬─────────────────────────────┘
-                              │ 2. Governed Write & Auto-Compensation
+                              │ 2. 受治理执行与自动事务补偿
                               ▼
    ┌────────────────────────────────────────────────────────┐
-   │       External Infrastructure & Version Control        │
-   │   GitHub (PRs/Issues) · Kubernetes · Cloud APIs        │
+   │             外部基础设施与目标系统                     │
+   │    GitHub (PR/Issue) · Kubernetes · 云端基础资源       │
    └────────────────────────────────────────────────────────┘
 ```
 
-Read the technical essay: [Why retrying an AI agent's external action is unsafe](https://github.com/PStarH/Commander/blob/master/docs/content/why-retrying-ai-agent-external-actions-is-unsafe.md).
+</details>
 
-## The Distributed Systems Problem for AI Agents
+深入阅读工程长文：[为什么智能体的外部写操作不能盲目重试？](https://github.com/PStarH/Commander/blob/master/docs/content/why-retrying-ai-agent-external-actions-is-unsafe.md)。
 
-| Challenge | Naive Agent Execution | Commander Governed Action |
+## AI 智能体面临的分布式系统挑战
+
+| 核心挑战 | 传统智能体朴素执行 | Commander 受治理执行 |
 | --- | --- | --- |
-| **Response Loss** (e.g. 504 Gateway Timeout during PR creation) | Re-plans or retries blindly → **Duplicate PRs & mutations** | **Preflight Query-Before-Retry**: Checks remote outcome by action identity before retry |
-| **Worker Crash Mid-Task** | State lost or restarted from zero with orphaned external side effects | **Durable PostgreSQL Kernel**: Step lease reclaims; new worker resumes safely |
-| **Credential Exposure** | Agent process directly holds write API keys / GitHub tokens | **Strict Boundary**: Agent only has *propose* authority; write tokens stay in worker plane |
-| **Human Sign-Off** | Text-based prompt or unverified button | **Cryptographic Binding**: Approval locks immutable request digest & policy snapshot |
-| **Audit & Forensics** | Ephemeral console text | **Ed25519 Evidence**: JWS signed receipts for independent verification |
-| **Rollback / Undo** | Ad-hoc scripts or impossible | **Governed Compensation**: Requires separate authorization binding and dedicated receipt |
+| **响应丢失**（如创建 PR 时遭遇 504 网关超时） | 重新规划或盲目重试 → **产生重复 PR 与脏变更** | **Preflight 执行前排重**：基于操作唯一身份先查后试，杜绝重复写入 |
+| **节点中途崩溃** | 状态丢失或归零重跑，留下不可控的外部副作用 | **持久化 PostgreSQL 内核**：租约安全回收，新 Worker 无缝接管与恢复 |
+| **凭据暴露风险** | 智能体进程直接持有写权限 API Token / SSH 密钥 | **严格职责边界**：智能体仅有提议（Propose）权，真实凭据隔离在受控环境 |
+| **人类审批确认** | 纯文本确认或无约束的按钮点击 | **密码学参数绑定**：审批不可变锁定请求内容摘要与策略快照 |
+| **审计与存证归因** | 终端易失日志，事后不可归因 | **Ed25519 签名存证**：RFC 7515 JWS 签名收据，支持独立离线验证 |
+| **回滚与撤销** | 依赖临时补丁脚本，常常无法安全回滚 | **受治理的补偿机制**：要求独立的人类授权绑定与专属收据 |
 
-## ⚡ 4 Ways to Experience Commander (Under 60 Seconds)
+## ⚡ 60 秒内上手体验 Commander 的 4 种方式
 
-| Path | Command | What It Exercises |
+| 体验路径 | 执行命令 | 验证的核心能力 |
 | --- | --- | --- |
-| **1. Zero-Dependency Demo** | `pnpm demo:l4-a` | Multi-agent deliberation, 5 quality gates, in-memory execution (no API key needed) |
-| **2. Real Provider Code Review** | `pnpm exec tsx packages/core/src/cliEntry.ts review --commit HEAD --real --provider=openai` | Read-only analysis of your Git diff across configured quality gates |
-| **3. Interactive Web Console** | `pnpm gui` | Live control room on `:5173`: agent topology, DLQ inspection, and approval queue |
-| **4. Governed Action Offline Test** | `pnpm test:github:offline` | 130 offline contract assertions for idempotency & response-loss recovery |
+| **1. 零依赖轻量演示** | `pnpm demo:l4-a` | 多智能体协作决策、5 大质量门禁、纯内存执行（无需配置 API Key） |
+| **2. 真实大模型代码审查** | `pnpm exec tsx packages/core/src/cliEntry.ts review --commit HEAD --real --provider=openai` | 针对你的 Git 变更进行只读审查，通过配置的质量门禁输出专业报告 |
+| **3. 交互式 Web 控制台** | `pnpm gui` | 在本地 `:5173` 启动控制台：查看拓扑流向、DLQ 死信队列与人工审批流 |
+| **4. 受治理动作离线测试** | `pnpm test:github:offline` | 130 项离线契约断言，验证幂等排重与网络丢包恢复逻辑 |
 
-### 📦 4-Line Integration (Python SDK)
+### 📦 4 行代码无缝接入（Python SDK）
 
 ```python
 from commander_sdk import CommanderClient
 
-# Connect to the Commander execution control plane
+# 连接至 Commander 安全执行控制面
 client = CommanderClient(base_url="http://localhost:4000")
 
-# Dispatch a mutation with preflight query-before-retry and cryptographic approval
+# 发起带有 Preflight 排重与密码学审批保障的安全变更任务
 run = client.runs.create(
-    task="Review auth module diff and propose hotfix PR",
+    task="审查认证模块 diff 并提议热修复 PR",
     require_approval=True
 )
-print(f"Run {run.run_id} initiated; approval required: {run.approval_required}")
+print(f"任务 {run.run_id} 已启动；是否等待人工审批: {run.approval_required}")
 ```
 
-## Core Architecture & Capabilities
+## 核心架构与系统能力
 
-Commander provides a robust execution fabric that separates agent reasoning from external side-effects:
+Commander 构建了坚固的执行织网，将智能体的不受信推理与底层生产变更彻底解耦：
 
-- **Deliberation Engine**: Classifies incoming tasks by complexity and automatically selects one of five canonical execution topologies (`SINGLE`, `CHAIN`, `DISPATCH`, `ORCHESTRATOR`, `REVIEW`).
-- **25 LLM Providers with Auto-Failover**: Seamlessly fallback across OpenAI, Anthropic, Gemini, Groq, Mistral, Ollama, DeepSeek, and 18 others with unified configuration. See [Providers](/providers).
-- **18 Built-in Tools & Native MCP**: Built-in shell, filesystem, and Git tools with capability trust tiers, plus full Model Context Protocol (stdio MCP) server support. See [Tools](/tools) and [MCP](/mcp).
-- **Multi-Layer Quality Verification**: Configurable evaluation pipeline assessing hallucination, consistency, completeness, accuracy, and safety before mutations take effect.
-- **Distributed Durability**: Circuit breakers, dead-letter queues (DLQ), saga compensation, and PostgreSQL-backed crash-safe step leasing.
-- **Governed Mutation Plane**: Capability tokens, policy decisions, cryptographic human approval binding, and Ed25519-signed evidence receipts.
+- **任务审议引擎 (Deliberation Engine)**: 根据任务类型与复杂度，自动推导并匹配最佳执行拓扑架构（`SINGLE`, `CHAIN`, `DISPATCH`, `ORCHESTRATOR`, `REVIEW`）。
+- **25+ 主流大模型提供商与自动故障转移**: 统一配置，在 OpenAI、Anthropic、Gemini、Groq、Mistral、Ollama、DeepSeek 等之间无缝切换。详见 [模型供应商](/zh/providers)。
+- **18 个内置系统工具与原生 MCP 支持**: 内置 Shell、文件系统、Git 等多级信任工具，全量支持标准 Model Context Protocol (stdio MCP)。详见 [工具体系](/zh/tools) 与 [MCP 协议](/zh/mcp)。
+- **多层质量验证门禁 (Quality Gates)**: 涵盖幻觉检测、跨智能体一致性、任务完整性、事实准确性与注入安全性评估，严格把关。
+- **分布式高可用与容灾内核**: 熔断器、7 大类死信队列 (DLQ)、Saga 事务补偿以及 PostgreSQL 崩溃安全步骤租赁。
+- **受治理的写操作控制面**: 权能令牌 (Capability Tokens)、策略引擎、密码学人机审批绑定与 Ed25519 签名存证收据。
 
-## Enterprise evaluation & pilots
+## 企业试点评估路径
 
-Commander is alpha. Two evaluation paths are available:
+Commander 当前处于 **Alpha** 阶段，提供两条严密的评估路径：
 
-- **GitHub Pilot (governed actions & recovery):** A narrow pilot for same-repository PR creation from existing branches. An agent proposes the action; a human approves the exact request. When network responses drop, recovery queries GitHub using persisted action identity rather than creating duplicate PRs. See the [GitHub pilot guide](https://github.com/PStarH/Commander/blob/master/docs/pilot/github/README.md).
-- **Shadow Phase A (historical evaluation):** Customer-operated evaluation of historical observations against a pinned policy. It executes no external actions. Download the [Shadow Phase A release package](https://github.com/PStarH/Commander/releases/tag/shadow-phase-a-0.1.0-alpha.20260910).
-- **Enterprise Pilot Readiness:** An explicit checklist of security, multi-tenancy, SLO, and data governance controls with code and baseline evidence pointers. Review [ENTERPRISE_READINESS.md](https://github.com/PStarH/Commander/blob/master/ENTERPRISE_READINESS.md) before production pilots.
+- **GitHub 试点（受治理动作与故障恢复）：** 聚焦于基于同仓库现有分支创建 PR。智能体提出提议，人类审批确切请求。当遭遇网络丢包时，系统通过持久化的动作唯一身份查询 GitHub，而非创建重复 PR。详见 [GitHub 试点指南](https://github.com/PStarH/Commander/blob/master/docs/pilot/github/README.md)。
+- **Shadow Phase A（历史影子评估模式）：** 企业本地运行的只读评估模式，对照固定的策略版本重放历史调用观测，不执行任何外部变更。请下载 [Shadow Phase A 发行包](https://github.com/PStarH/Commander/releases/tag/shadow-phase-a-0.1.0-alpha.20260910)。
+- **企业试点就绪清单：** 包含安全性、多租户、SLO 与数据合规的详细技术对照基准。正式试点前请审阅 [ENTERPRISE_READINESS.md](https://github.com/PStarH/Commander/blob/master/ENTERPRISE_READINESS.md)。
 
-## Development product paths
+## 开发产品形态
 
-- **Local CLI:** the supported default for one developer or a local team.
-- **Web console:** a local interface served with the API.
-- **Enterprise Gateway:** an alpha `/v1` server path (`apps/api` → `@commander/kernel` Postgres → worker-plane + effect-broker). It is not a production-proven multi-tenant SaaS.
+- **Local CLI:** 面向个人开发者或本地研发团队的默认支持路径。
+- **Web 控制台:** 随 API 启动的可视化控制大屏，用于实时流式查看拓扑与审批动作。
+- **Enterprise Gateway:** 处于 Alpha 阶段的 `/v1` 服务端路径 (`apps/api` → `@commander/kernel` Postgres → worker-plane + effect-broker)。
 
-## Start here
+## 快速导航
 
-| Page | What it covers |
+| 页面 | 说明 |
 | --- | --- |
-| [Quick start](/getting-started) | Install, run the simulated demo, start the interfaces |
-| [CLI reference](/cli) | Every command, subcommand, and flag |
-| [HTTP API](/api) | Endpoints, authentication, and the `/v1` Gateway |
-| [Configuration](/configuration) | Environment variables and storage backends |
-| [Tools](/tools) | The 18 built-in tools, trust tiers, and MCP filtering |
-| [Providers](/providers) | All 25 providers, env variables, failover, model tiers |
-| [MCP](/mcp) | The stdio MCP server, both modes, and the command allowlist |
-| [Web console](/web-console) | Console routes and how to start it |
-| [Architecture](/architecture) | Topologies, quality gates, and the V2 plane |
-| [Workflows and automation](/workflows) | Workflows, scheduler, webhooks, background jobs |
-| [Packages and SDKs](/packages) | Workspace packages, TypeScript/Python SDKs, plugins |
-| [SDK and API overview](/sdk) | SDKs, OpenAPI documents, and client usage |
-| [Deployment](/deployment) | Supported local installation and profiles |
-| [Operations and rollback](/operations) | Health checks, recovery, and rollback limits |
-| [Security and privacy](/security) | Authentication, sandboxing, governed writes, caveats |
-| [Troubleshooting](/troubleshooting) | Common failures and how to fix them |
-| [Benchmarks](/benchmarks) | What the benchmarks do and do not prove |
-| [Support and limits](/support) | Current product boundary |
+| [快速入门](/zh/getting-started) | 安装依赖、运行模拟演示、启动交互界面 |
+| [CLI 命令行参考](/zh/cli) | 每个命令、子命令与配置参数的详尽参考 |
+| [HTTP API 接口](/zh/api) | 端点定义、身份认证机制与 `/v1` Gateway 协议 |
+| [配置参考](/zh/configuration) | 环境变量字典与后端存储选型 |
+| [工具体系](/zh/tools) | 18 个内置工具、权能分级与 MCP 过滤机制 |
+| [模型提供商](/zh/providers) | 25+ 供应商环境变量、故障转移链与模型分层 |
+| [MCP 协议支持](/zh/mcp) | stdio MCP 服务集成、工作模式与命令安全白名单 |
+| [Web 控制台](/zh/web-console) | 控制台路由、启动方式与审批流 |
+| [架构设计](/zh/architecture) | 拓扑路由、质量门禁与 V2 控制面全景 |
+| [工作流自动化](/zh/workflows) | 工作流编排、调度器、Webhook 与后台任务 |
+| [核心包生态](/zh/packages) | Workspace 模块划分、TS/Python SDK 与插件架构 |
+| [SDK 概览](/zh/sdk) | Python / TypeScript 客户端接入指南 |
+| [生产部署](/zh/deployment) | 部署方案、Docker Compose 与环境要求 |
+| [运维与回滚](/zh/operations) | 健康检查、监控指标与安全回滚边界 |
+| [安全与合规](/zh/security) | 身份认证、沙箱机制、受治理写入与安全免责声明 |
+| [故障排查](/zh/troubleshooting) | 常见错误排查与修复方案 |
+| [性能基准](/zh/benchmarks) | 基准测试范围与客观度量边界 |
+| [支持与边界](/zh/support) | 当前支持能力与诚实的技术边界声明 |
 
-Read [Security and privacy](/security) before connecting customer data or
-third-party tools.
-
-## What this site promises
-
-This site documents supported commands, configuration boundaries, and known
-limits. It does not treat simulated benchmarks, CI fixtures, or compliance
-reporting scaffolds as production evidence or certification.
+连接真实客户数据或第三方写工具前，请务必详阅 [安全体系与隐私保护](/zh/security)。

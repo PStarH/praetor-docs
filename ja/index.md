@@ -12,6 +12,13 @@ Blindly retrying creates duplicate PRs, double transactions, and corrupted state
 
 Commander solves this fundamental distributed systems problem. It records the approved request and its execution state outside the agent, performs **preflight query-before-retry** to detect whether a mutation already took effect, and stops in an explicit `UNKNOWN` state when the evidence is ambiguous rather than making dangerous assumptions.
 
+<p align="center">
+  <img src="/commander-overview.png" alt="Commander High-Level Architecture Overview" width="100%" />
+</p>
+
+<details>
+<summary><b>View Text Architecture Diagram (ASCII)</b></summary>
+
 ```
    ┌────────────────────────────────────────────────────────┐
    │        AI Agent Frameworks & LLMs                      │
@@ -37,6 +44,8 @@ Commander solves this fundamental distributed systems problem. It records the ap
    │   GitHub (PRs/Issues) · Kubernetes · Cloud APIs        │
    └────────────────────────────────────────────────────────┘
 ```
+
+</details>
 
 Read the technical essay: [Why retrying an AI agent's external action is unsafe](https://github.com/PStarH/Commander/blob/master/docs/content/why-retrying-ai-agent-external-actions-is-unsafe.md).
 

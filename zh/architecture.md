@@ -1,133 +1,138 @@
-# Architecture
+# 架构设计
 
-> This page is synchronized from the canonical English documentation. 简体中文 navigation is available; commands and product limits are identical in every locale.
+Commander 分为两个核心层级：**智能体运行时**（任务审议、拓扑编排、质量门禁）与 **Architecture V2 受治理执行平面**（内核、Effect Broker 效果代理、Worker 执行平面）。本页面提供系统全景图谱；具有约束力的设计决策记录在仓库 `docs/architecture/` 目录下的 ADR 架构决策记录中。
 
-Commander has two layers: the **agent runtime** (deliberation, topologies,
-quality gates) and the **Architecture V2 governed execution plane** (kernel,
-effect broker, worker plane). This page is a map; the binding decisions live in
-the repository's ADRs under `docs/architecture/`.
+## 任务审议机制 (Deliberation)
 
-## Deliberation
+在任何智能体启动前，每个输入任务都会经过类型分类、复杂度估算与执行拓扑选择三大步骤。
 
-Every task goes through classification, complexity estimation, and topology
-selection before any agent runs.
+**任务分类 (Task Classification)** — 覆盖六种标准类型：`FACTUAL`（事实检索）、`REASONING`（复杂推理）、`CREATIVE`（创意生成）、`RESEARCH`（深度调研）、`CODING`（代码开发与重构）、`ANALYSIS`（深度分析）。
 
-**Task classification** — six types: `FACTUAL`, `REASONING`, `CREATIVE`,
-`RESEARCH`, `CODING`, `ANALYSIS`.
+**复杂度估算 (Complexity Estimation)** — 系统计算复杂度综合得分以确定拓扑规模。单行修改仅调度单个智能体；而跨仓库的代码库审计则会扇出至多智能体协同网络。
 
-**Complexity estimation** — a score used to size the topology. A one-line task
-uses one agent; a cross-repository audit can fan out to many.
+**拓扑架构选择 (Topology Selection)** — 五种规范执行拓扑：
 
-**Topology selection** — five canonical topologies:
-
-| Topology | Shape |
+| 拓扑架构 | 拓扑形态与协作模式 |
 | --- | --- |
-| `SINGLE` | One agent handles everything |
-| `CHAIN` | Sequential chain of agents (prompt chaining) |
-| `DISPATCH` | Parallel agents, then aggregation |
-| `ORCHESTRATOR` | Orchestrator delegates to workers |
-| `REVIEW` | Generator + evaluator iterative loop |
+| `SINGLE` | 单智能体全权负责端到端执行 |
+| `CHAIN` | 线性流水线：多智能体顺序 Prompt 链式传递 |
+| `DISPATCH` | 扇出并发：多智能体并行处理后汇聚聚合 |
+| `ORCHESTRATOR` | 主管编排：总控智能体向下分发委派至专门 Worker |
+| `REVIEW` | 循环迭代：生成者与评估者构成自校正闭环 |
 
-Legacy names (`SEQUENTIAL`, `HANDOFF`, `PARALLEL`, `HIERARCHICAL`, `HYBRID`,
-`DEBATE`, `ENSEMBLE`, `EVALUATOR_OPTIMIZER`, `CONSENSUS`) are still accepted and
-normalized to a canonical parent. The CLI warns once per process per legacy
-name.
+系统仍兼容历史命名（`SEQUENTIAL`, `HANDOFF`, `PARALLEL`, `HIERARCHICAL`, `HYBRID`, `DEBATE`, `ENSEMBLE`, `EVALUATOR_OPTIMIZER`, `CONSENSUS`），并会自动归一化至上述规范拓扑。每个进程对每个遗留别名仅警告一次。
 
-## Execution pipeline
+## 执行流水线
 
 ```
-Deliberation → Topology router → Agents (LLM → tool → verify)
-             → Synthesis → Quality gates → Result
+任务审议 → 拓扑路由器 → 智能体协作 (大模型推理 → 工具调用 → 自行验证)
+         → 综合汇总 → 质量门禁矩阵 → 终态输出
 ```
 
-Agent events, tool calls, and gate decisions stream to your terminal or an SSE
-endpoint as they happen.
+智能体流式事件、工具调用请求与门禁判定结论会通过终端或 SSE 实时服务端推送流输出。
 
-## Quality gates
+## 质量门禁矩阵 (Quality Gates)
 
-Five configured gates can run before a result is returned:
+在结果返回给调用者前，可配置 5 项质量检验门禁：
 
-| Gate | Checks |
+| 质量门禁 | 校验目标与职责 |
 | --- | --- |
-| `HALLUCINATION_CHECK` | LLM-as-judge detection of fabricated facts |
-| `CONSISTENCY` | Cross-agent agreement, no contradictions |
-| `COMPLETENESS` | All required dimensions covered |
-| `ACCURACY` | Factual correctness against source material |
-| `SAFETY` | Content scanning and injection detection |
+| `HALLUCINATION_CHECK` | 大模型裁判（LLM-as-judge）检测捏造事实与虚假代码引用 |
+| `CONSISTENCY` | 校验跨智能体输出结论是否一致，阻断事实自相矛盾 |
+| `COMPLETENESS` | 校验用户提问与任务目标的所有关键维度是否全量覆盖 |
+| `ACCURACY` | 对照检索到的事实源数据核对结论真实性 |
+| `SAFETY` | 深度扫描提示词注入攻击、越权外泄风险与违规内容 |
 
-These gates are checks, not guarantees. If a gate fails, the system retries or
-reports the failure with context.
+质量门禁是防护性检查，而非数学绝对保证。若门禁未通过，系统将触发重试或附带上下文输出诊断失败原因。
 
-## Resilience
+## 韧性与高可用保障 (Resilience)
 
-| Capability | Implementation |
+| 容灾能力 | 底层工业级实现机制 |
 | --- | --- |
-| Circuit breakers | Three-state (`CLOSED` / `OPEN` / `HALF-OPEN`), per-provider error-rate tracking |
-| Dead letter queue | Append-only NDJSON, 7 categories, replay support |
-| Saga compensation | Registered compensation steps; external rollback is not guaranteed |
-| Checkpointing | SQLite + WAL, crash-safe recovery |
-| Semantic caching | SHA-256 exact match plus cosine-similarity deduplication |
+| 熔断器 (Circuit Breaker) | 三态状态机 (`CLOSED` / `OPEN` / `HALF-OPEN`)，按供应商维度动态追踪错误率 |
+| 死信队列 (DLQ) | 追加写入式 NDJSON 存储，细分 7 类死信，支持断点重放 |
+| Saga 事务补偿 | 注册可逆补偿动作；若外部状态已不可逆则提供安全审计记录 |
+| 检查点 (Checkpointing) | 基于 SQLite + WAL 实现单机崩溃安全恢复 |
+| 语义级缓存 | SHA-256 精确哈希匹配与余弦相似度语义去重 |
 
-DLQ categories: `llm`, `tool`, `execution`, `verification`,
-`circuit_breaker`, `compensation`, `semantic_drift`.
+DLQ 死信分类包括：`llm`, `tool`, `execution`, `verification`, `circuit_breaker`, `compensation`, `semantic_drift`。
 
-## Architecture V2
+## Architecture V2 架构
 
-V2 splits durable authority from execution so that external writes are governed
-in one place.
+Architecture V2 将**持久化管理权威**与**工作执行平面**严格分离，将所有外部生产环境的写操作收敛至统一受控通道中。
 
-| Package | Responsibility |
+### 系统架构与信任边界
+
+Commander 确立了严格的三层隔离模型，解耦不受信智能体推理与外部基础设施变更：
+
+<p align="center">
+  <img src="/commander-architecture-academic-zh.png" alt="图 1: 高保障解耦控制面架构全景" width="100%" />
+</p>
+
+*图 1: 正式三层控制体系架构规范。不受信的推理进程与外部写凭据物理隔离。所有产生外部副作用的变更均需经过 Preflight 幂等验证、Ed25519 签名的人类授权与 PostgreSQL WAL 步骤租约守护方可安全下发。*
+
+| 核心代码包 | 核心架构职责 |
 | --- | --- |
-| `@commander/contracts` | Versioned shared types, error codes, state machine, event envelope, OpenAPI V1. Pure — no runtime imports |
-| `@commander/kernel` | Sole authority for durable run/step lifecycle: leases, idempotency, outbox, recovery, migrations |
-| `@commander/effect-broker` | The only sanctioned path for external writes. Two-phase `admit()` → `executeAdmitted()`, Ed25519 capability tokens, policy decisions, quotas, fencing, signed evidence |
-| `@commander/action-adapters` | External-mutation adapters (GitHub pull request, ServiceNow incident, Kubernetes rollback) with conformance test suite |
-| `@commander/worker-plane` | The only place a leased step executes. Fail-closed bootstrap |
-| `@commander/adapter-ops` | Compensation and reconciliation drain daemon |
-| `@commander/postgres-runtime` | Hardened `pg.Pool` factory: `sslmode=verify-full`, CA file, SPKI pinning |
-| `@commander/shadow-plane` | Read-only historical policy evaluation for Shadow pilots |
-| `@commander/core` | Agent runtime: orchestration, tools, providers, memory, security, CLI |
-| `@commander/sdk`, `commander-ai` | TypeScript and Python clients |
-| `@commander/mcp-server` | MCP stdio server exposing Action Gateway tools |
-| `@commander/plugin-sdk` | Plugin authoring surface |
+| `@commander/contracts` | 版本化共享类型、错误码字典、状态机、事件信封与 OpenAPI V1 规范。纯类型包，零运行时依赖 |
+| `@commander/kernel` | 持久化生命周期的唯一法定权威：负责任务/步骤租赁、幂等排重、发件箱 (Outbox) 与崩溃数据迁移 |
+| `@commander/effect-broker` | 外部写入的唯一受批准路径。负责两阶段 `admit()` → `executeAdmitted()` 准入、Ed25519 权能令牌签名、配额与策略引擎 |
+| `@commander/action-adapters` | 目标系统适配器（GitHub PR、ServiceNow 事故单、Kubernetes 回滚等），配备完备的合规测试套件 |
+| `@commander/worker-plane` | 被租赁步骤运行的唯一合法执行面，具备 Fail-closed 失败闭合启动校验 |
+| `@commander/adapter-ops` | 负责事务补偿与孤立状态对齐清理的守护进程 |
+| `@commander/postgres-runtime` | 强化的 `pg.Pool` 运行时工厂：强制 `sslmode=verify-full`、CA 证书校验与 SPKI 公钥固定 |
+| `@commander/shadow-plane` | 面向 Shadow 影子模式的只读历史策略对比评估引擎 |
+| `@commander/core` | 智能体本地运行时：任务编排、工具集、供应商接入、上下文记忆与本地 CLI |
+| `@commander/sdk`, `commander-ai` | 官方提供的 TypeScript 与 Python 客户端库 |
+| `@commander/mcp-server` | 暴露 Action Gateway 治理能力的 stdio MCP 服务端 |
+| `@commander/plugin-sdk` | 供外部扩展插件的官方接入规范 |
 
-### Governance flow
+### 治理执行流 (Governance flow)
 
-1. A run is submitted to the Gateway (`POST /v1/runs`) and persisted by the
-   kernel.
-2. Steps are leased by workers with capability-aware leasing.
-3. Any step that needs an external write must go through the effect broker,
-   which verifies a capability token, binds the request hash, evaluates policy
-   and quotas, and records signed evidence.
-4. Consequential actions require approval; approvals are bound to the returned
-   digest and policy snapshot.
-5. Mutations execute through dedicated action adapters (`@commander/action-adapters`).
-   If response transport is interrupted, the adapter queries external systems
-   for existing outcomes before attempting retries, preventing duplicate mutations.
-6. If a step fails after a partial write, compensation runs through
-   `adapter-ops` and is reconciled.
+1. 任务请求提交至 Gateway (`POST /v1/runs`)，由 Kernel 持久化写入数据库。
+2. 具备权能感知能力的 Worker 节点以步骤租约形式申领任务步骤。
+3. 任何需要对外写入的步骤必须经由 Effect Broker：验证权能令牌有效性、绑定请求参数哈希、核验策略配额并签发审计凭证。
+4. 高危或关键动作必须由人类批准；审批票据严格锁定请求的唯一摘要快照与策略版本。
+5. 最终通过专用适配器（`@commander/action-adapters`）下发外部操作。若网络传输中断，适配器在重试前必先向目标系统查询现有结果，彻底阻断重复副作用。
+6. 若步骤在局部写入后异常中止，补偿动作由 `adapter-ops` 守护进程负责幂等回滚与最终状态对齐。
 
-### Storage and durability
+### Preflight 执行前排重与故障恢复协议
 
-| Layer | Authority |
+当外部写入遭遇网络丢包（如 HTTP 504 网关超时或 Worker 意外断电）时，传统智能体的盲目重试会引发生产级灾难。Commander 执行确定性的 Preflight 预检协议：
+
+<p align="center">
+  <img src="/commander-preflight-protocol-zh.png" alt="图 2: Preflight 执行前排重与租约恢复协议" width="100%" />
+</p>
+
+*图 2: 分布式 Preflight 预检与故障恢复协议对比图。直观呈现传统智能体盲目重试导致的重复写灾难，与 Commander 基于 WAL 租约接管与外部预检实现 Exactly-Once 恢复的确定性时序。*
+
+### 两阶段人机密码学签名与存证全生命周期
+
+<p align="center">
+  <img src="/commander-crypto-gate-zh.png" alt="图 3: 两阶段人机密码学门禁与 JWS 存证全生命周期" width="100%" />
+</p>
+
+*图 3: 密码学数据流向图。不受信智能体生成规范化 JSON 提案；审阅人员通过离线 Ed25519 私钥为计算出的意图摘要背书签名；Effect Broker 验证后发放单次短效权能令牌；隔离沙箱执行完成后产出具备法律合规效力的 RFC 7515 JWS 防篡改审计存证。*
+
+### 存储体系与持久化权威
+
+| 存储层级 | 法定持久化权威 |
 | --- | --- |
-| API product stores | `sqlite` (local default), `memory`, or `postgres` |
-| Kernel | PostgreSQL — runs, steps, events, outbox, leases |
-| Local state | `.commander_state/` (WAL at `.commander_state/event-sourcing.wal`) |
+| API 产品级存储 | `sqlite`（本地默认）、`memory` 或 `postgres` |
+| Kernel 内核存储 | PostgreSQL 独占权威 — 严格管理 runs、steps、events、outbox 与 leases |
+| 本地运行时状态 | `.commander_state/`（WAL 日志位于 `.commander_state/event-sourcing.wal`） |
 
-In production the API fails closed if no durable store is configured. Local
-file-backed state is not a multi-replica authority.
+在生产环境中，若未正确配置持久化 PostgreSQL，API 将采取 Fail-closed 策略拒绝启动。本地文件系统状态不具备多节点共享的法定一致性。
 
-## Related pages
+## 相关页面
 
-- [Tools](/tools) — the 18 built-in tools and their trust tiers
-- [Providers](/providers) — the 25 providers and the failover chain
-- [MCP](/mcp) — how external MCP tools enter the runtime
-- [Security and privacy](/security) — capability tokens, evidence, sandboxing
+- [工具体系](/zh/tools) — 18 个内置工具与其权能分级
+- [模型供应商](/zh/providers) — 25 家供应商接入与故障转移链
+- [MCP 协议](/zh/mcp) — 外部 MCP 工具如何接入系统运行时
+- [安全体系与隐私](/zh/security) — 权能令牌、签名存证与沙箱隔离
 
-## Further reading
+## 深入阅读
 
-- `docs/architecture/000-index.md` — ADR index and feature-freeze rules
-- `docs/v2-migration-guide.md` — migrating to Architecture V2
-- `docs/slo.md` — SLO definitions
-- [Why retrying an agent external action is unsafe](https://github.com/PStarH/Commander/blob/master/docs/content/why-retrying-ai-agent-external-actions-is-unsafe.md) — Failure model: why timeouts are not failures and why blind retries cause duplicate mutations
+- `docs/architecture/000-index.md` — ADR 架构决策索引与特性冻结规范
+- `docs/v2-migration-guide.md` — 升级至 Architecture V2 迁移指南
+- `docs/slo.md` — 系统 SLO 服务等级目标
+- [为什么智能体的外部写操作不能盲目重试？](https://github.com/PStarH/Commander/blob/master/docs/content/why-retrying-ai-agent-external-actions-is-unsafe.md) — 深入剖析超时绝非失败、盲目重试必致重复写入的分布式故障模型

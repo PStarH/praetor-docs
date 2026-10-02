@@ -74,6 +74,16 @@ DLQ categories: `llm`, `tool`, `execution`, `verification`,
 V2 splits durable authority from execution so that external writes are governed
 in one place.
 
+### System Architecture & Trust Boundaries
+
+Commander establishes a strict three-plane isolation model that decouples untrusted agent reasoning from external mutations:
+
+<p align="center">
+  <img src="/commander-architecture-academic.png" alt="Figure 1: High-Assurance Decoupled Control Plane Architecture" width="100%" />
+</p>
+
+*Figure 1: Formal three-plane control architecture. Untrusted reasoning processes are isolated from external write credentials. All consequential mutations require preflight idempotency verification, Ed25519-signed human authorization, and durable WAL step leases before execution.*
+
 | Package | Responsibility |
 | --- | --- |
 | `@commander/contracts` | Versioned shared types, error codes, state machine, event envelope, OpenAPI V1. Pure — no runtime imports |
@@ -104,6 +114,24 @@ in one place.
    for existing outcomes before attempting retries, preventing duplicate mutations.
 6. If a step fails after a partial write, compensation runs through
    `adapter-ops` and is reconciled.
+
+### Preflight Query-Before-Retry Protocol
+
+When external writes encounter network drops (e.g. HTTP 504 Gateway Timeout or worker restarts), naive agent retries create duplicate mutations. Commander executes a deterministic preflight query protocol:
+
+<p align="center">
+  <img src="/commander-preflight-protocol.png" alt="Figure 2: Preflight Query-Before-Retry Protocol & Lease Recovery" width="100%" />
+</p>
+
+*Figure 2: Distributed preflight query-before-retry protocol. Comparing naive agent retry storms with Commander's lease-driven exactly-once recovery across network timeouts and process crashes.*
+
+### Two-Phase Cryptographic Human Gate & Evidence Lifecycle
+
+<p align="center">
+  <img src="/commander-crypto-gate.png" alt="Figure 3: Two-Phase Cryptographic Human Gate & JWS Evidence Lifecycle" width="100%" />
+</p>
+
+*Figure 3: Cryptographic dataflow. The untrusted agent generates a canonical JSON proposal. Reviewers sign the computed intent digest using offline Ed25519 private keys. The effect broker mints an ephemeral capability token, executes through an isolated worker, and emits an immutable RFC 7515 JWS evidence receipt.*
 
 ### Storage and durability
 

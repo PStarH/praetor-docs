@@ -114,6 +114,12 @@ material in production.
 
 Completed governed actions produce a signed evidence bundle:
 
+<p align="center">
+  <img src="/commander-crypto-gate.png" alt="Two-Phase Cryptographic Human Gate & RFC 7515 JWS Evidence Flow" width="100%" />
+</p>
+
+*Figure: Two-phase cryptographic human gate and JWS evidence lifecycle. Ensures non-repudiation and decoupling between untrusted LLM reasoning and production write authority.*
+
 - **Signature:** Ed25519 over a canonicalized bundle body. Non-Ed25519 keys are
   rejected.
 - **Bundle:** schema version, bundle id, action digest, terminal disposition,

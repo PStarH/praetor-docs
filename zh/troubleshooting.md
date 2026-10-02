@@ -1,148 +1,109 @@
-# Troubleshooting
+# 故障排查与诊断指南 (Troubleshooting)
 
-> This page is synchronized from the canonical English documentation. 简体中文 navigation is available; commands and product limits are identical in every locale.
+遇到异常问题时，推荐首先执行 `commander doctor` 进行环境体检——该命令会自动检查本地 Node.js 版本、API Key 配置、依赖包完备性、Git 仓库状态、工作区可写性以及大模型提供商的网络连通性。追加 `--offline` 参数可跳过外部网络探测。
 
-Run `commander doctor` first — it checks Node, the API key, packages, git, the
-workspace, and provider connectivity. Add `--offline` to skip the provider
-network check.
+## 依赖安装阶段 (Installation)
 
-## Install
+### `better-sqlite3` 编译安装失败
 
-### `better-sqlite3` fails to build
+该模块依赖宿主机的 C++ 原生构建工具链：
 
-It needs a native compile step.
+1. 确认当前的 Node.js 版本与仓库根目录 `.node-version` 严格一致（建议 Node.js 22.x）。
+2. 在宿主机上安装 Python 3 与对应的 C++ 编译环境：
+   - **macOS**：执行 `xcode-select --install`
+   - **Windows**：安装 Visual Studio Build Tools（勾选 C++ 桌面开发）
+   - **Linux**：通过包管理器安装 `build-essential`（如 Debian/Ubuntu 下 `sudo apt-get install build-essential`）
 
-1. Confirm your Node version matches `.node-version` (Node 22).
-2. Install Python 3 and a C++ toolchain:
-   - macOS: `xcode-select --install`
-   - Windows: Visual Studio Build Tools
-   - Linux: `build-essential`
+若因特殊容器环境限制仍无法编译，可临时切换为内存存储：`API_STORE_BACKEND=memory`。请注意：在生产环境中还必须显式声明 `COMMANDER_ALLOW_MEMORY_STORE=1`，否则 API 将遵循安全闭环原则拒绝启动。内存存储不具备任何数据持久化能力，仅限本地短期调试使用。
 
-If it still fails, switch to an in-memory store with
-`API_STORE_BACKEND=memory`. In production you must also set
-`COMMANDER_ALLOW_MEMORY_STORE=1`, because the API otherwise fails closed. An
-in-memory store persists nothing — use it for development only.
+### `npm install` 报错 `UNMET DEPENDENCY`
 
-### `npm install` reports `UNMET DEPENDENCY`
-
-Use pnpm. The repository is a pnpm workspace; `npm install` produces unresolved
-workspace links.
+请使用 **pnpm**。Commander 是严格基于 pnpm 构建的 Monorepo 工作区，使用原生 npm 或 yarn 会导致工作区间软链接解析失败。
 
 ```bash
 corepack enable
 pnpm install --frozen-lockfile
 ```
 
-## Starting the API
+## API 服务启动异常 (Starting the API)
 
-### The API exits immediately on startup
+### API 服务拉起后立即退出 (Exit Immediately)
 
-A required startup secret or the database connection is missing. The API refuses to start without `COMMANDER_API_KEY`, `COMMANDER_MASTER_KEY`, `JWT_SECRET`, `COMMANDER_CAPABILITY_TOKEN_KEY`, `COMMANDER_INTEGRITY_KEY`, `COMMANDER_EVIDENCE_JWKS_JSON`, and `ADMIN_PASSWORD`.
+通常是因为缺失了必需的核心启动凭据或数据库配置。API 服务启动时会强制校验：`COMMANDER_API_KEY`、`COMMANDER_MASTER_KEY`、`JWT_SECRET`、`COMMANDER_CAPABILITY_TOKEN_KEY`、`COMMANDER_INTEGRITY_KEY`、`COMMANDER_EVIDENCE_JWKS_JSON` 以及 `ADMIN_PASSWORD`。
 
-Additionally, the authentication subsystem strictly requires PostgreSQL: if `DATABASE_URL` is absent, the API exits with `AUTH_DATABASE_URL_REQUIRED`. In containerized deployments, boot the PostgreSQL-backed stack using `-f docker-compose.yml -f docker-compose.v2.yml -f docker-compose.kernel-tls.yml --profile v2 up -d --build`.
-
-### `StoreBackendConfigError` in production
-
-Neither `API_STORE_BACKEND` nor `DATABASE_URL` is set. Configure a durable
-store, or opt into the in-memory store explicitly with
-`COMMANDER_ALLOW_MEMORY_STORE=1`.
-
-### Requests return `401`
-
-The API is default-deny. Either present a credential — `X-API-Key: <key>` or
-`Authorization: Bearer <key>` / `<jwt>` — or, for local development only, set
-`COMMANDER_ALLOW_ANON=1`. Note that `AUTH_DISABLED=true` returns `500` in
-production by design; outside production it still requires
-`COMMANDER_ALLOW_ANON=1`.
-
-`COMMANDER_API_KEY` is a startup secret, not the inbound request key. Inbound
-keys are issued into PostgreSQL.
-
-`/metrics`, `/v1/health`, and `/v1/openapi.json` are **not** in the public path
-list, so an unauthenticated scrape or probe returns `401`. Present a credential
-or allow anonymous access locally.
-
-Behind a reverse proxy, `TRUST_PROXY_HOPS` defaults to trusting no proxy. Leave
-it unset and every request appears to come from the proxy, which breaks
-rate-limit and lockout accounting.
-
-### Requests return `403` or `404` under `/v1`
-
-Tenant claims are missing or do not match. `X-Tenant-ID` may only match the
-authenticated tenant — it can never widen access. Cross-tenant reads return
-`404` rather than `403` so they do not confirm existence.
-
-### `/ready` returns `503` but `/health` is fine
-
-Readiness runs real probes. A `503` means the database, kernel, or
-evidence-repository check failed. Check the response body for the failing check
-name. A `kernel-ops` instance in probe-only wiring also returns `503` from
-`/ready` by design.
-
-## Docker Compose
- 
-### Container exits with AUTH_DATABASE_URL_REQUIRED
-
-The base `docker-compose.yml` deliberately injects no database DSN. Running `docker compose up` by itself causes the API container to fail fast on missing auth database configuration. Always use the `v2` profile with its accompanying files to launch PostgreSQL and verified TLS:
+此外，身份认证子系统严格依赖 PostgreSQL 底座：若环境变量中未检测到 `DATABASE_URL`，API 进程将抛出 `AUTH_DATABASE_URL_REQUIRED` 并直接终止。在容器化部署中，请务必使用官方推荐的组合文件启动 PostgreSQL 与 TLS 证书栈：
 
 ```bash
 docker compose -f docker-compose.yml -f docker-compose.v2.yml -f docker-compose.kernel-tls.yml --profile v2 up -d --build
 ```
 
-### Compose asks for variables that are not in `.env`
+### 生产模式下报 `StoreBackendConfigError`
 
-The Compose files mark several secrets as required with `${VAR:?}`, including `COMMANDER_EVIDENCE_JWKS_JSON`. Generate each secret and populate your `.env` file before starting Compose.
+表示在生产环境下既未声明 `API_STORE_BACKEND`，也未配置有效的 `DATABASE_URL`。请配置高可用的持久化数据库连接串，或显式声明 `COMMANDER_ALLOW_MEMORY_STORE=1`（仅限无状态临时容器）。
 
-## CLI
+### HTTP 请求持续返回 `401 Unauthorized`
 
-### `Rate limit exceeded`
+Commander API 默认对所有非白名单接口实行**默认拒绝 (Default-Deny)** 访问控制。请在请求头中携带有效认证凭据：`X-API-Key: <key>` 或 `Authorization: Bearer <key>` / `<jwt>`。在纯本地无外网开发场景下，可通过声明 `COMMANDER_ALLOW_ANON=1` 临时允许匿名调试。请注意：在生产环境下声明 `AUTH_DISABLED=true` 会故意触发 **500** 致命错误以阻断不合规暴露。
 
-Costly commands are limited to 10 LLM-costly invocations per minute across
-processes. Wait and retry.
+> [!NOTE]
+> `COMMANDER_API_KEY` 是系统的核心启动凭据，同时也是访问 Action Gateway 的内部凭证，**并非**客户端调用 API 的入向 Key。入向调用的 API Key 均在 PostgreSQL 中加盐哈希存储并通过管理接口发放。
+> 此外，`/metrics`、`/v1/health` 与 `/v1/openapi.json` 同样受鉴权中间件保护，未经认证的探测将返回 401。
 
-### `commander gui` fails
+如果部署在反向代理（如 Nginx、Traefik）后方，环境变量 `TRUST_PROXY_HOPS` 默认取值为 0（不信任任何代理）。若未按实际代理层数显式配置，所有请求在 API 看来均源自同一个代理 IP，会导致防暴力破解与限流机制异常触发大面积锁定。
 
-`gui` itself only spawns the API and the web dev server, so the failure is
-almost always the API refusing to start. Check the API output in the same
-terminal. In a production environment the API needs a durable store plus
-`JWT_SECRET` and `ADMIN_PASSWORD`; in development it defaults to SQLite and only
-warns, so a hard failure there usually means a missing startup secret in
-production mode, a port already in use, or a missing `apps/api/src/index.ts`
-(if you are not at the repository root).
+### 调用 `/v1` 网关端点返回 `403` 或 `404`
 
-### A tool call is blocked with a sandbox error
+租户 Claim 声明缺失或不匹配。请求头 `X-Tenant-ID` 仅用于一致性匹配校验，绝不能凭空扩大访问权限。为了防止通过试探响应状态码猜测资源是否存在，跨租户未授权读取在设计上统一返回 **`404`**（而非 `403`）。
 
-By default Commander fails closed when no OS-level sandbox is available. Set
-`COMMANDER_ALLOW_NO_SANDBOX=true` only for trusted local development — it is
-forbidden in production.
+### `/ready` 探针返回 `503`，但 `/health` 正常返回 200
 
-If you are selecting an isolation mechanism, `COMMANDER_SANDBOX_ISOLATION`
-accepts **only** `process`, `docker`, or `gvisor`, and `process` is rejected in
-production. Seatbelt and bwrap are auto-discovered mechanisms, not values you
-can request here.
+`/ready` 会真实执行数据库连接池探测、执行内核心跳以及存证仓库读写检查。返回 `503` 说明底层基础设施存在依赖不可用。请查看响应 Body 中的 JSON 错误详情，定位具体失败的组件。
 
-### `commander action` fails immediately
+## Docker Compose 部署排错
 
-`commander action` requires both `COMMANDER_API_KEY` and a reachable
-`COMMANDER_ACTION_GATEWAY_URL`. Also check the subcommand spelling: evidence is
-`action evidence verify <runId>`, not `action evidence <runId>`, and there is no
-`action commands` subcommand.
+### 容器启动时报错退出并提示 `AUTH_DATABASE_URL_REQUIRED`
 
-## SDKs
+基础编排文件 `docker-compose.yml` 为了轻量解耦，在设计上刻意未内置硬编码的数据库连接串。如果直接单独执行裸 `docker compose up`，API 容器会由于缺少认证数据库配置而快速失败退出。请务必结合 `v2` profile 及其编排文件启动：
 
-### The Python client hits the wrong port
+```bash
+docker compose -f docker-compose.yml -f docker-compose.v2.yml -f docker-compose.kernel-tls.yml --profile v2 up -d --build
+```
 
-`CommanderGatewayClient` reads `COMMANDER_API_URL` and defaults to
-`http://127.0.0.1:4000`. The legacy `CommanderClient` / `CommanderClientSync`
-ignores `COMMANDER_API_URL` and still defaults to port `3001`, which is not an
-API port. Always pass an explicit `base_url`, or use the Gateway client.
+### Compose 启动提示变量在 `.env` 中未定义
 
-### `@commander/sdk` in-process client cannot find `@commander/core`
+Compose 模板对关键安全密钥配置了 `${VAR:?}` 强断言（包括 `COMMANDER_EVIDENCE_JWKS_JSON` 等）。请参考 `.env.example`，将所有必需的安全凭据生成并写入 `.env` 文件后再执行启动。
 
-`CommanderClient` dynamically imports `@commander/core`, which is a peer
-dependency. Install it alongside the SDK, or use `CommanderGatewayClient`, which
-needs no local runtime.
+## 命令行交互排错 (CLI)
 
-## Still stuck
+### 提示 `Rate limit exceeded`
 
-Open a [GitHub issue](https://github.com/PStarH/Commander/issues) for questions, proposals, and reproducible bugs. Report vulnerabilities privately through [GitHub Security Advisories](https://github.com/PStarH/Commander/security/advisories/new) as described in `SECURITY.md`.
+为防止意外死循环导致高昂的账单开销，CLI 命令行工具在多进程间实施了全局限流约束：每分钟最多发起 10 次大模型调用。请稍候片刻后重试。
+
+### `commander gui` 执行失败
+
+`gui` 命令本质上是在本地同时拉起 API 服务（端口 4000）与 Vite 开发前端（端口 5173）。执行失败通常是由于底层的 API 服务因环境问题未能成功拉起。请在同一个终端中查看前置打印的 API 错误堆栈。在生产模式下，API 需要持久化存储底座、`JWT_SECRET` 与 `ADMIN_PASSWORD`；在本地开发模式下默认回退到 SQLite。常见原因还包括端口被占用，或未在仓库根目录下执行命令。
+
+### 工具调用被沙箱安全拦截阻断
+
+默认情况下，Commander 在宿主机未检测到可用系统级沙箱时会遵循安全闭环原则拒绝执行高风险工具。若在可信的本地调试环境中确需放行，可声明 `COMMANDER_ALLOW_NO_SANDBOX=true`（生产环境严禁配置）。
+
+若显式配置沙箱隔离机制，环境变量 `COMMANDER_SANDBOX_ISOLATION` 仅接受 `process`、`docker` 或 `gvisor`，且生产环境严禁使用 `process`。macOS Seatbelt 与 Linux bubblewrap 是系统底层自动嗅探的机制，不支持通过该变量手动声明。
+
+### `commander action` 立即报错
+
+`commander action` 命令依赖有效的 `COMMANDER_API_KEY` 以及能够正常连通的 `COMMANDER_ACTION_GATEWAY_URL`。同时请核对子命令拼写：存证验签命令应为 `action evidence verify <runId>`（而非 `action evidence <runId>`）。
+
+## SDK 与客户端排错
+
+### Python 客户端请求了错误的端口
+
+推荐使用官方主推的网关客户端 `CommanderGatewayClient`，它会自动读取环境变量 `COMMANDER_API_URL`（缺省连接到 `http://127.0.0.1:4000`）。旧版遗留客户端 `CommanderClient` / `CommanderClientSync` 不会读取该环境变量，且会回退到监控端口。使用旧版客户端时请务必显式传入 `base_url` 参数，或全面迁移至 `CommanderGatewayClient`。
+
+### TypeScript 客户端 `@commander/sdk` 提示找不到 `@commander/core`
+
+`CommanderClient` 进程内客户端会动态导入 `@commander/core`（作为 Peer Dependency 依赖）。若在纯客户端应用中使用，请安装该前置依赖，或者直接改用无本地运行时依赖的轻量网关客户端 `CommanderGatewayClient`。
+
+## 进一步获取支持与反馈
+
+- 遇到常规使用疑问、优化建议或可复现的缺陷，欢迎提交 [GitHub Issue](https://github.com/PStarH/Commander/issues)。
+- 若发现与权限越权、沙箱逃逸相关的安全漏洞，请通过 [GitHub 私密安全通报](https://github.com/PStarH/Commander/security/advisories/new) 渠道联系核心团队，切勿公开提交漏洞 Issue。

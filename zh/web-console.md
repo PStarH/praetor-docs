@@ -1,59 +1,45 @@
-# Web console
+# Web 管理控制台 (Web Console)
 
-> This page is synchronized from the canonical English documentation. 简体中文 navigation is available; commands and product limits are identical in every locale.
+Commander Web 管理控制台（作战指挥室）是一个基于 React 构建的单页应用 (SPA)。你可以通过以下两种方式之一启动并访问：
 
-The web console is a React single-page app served by nginx. Start it one of two
-ways:
-
-| Mode | Command | URL |
+| 启动模式 | 命令行指令 | 访问地址与端口 |
 | --- | --- | --- |
-| Development | `pnpm gui` | `http://localhost:5173` (API on `4000`) |
-| Compose | `docker compose --profile web up` | `http://localhost:3000` |
+| 本地开发模式 | `pnpm gui` | `http://localhost:5173`（API 服务监听 `4000`） |
+| 容器化部署 | `docker compose --profile web up` | `http://localhost:3000` |
 
-`pnpm gui` spawns two child processes from your source checkout — the API server
-on port `4000` and the Vite dev server on port `5173` — then opens the browser.
-It performs no database or credential checks of its own; whatever the API server
-requires at startup applies. In development the API defaults to SQLite and only
-warns about missing secrets. If you run it with a production environment
-(`NODE_ENV=production` or `COMMANDER_ENV=production`), the API needs a durable
-store plus `JWT_SECRET` and `ADMIN_PASSWORD`, and starts no SQLite fallback.
+`pnpm gui` 会在本地自动派生两个子进程：监听在 `4000` 端口的 API 服务，以及监听在 `5173` 端口的 Vite 前端开发服务器，并自动在浏览器中打开主页。该命令自身不执行额外的凭据检查，API 服务启动所需的各项要求完全适用。在本地开发模式下，API 默认使用轻量的 SQLite 存储；如果在生产模式环境变量（`NODE_ENV=production` 或 `COMMANDER_ENV=production`）下运行，API 必须挂载持久化数据库与安全凭据。
 
-In the Compose deployment the console is served on port `3000` and nginx
-reverse-proxies `/api` and `/v1` to the `api` service. Port `3001` is Grafana,
-not the console.
+在 Docker Compose 容器化部署中，前端静态资源托管在 Nginx 容器内并通过 `3000` 端口对外暴露，Nginx 会将 `/api` 与 `/v1` 的流量反向代理转发给内部的 `api` 服务。请注意：端口 `3001` 属于 Grafana 监控大屏，并非前端控制台。
 
-## Routes
+## 控制台路由与页面导航 (Routes)
 
-| Route | Page |
+| 路由路径 | 页面定位与核心能力 |
 | --- | --- |
-| `/` | Dashboard — battle report, token trends, live topology, agent roster, mission board |
-| `/agents` | Agent roster |
-| `/missions` | Mission board and approvals |
-| `/execution` | Real-time execution feed |
-| `/memory` | Memory browser and search |
-| `/governance` | Approval queue and unified policy configuration |
-| `/security` | Security posture (ISO 42001 / NIST AI RMF reporting, not certification) |
-| `/slo` | SLO panel |
-| `/chat` | Conversational interface with real-time agent streaming |
-| `/dlq` | Dead letter queue management with replay |
-| `/audit` | Audit log |
-| `/cost` | Cost and token reporting |
-| `/knowledge` | Knowledge base |
-| `/alerts` | Alerts |
-| `/onboarding` | First-run onboarding and provider test |
-| `/users` | User administration |
-| `/settings` | Settings |
-| `/settings/sso` | OIDC / SSO configuration |
-| `/workflows` | Workflow list and scheduling |
-| `/poc` | POC / demo views |
-| `/research` | Research view |
-| `/actions` | Action Gateway queue — approve, reject, compensate |
+| `/` | **作战大屏仪表盘**：全景战报、实时 Token 消耗走势、智能体网络动态拓扑、人员花名册、使命战况看板 |
+| `/agents` | **智能体花名册**：智能体注册列表、权能定义与状态画像 |
+| `/missions` | **使命看板与审批流**：使命任务发布、人工审批与执行状态追踪 |
+| `/execution` | **实时执行全景**：多智能体推演事件流式回放 |
+| `/memory` | **长期记忆浏览器**：全局记忆图谱浏览、命名空间检索与语义对账 |
+| `/governance` | **合规治理中心**：统一审批决策队列、安全防护策略与规则配置 |
+| `/security` | **安全态势感知**：安全防御雷达（参考 ISO 42001 与 NIST AI RMF 框架的量化度量报告，非外部认证背书） |
+| `/slo` | **SLO 服务等级看板**：可用性、恢复耗时与任务达成 SLO 实时度量 |
+| `/chat` | **多智能体对话大厅**：支持实时流式响应的人机会话交互窗口 |
+| `/dlq` | **死信队列管理中心**：失败任务堆栈分析、死信归类与一键安全重放 |
+| `/audit` | **合规审计日志**：操作审计全量追溯、筛选查询与结构化日志导出 |
+| `/cost` | **成本与 Token 驾驶舱**：多维度大模型调用财务成本与用量透视 |
+| `/knowledge` | **企业知识库**：文档向量切片切分、语义检索与知识条目维护 |
+| `/alerts` | **告警告警事件看板**：关键异常、配额熔断与策略阻断告警流 |
+| `/onboarding` | **引导设置流程**：首次启动引导、模型提供商连通性探测与首任务验证 |
+| `/users` | **系统用户与组织管理**：多角色用户管理、权限赋予与 API Key 发放 |
+| `/settings` | **全局系统设置**：运行时核心参数检视与热配置更新 |
+| `/settings/sso` | **企业级 SSO 配置**：基于 OIDC 的企业单点登录对接设置 |
+| `/workflows` | **DAG 工作流编排**：可视化工作流拓扑构建、任务调度与运行历史 |
+| `/poc` | **概念验证体验区**：内置的 POC 场景演示与原型推演沙盒 |
+| `/research` | **实验研究透视**：学术研究模式下的高级推演分析视图 |
+| `/actions` | **Action Gateway 操作流**：受治理外部写操作队列——人工审批、驳回与补偿撤销 |
 
-## Sign-in
+## 登录与身份验证 (Authentication)
 
-The console authenticates against the same API as everything else: API key or
-JWT. Configure OIDC under `/settings/sso` to use single sign-on.
+Web 控制台与后端 API 共享完全一致的认证鉴权机制：支持 API Key 登录或 JWT 令牌会话认证。在企业集成场景下，可通过 `/settings/sso` 配置企业 OIDC 身份提供商（IdP）实现一键单点登录。
 
-Data shown in the console is read from the API. Where a value is simulated or
-POC-derived, the UI labels it — treat onboarding results as real only when the
-API reports `source=real`.
+控制台呈现的所有指标与数据均实时读取自后端 API。对于包含模拟演练或 POC 阶段的数据，界面均会给予明确的标签标识——在首次引导流程中，只有当 API 明确标记 `source=real` 时，相应数据方代表真实模型的调用结果。
