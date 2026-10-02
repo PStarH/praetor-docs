@@ -157,6 +157,18 @@ export default defineConfig({
   lastUpdated: true,
   ignoreDeadLinks: [/^https?:\/\/localhost/],
   sitemap: { hostname: 'https://pstarh.github.io/commander-docs/' },
+  head: [
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/commander-docs/favicon.svg' }],
+    ['meta', { property: 'og:type', content: 'website' }],
+    ['meta', { property: 'og:site_name', content: 'Commander Documentation' }],
+    ['meta', { property: 'og:title', content: 'Commander — Autonomous Agent Control Plane & Recovery Runtime' }],
+    ['meta', { property: 'og:description', content: 'Approval, preflight idempotency, Ed25519 capability tokens, and sub-5s crash recovery for Coding and DevOps agents.' }],
+    ['meta', { property: 'og:image', content: 'https://pstarh.github.io/commander-docs/commander-preflight-protocol.png' }],
+    ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
+    ['meta', { name: 'twitter:title', content: 'Commander — Control Plane & Resilience Runtime for AI Agents' }],
+    ['meta', { name: 'twitter:description', content: 'Stop AI agents from wrecking production: preflight idempotency, capability tokens, and crash recovery.' }],
+    ['meta', { name: 'twitter:image', content: 'https://pstarh.github.io/commander-docs/commander-preflight-protocol.png' }],
+  ],
   themeConfig: theme('en'),
   locales: {
     root: { label: 'English', lang: 'en-US', themeConfig: theme('en') },
