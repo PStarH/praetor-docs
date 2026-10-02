@@ -58,6 +58,10 @@ Commander 从系统底层解决了这一经典分布式系统难题。它在智�
 | **审计与存证归因** | 终端易失日志，事后不可归因 | **Ed25519 签名存证**：RFC 7515 JWS 签名收据，支持独立离线验证 |
 | **回滚与撤销** | 依赖临时补丁脚本，常常无法安全回滚 | **受治理的补偿机制**：要求独立的人类授权绑定与专属收据 |
 
+<p align="center">
+  <img src="/commander-preflight-protocol-zh.png" alt="图 1: Preflight 执行前排重与故障恢复协议" width="100%" />
+</p>
+
 ## ⚡ 60 秒内上手体验 Commander 的 4 种方式
 
 | 体验路径 | 执行命令 | 验证的核心能力 |
@@ -67,20 +71,54 @@ Commander 从系统底层解决了这一经典分布式系统难题。它在智�
 | **3. 交互式 Web 控制台** | `pnpm gui` | 在本地 `:5173` 启动控制台：查看拓扑流向、DLQ 死信队列与人工审批流 |
 | **4. 受治理动作离线测试** | `pnpm test:github:offline` | 130 项离线契约断言，验证幂等排重与网络丢包恢复逻辑 |
 
-### 📦 4 行代码无缝接入（Python SDK）
+### 📦 SDK 与 MCP 快速集成
 
+#### 1. Python SDK（多智能体规划与执行）
 ```python
-from commander_sdk import CommanderClient
+from commander import CommanderClient
 
-# 连接至 Commander 安全执行控制面
-client = CommanderClient(base_url="http://localhost:4000")
+async with CommanderClient(base_url="http://127.0.0.1:4000", api_key="cmd-...") as client:
+    # 零模型消耗的拓扑智能规划
+    plan = await client.plan("审查代码库安全漏洞并提议修复方案")
+    print(f"推荐拓扑: {plan.topology} ({plan.estimated_steps} 步，预估预算: ${plan.estimate.cost_budget_usd:.2f})")
 
-# 发起带有 Preflight 排重与密码学审批保障的安全变更任务
-run = client.runs.create(
-    task="审查认证模块 diff 并提议热修复 PR",
-    require_approval=True
-)
-print(f"任务 {run.run_id} 已启动；是否等待人工审批: {run.approval_required}")
+    # 执行任务并通过 5 层质量门禁检验
+    result = await client.run("审查认证模块 diff 并提议热修复")
+    print(f"状态: {result.status} — {result.summary}")
+```
+
+#### 2. 受治理动作网关 (Python)
+```python
+from commander import CommanderGatewayClient, ProposeActionInput
+
+async with CommanderGatewayClient(base_url="http://127.0.0.1:4000", api_key="cmd-...") as gateway:
+    # 提议带有幂等排重保障的外部写操作
+    action, replay, accepted = await gateway.propose_action(
+        ProposeActionInput(
+            source="coding-agent",
+            destination="github://octo-org/repo",
+            effect_type="github.pullRequestCreate",
+            args={"title": "fix: prevent token replay", "head": "fix-auth", "base": "main"},
+            idempotency_key="0191ec4d-91b4-7b98-b80c-7b897914e1a0",
+        )
+    )
+    print(f"动作 ID: {action.run_id}, 状态: {action.state}, 审批决策: {action.decision.effect}")
+```
+
+#### 3. 通用 Model Context Protocol (MCP) 集成
+支持任意标准 MCP 客户端（Claude Code、Cursor、Windsurf、LangGraph、OpenAI Agents SDK 等）：
+```json
+{
+  "mcpServers": {
+    "commander": {
+      "command": "commander-mcp-server",
+      "env": {
+        "COMMANDER_ACTION_GATEWAY_URL": "http://127.0.0.1:4000",
+        "COMMANDER_API_KEY": "cmd-..."
+      }
+    }
+  }
+}
 ```
 
 ## 核心架构与系统能力
