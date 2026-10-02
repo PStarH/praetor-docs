@@ -6,7 +6,7 @@
 
 | Interface | Entry point | Status |
 | --- | --- | --- |
-| Local CLI | `commander <task>` | Primary supported interface |
+| Local CLI | `commander run <task>` | Primary supported interface |
 | HTTP API | `http://localhost:4000` | Supported locally |
 | Gateway `/v1` API | `POST /v1/runs` | Alpha |
 | TypeScript SDK | `@commander/sdk` | Alpha |

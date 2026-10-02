@@ -77,7 +77,7 @@ function theme(locale: string): DefaultTheme.Config {
 
 export default defineConfig({
   title: 'Commander',
-  description: 'Local-first multi-agent orchestration for engineers.',
+  description: 'Approval and recovery for Coding and DevOps agents, starting with GitHub pull requests.',
   base: '/commander-docs/',
   cleanUrls: false,
   lastUpdated: true,

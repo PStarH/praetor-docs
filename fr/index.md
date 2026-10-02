@@ -4,7 +4,7 @@
 
 Approval and recovery for Coding and DevOps agents, starting with GitHub pull requests.
 
-Once an agent's action reaches an external system, a timeout or crash can leave three questions open: did it happen, how many times, and with what payload? Retrying blindly can duplicate the write; giving up can lose it. Commander records the approved request and its execution state outside the agent, looks up the outcome after an ambiguous response, and stops in an explicit unknown state when the evidence is not conclusive.
+Once an agent's action reaches an external system, a timeout or crash can leave three questions open: did it happen, how many times, and with what payload? Retrying blindly can duplicate the write; giving up can lose it. Commander records the approved request and its execution state outside the agent, looks up the outcome after an ambiguous response, and stops in an explicit unknown state when the evidence is not conclusive. See the [failure model and recovery principles](https://github.com/PStarH/Commander/blob/master/docs/content/why-retrying-ai-agent-external-actions-is-unsafe.md) for why timeouts are not failure states and why blind retries by AI agents cause duplicate mutations.
 
 ## Enterprise evaluation & pilots
 

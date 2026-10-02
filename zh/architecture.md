@@ -130,3 +130,4 @@ file-backed state is not a multi-replica authority.
 - `docs/architecture/000-index.md` — ADR index and feature-freeze rules
 - `docs/v2-migration-guide.md` — migrating to Architecture V2
 - `docs/slo.md` — SLO definitions
+- [Why retrying an agent external action is unsafe](https://github.com/PStarH/Commander/blob/master/docs/content/why-retrying-ai-agent-external-actions-is-unsafe.md) — Failure model: why timeouts are not failures and why blind retries cause duplicate mutations
