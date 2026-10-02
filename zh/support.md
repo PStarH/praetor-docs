@@ -4,9 +4,7 @@
 
 ## Support
 
-Use GitHub Discussions for usage questions and GitHub Issues for reproducible
-bugs. Report vulnerabilities privately using the contact instructions in the
-repository `SECURITY.md`; do not open public vulnerability issues.
+Open a [GitHub issue](https://github.com/PStarH/Commander/issues) for usage questions, proposals, and reproducible bugs. Report vulnerabilities privately through [GitHub Security Advisories](https://github.com/PStarH/Commander/security/advisories/new) as described in the repository `SECURITY.md`; do not open public vulnerability issues.
 
 ## Current limits
 

@@ -145,5 +145,4 @@ needs no local runtime.
 
 ## Still stuck
 
-Use GitHub Discussions for usage questions and GitHub Issues for reproducible
-bugs. Report vulnerabilities privately as described in `SECURITY.md`.
+Open a [GitHub issue](https://github.com/PStarH/Commander/issues) for questions, proposals, and reproducible bugs. Report vulnerabilities privately through [GitHub Security Advisories](https://github.com/PStarH/Commander/security/advisories/new) as described in `SECURITY.md`.
