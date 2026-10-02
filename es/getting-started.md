@@ -10,6 +10,15 @@
 Enterprise customers should start with [Shadow Phase A](https://github.com/PStarH/Commander/blob/shadow-phase-a-0.1.0-alpha.20260910/docs/pilot/shadow/README.md),
 which evaluates historical observations without external actions.
 
+## Choose your first experience
+
+| What you want to do | Path | Credentials needed |
+| --- | --- | --- |
+| **Experience multi-agent deliberation & quality gates** | [1. Simulated demo](#_1-install-and-run-the-simulated-demo) | None (in-memory simulation) |
+| **Review real Git diffs with LLM-as-a-judge** | [2. Provider read-only review](#_2-provider-backed-read-only-review-recommended-first-trial) | 1 API Key (OpenAI / Anthropic / DeepSeek) |
+| **Test network response-loss recovery & idempotency** | [3. GitHub pilot offline tests](#_3-github-action-pilot-governed-writes-recovery) | None (mocked offline harness) |
+| **Launch the visual control center** | [4. Local interfaces](#_4-local-interfaces) | None (`pnpm gui` starts local dev console) |
+
 ## 1. Install and run the simulated demo
 
 ```bash

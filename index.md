@@ -10,6 +10,32 @@ Blindly retrying creates duplicate PRs, double transactions, and corrupted state
 
 Commander solves this fundamental distributed systems problem. It records the approved request and its execution state outside the agent, performs **preflight query-before-retry** to detect whether a mutation already took effect, and stops in an explicit `UNKNOWN` state when the evidence is ambiguous rather than making dangerous assumptions.
 
+```
+   ┌────────────────────────────────────────────────────────┐
+   │        AI Agent Frameworks & LLMs                      │
+   │  Claude Code · Cursor · OpenAI Agents · LangGraph      │
+   └──────────────────────────┬─────────────────────────────┘
+                              │ 1. Propose Mutation (No direct write tokens)
+                              ▼
+   ┌────────────────────────────────────────────────────────┐
+   │            Commander Control Plane                     │
+   │  ┌─────────────────────────┐ ┌──────────────────────┐  │
+   │  │ Preflight Idempotency   │ │ Two-Phase Human Gate │  │
+   │  │ (Query-Before-Retry)    │ │ (Cryptographic Hash) │  │
+   │  └─────────────────────────┘ └──────────────────────┘  │
+   │  ┌─────────────────────────┐ ┌──────────────────────┐  │
+   │  │ Durable Postgres Kernel │ │ Tamper-Evident Audit │  │
+   │  │ (Crash-safe step lease) │ │ (Ed25519 Signed JWS) │  │
+   │  └─────────────────────────┘ └──────────────────────┘  │
+   └──────────────────────────┬─────────────────────────────┘
+                              │ 2. Governed Write & Auto-Compensation
+                              ▼
+   ┌────────────────────────────────────────────────────────┐
+   │       External Infrastructure & Version Control        │
+   │   GitHub (PRs/Issues) · Kubernetes · Cloud APIs        │
+   └────────────────────────────────────────────────────────┘
+```
+
 Read the technical essay: [Why retrying an AI agent's external action is unsafe](https://github.com/PStarH/Commander/blob/master/docs/content/why-retrying-ai-agent-external-actions-is-unsafe.md).
 
 ## The Distributed Systems Problem for AI Agents
@@ -22,6 +48,31 @@ Read the technical essay: [Why retrying an AI agent's external action is unsafe]
 | **Human Sign-Off** | Text-based prompt or unverified button | **Cryptographic Binding**: Approval locks immutable request digest & policy snapshot |
 | **Audit & Forensics** | Ephemeral console text | **Ed25519 Evidence**: JWS signed receipts for independent verification |
 | **Rollback / Undo** | Ad-hoc scripts or impossible | **Governed Compensation**: Requires separate authorization binding and dedicated receipt |
+
+## ⚡ 4 Ways to Experience Commander (Under 60 Seconds)
+
+| Path | Command | What It Exercises |
+| --- | --- | --- |
+| **1. Zero-Dependency Demo** | `pnpm demo:l4-a` | Multi-agent deliberation, 5 quality gates, in-memory execution (no API key needed) |
+| **2. Real Provider Code Review** | `pnpm exec tsx packages/core/src/cliEntry.ts review --commit HEAD --real --provider=openai` | Read-only analysis of your Git diff across configured quality gates |
+| **3. Interactive Web Console** | `pnpm gui` | Live control room on `:5173`: agent topology, DLQ inspection, and approval queue |
+| **4. Governed Action Offline Test** | `pnpm test:github:offline` | 130 offline contract assertions for idempotency & response-loss recovery |
+
+### 📦 4-Line Integration (Python SDK)
+
+```python
+from commander_sdk import CommanderClient
+
+# Connect to the Commander execution control plane
+client = CommanderClient(base_url="http://localhost:4000")
+
+# Dispatch a mutation with preflight query-before-retry and cryptographic approval
+run = client.runs.create(
+    task="Review auth module diff and propose hotfix PR",
+    require_approval=True
+)
+print(f"Run {run.run_id} initiated; approval required: {run.approval_required}")
+```
 
 ## Core Architecture & Capabilities
 
