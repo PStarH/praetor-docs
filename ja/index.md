@@ -2,9 +2,39 @@
 
 > This page is synchronized from the canonical English documentation. 日本語 navigation is available; commands and product limits are identical in every locale.
 
-Approval and recovery for Coding and DevOps agents, starting with GitHub pull requests.
+Approval and Recovery Plane for Coding & DevOps AI Agents
 
-Once an agent's action reaches an external system, a timeout or crash can leave three questions open: did it happen, how many times, and with what payload? Retrying blindly can duplicate the write; giving up can lose it. Commander records the approved request and its execution state outside the agent, looks up the outcome after an ambiguous response, and stops in an explicit unknown state when the evidence is not conclusive. See the [failure model and recovery principles](https://github.com/PStarH/Commander/blob/master/docs/content/why-retrying-ai-agent-external-actions-is-unsafe.md) for why timeouts are not failure states and why blind retries by AI agents cause duplicate mutations.
+*Prevent duplicate mutations · Recover from dropped network responses · Cryptographically signed evidence*
+
+Autonomous agents are rapidly taking on mission-critical workflows: modifying codebases, opening pull requests, running database migrations, and provisioning cloud infrastructure. But when an agent makes an external write, **a network timeout, dropped socket, or worker restart leaves the system in an ambiguous state: did the write happen, how many times, and with what payload?**
+
+Blindly retrying creates duplicate PRs, double transactions, and corrupted state. Simply giving up leaves orphaned mutations.
+
+Commander solves this fundamental distributed systems problem. It records the approved request and its execution state outside the agent, performs **preflight query-before-retry** to detect whether a mutation already took effect, and stops in an explicit `UNKNOWN` state when the evidence is ambiguous rather than making dangerous assumptions.
+
+Read the technical essay: [Why retrying an AI agent's external action is unsafe](https://github.com/PStarH/Commander/blob/master/docs/content/why-retrying-ai-agent-external-actions-is-unsafe.md).
+
+## The Distributed Systems Problem for AI Agents
+
+| Challenge | Naive Agent Execution | Commander Governed Action |
+| --- | --- | --- |
+| **Response Loss** (e.g. 504 Gateway Timeout during PR creation) | Re-plans or retries blindly → **Duplicate PRs & mutations** | **Preflight Query-Before-Retry**: Checks remote outcome by action identity before retry |
+| **Worker Crash Mid-Task** | State lost or restarted from zero with orphaned external side effects | **Durable PostgreSQL Kernel**: Step lease reclaims; new worker resumes safely |
+| **Credential Exposure** | Agent process directly holds write API keys / GitHub tokens | **Strict Boundary**: Agent only has *propose* authority; write tokens stay in worker plane |
+| **Human Sign-Off** | Text-based prompt or unverified button | **Cryptographic Binding**: Approval locks immutable request digest & policy snapshot |
+| **Audit & Forensics** | Ephemeral console text | **Ed25519 Evidence**: JWS signed receipts for independent verification |
+| **Rollback / Undo** | Ad-hoc scripts or impossible | **Governed Compensation**: Requires separate authorization binding and dedicated receipt |
+
+## Core Architecture & Capabilities
+
+Commander provides a robust execution fabric that separates agent reasoning from external side-effects:
+
+- **Deliberation Engine**: Classifies incoming tasks by complexity and automatically selects one of five canonical execution topologies (`SINGLE`, `CHAIN`, `DISPATCH`, `ORCHESTRATOR`, `REVIEW`).
+- **25 LLM Providers with Auto-Failover**: Seamlessly fallback across OpenAI, Anthropic, Gemini, Groq, Mistral, Ollama, DeepSeek, and 18 others with unified configuration. See [Providers](/providers).
+- **18 Built-in Tools & Native MCP**: Built-in shell, filesystem, and Git tools with capability trust tiers, plus full Model Context Protocol (stdio MCP) server support. See [Tools](/tools) and [MCP](/mcp).
+- **Multi-Layer Quality Verification**: Configurable evaluation pipeline assessing hallucination, consistency, completeness, accuracy, and safety before mutations take effect.
+- **Distributed Durability**: Circuit breakers, dead-letter queues (DLQ), saga compensation, and PostgreSQL-backed crash-safe step leasing.
+- **Governed Mutation Plane**: Capability tokens, policy decisions, cryptographic human approval binding, and Ed25519-signed evidence receipts.
 
 ## Enterprise evaluation & pilots
 
@@ -19,21 +49,6 @@ Commander is alpha. Two evaluation paths are available:
 - **Local CLI:** the supported default for one developer or a local team.
 - **Web console:** a local interface served with the API.
 - **Enterprise Gateway:** an alpha `/v1` server path (`apps/api` → `@commander/kernel` Postgres → worker-plane + effect-broker). It is not a production-proven multi-tenant SaaS.
-
-## What Commander does
-
-- **Deliberation** classifies each task, estimates complexity, and selects one of
-  five canonical topologies (`SINGLE`, `CHAIN`, `DISPATCH`, `ORCHESTRATOR`,
-  `REVIEW`).
-- **25 providers** with a configurable auto-failover chain — set one API key to
-  start. See [Providers](/providers).
-- **18 built-in tools** plus MCP-compatible external tools. See [Tools](/tools).
-- **Five quality gates** on paths where the verification pipeline is enabled:
-  hallucination, consistency, completeness, accuracy, safety.
-- **Durability:** circuit breakers, a dead letter queue, saga compensation, and
-  crash-safe checkpointing.
-- **Governed external writes** through the Architecture V2 effect broker, with
-  capability tokens, policy decisions, approvals, and signed evidence.
 
 ## Start here
 
