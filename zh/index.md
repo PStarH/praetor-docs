@@ -1,4 +1,4 @@
-# Commander
+# Praetor
 
 面向 Coding 与 DevOps AI 智能体的安全审批与状态恢复平面
 
@@ -8,10 +8,10 @@
 
 盲目重试会导致重复的 PR、多次重复扣款/计费或底层状态污染；而直接放弃又会留下悬空的外部孤立副作用。
 
-Commander 从系统底层解决了这一经典分布式系统难题。它在智能体外部独立记录审批后的请求与其执行状态，执行 **Preflight（执行前排重查询）** 来探测外部实体是否已生效；当证据模糊存疑时，系统明确停止在 `UNKNOWN` 状态并告警，坚决杜绝盲目猜测或重复执行。
+Praetor 从系统底层解决了这一经典分布式系统难题。它在智能体外部独立记录审批后的请求与其执行状态，执行 **Preflight（执行前排重查询）** 来探测外部实体是否已生效；当证据模糊存疑时，系统明确停止在 `UNKNOWN` 状态并告警，坚决杜绝盲目猜测或重复执行。
 
 <p align="center">
-  <img src="/commander-overview-zh.png" alt="Commander 核心架构与安全治理全景" width="100%" />
+  <img src="/commander-overview-zh.png" alt="Praetor 核心架构与安全治理全景" width="100%" />
 </p>
 
 <details>
@@ -25,7 +25,7 @@ Commander 从系统底层解决了这一经典分布式系统难题。它在智�
                               │ 1. 提议变更（智能体不直接持有写权限凭据）
                               ▼
    ┌────────────────────────────────────────────────────────┐
-   │             Commander 治理与恢复控制面                 │
+   │             Praetor 治理与恢复控制面                 │
    │  ┌─────────────────────────┐ ┌──────────────────────┐  │
    │  │ 重试前预检 (幂等性保证) │ │ 人类双阶段密码学审批 │  │
    │  │ (Query-Before-Retry)    │ │ (Cryptographic Hash) │  │
@@ -45,11 +45,11 @@ Commander 从系统底层解决了这一经典分布式系统难题。它在智�
 
 </details>
 
-深入阅读工程长文：[为什么智能体的外部写操作不能盲目重试？](https://github.com/PStarH/Commander/blob/master/docs/content/why-retrying-ai-agent-external-actions-is-unsafe.md)。
+深入阅读工程长文：[为什么智能体的外部写操作不能盲目重试？](https://github.com/PStarH/Praetor/blob/master/docs/content/why-retrying-ai-agent-external-actions-is-unsafe.md)。
 
 ## AI 智能体面临的分布式系统挑战
 
-| 核心挑战 | 传统智能体朴素执行 | Commander 受治理执行 |
+| 核心挑战 | 传统智能体朴素执行 | Praetor 受治理执行 |
 | --- | --- | --- |
 | **响应丢失**（如创建 PR 时遭遇 504 网关超时） | 重新规划或盲目重试 → **产生重复 PR 与脏变更** | **Preflight 执行前排重**：基于操作唯一身份先查后试，杜绝重复写入 |
 | **节点中途崩溃** | 状态丢失或归零重跑，留下不可控的外部副作用 | **持久化 PostgreSQL 内核**：租约安全回收，新 Worker 无缝接管与恢复 |
@@ -62,7 +62,7 @@ Commander 从系统底层解决了这一经典分布式系统难题。它在智�
   <img src="/commander-preflight-protocol-zh.png" alt="图 1: Preflight 执行前排重与故障恢复协议" width="100%" />
 </p>
 
-## ⚡ 60 秒内上手体验 Commander 的 4 种方式
+## ⚡ 60 秒内上手体验 Praetor 的 4 种方式
 
 | 体验路径 | 执行命令 | 验证的核心能力 |
 | --- | --- | --- |
@@ -113,8 +113,8 @@ async with CommanderGatewayClient(base_url="http://127.0.0.1:4000", api_key="cmd
     "commander": {
       "command": "commander-mcp-server",
       "env": {
-        "COMMANDER_ACTION_GATEWAY_URL": "http://127.0.0.1:4000",
-        "COMMANDER_API_KEY": "cmd-..."
+        "PRAETOR_ACTION_GATEWAY_URL": "http://127.0.0.1:4000",
+        "PRAETOR_API_KEY": "cmd-..."
       }
     }
   }
@@ -123,7 +123,7 @@ async with CommanderGatewayClient(base_url="http://127.0.0.1:4000", api_key="cmd
 
 ## 核心架构与系统能力
 
-Commander 构建了坚固的执行织网，将智能体的不受信推理与底层生产变更彻底解耦：
+Praetor 构建了坚固的执行织网，将智能体的不受信推理与底层生产变更彻底解耦：
 
 - **任务审议引擎 (Deliberation Engine)**: 根据任务类型与复杂度，自动推导并匹配最佳执行拓扑架构（`SINGLE`, `CHAIN`, `DISPATCH`, `ORCHESTRATOR`, `REVIEW`）。
 - **25+ 主流大模型提供商与自动故障转移**: 统一配置，在 OpenAI、Anthropic、Gemini、Groq、Mistral、Ollama、DeepSeek 等之间无缝切换。详见 [模型供应商](/zh/providers)。
@@ -134,17 +134,17 @@ Commander 构建了坚固的执行织网，将智能体的不受信推理与底�
 
 ## 企业试点评估路径
 
-Commander 当前处于 **Alpha** 阶段，提供两条严密的评估路径：
+Praetor 当前处于 **Alpha** 阶段，提供两条严密的评估路径：
 
-- **GitHub 试点（受治理动作与故障恢复）：** 聚焦于基于同仓库现有分支创建 PR。智能体提出提议，人类审批确切请求。当遭遇网络丢包时，系统通过持久化的动作唯一身份查询 GitHub，而非创建重复 PR。详见 [GitHub 试点指南](https://github.com/PStarH/Commander/blob/master/docs/pilot/github/README.md)。
-- **Shadow Phase A（历史影子评估模式）：** 企业本地运行的只读评估模式，对照固定的策略版本重放历史调用观测，不执行任何外部变更。请下载 [Shadow Phase A 发行包](https://github.com/PStarH/Commander/releases/tag/shadow-phase-a-0.1.0-alpha.20260910)。
-- **企业试点就绪清单：** 包含安全性、多租户、SLO 与数据合规的详细技术对照基准。正式试点前请审阅 [ENTERPRISE_READINESS.md](https://github.com/PStarH/Commander/blob/master/ENTERPRISE_READINESS.md)。
+- **GitHub 试点（受治理动作与故障恢复）：** 聚焦于基于同仓库现有分支创建 PR。智能体提出提议，人类审批确切请求。当遭遇网络丢包时，系统通过持久化的动作唯一身份查询 GitHub，而非创建重复 PR。详见 [GitHub 试点指南](https://github.com/PStarH/Praetor/blob/master/docs/pilot/github/README.md)。
+- **Shadow Phase A（历史影子评估模式）：** 企业本地运行的只读评估模式，对照固定的策略版本重放历史调用观测，不执行任何外部变更。请下载 [Shadow Phase A 发行包](https://github.com/PStarH/Praetor/releases/tag/shadow-phase-a-0.1.0-alpha.20260910)。
+- **企业试点就绪清单：** 包含安全性、多租户、SLO 与数据合规的详细技术对照基准。正式试点前请审阅 [ENTERPRISE_READINESS.md](https://github.com/PStarH/Praetor/blob/master/ENTERPRISE_READINESS.md)。
 
 ## 开发产品形态
 
 - **Local CLI:** 面向个人开发者或本地研发团队的默认支持路径。
 - **Web 控制台:** 随 API 启动的可视化控制大屏，用于实时流式查看拓扑与审批动作。
-- **Enterprise Gateway:** 处于 Alpha 阶段的 `/v1` 服务端路径 (`apps/api` → `@commander/kernel` Postgres → worker-plane + effect-broker)。
+- **Enterprise Gateway:** 处于 Alpha 阶段的 `/v1` 服务端路径 (`apps/api` → `@praetor/kernel` Postgres → worker-plane + effect-broker)。
 
 ## 快速导航
 

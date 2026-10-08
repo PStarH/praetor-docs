@@ -2,7 +2,7 @@
 
 > This page is synchronized from the canonical English documentation. Français navigation is available; commands and product limits are identical in every locale.
 
-Commander supports **25 providers**. Set at least one API key and Commander
+Praetor supports **25 providers**. Set at least one API key and Praetor
 detects which provider you configured.
 
 The registry is the single source of truth: `registerProvider()` calls in
@@ -72,7 +72,7 @@ Azure OpenAI additionally uses `AZURE_OPENAI_API_VERSION`.
 
 ## Failover
 
-Providers form a configurable auto-failover chain. `commander init` scans for
+Providers form a configurable auto-failover chain. `praetor init` scans for
 configured keys, tests connectivity, measures latency, and writes the resulting
 chain to `.commander.json`. Per-provider circuit breakers track error rates and
 open after consecutive failures, moving traffic to the next provider in the
@@ -80,7 +80,7 @@ chain.
 
 ## Model tiers
 
-`COMMANDER_MIN_SENSITIVE_MODEL_TIER` sets a floor for the model tier used on
+`PRAETOR_MIN_SENSITIVE_MODEL_TIER` sets a floor for the model tier used on
 sensitive steps. Tiers are `eco`, `standard`, `power`, and `consensus`; the
 default is `standard`. A step that needs a higher tier will not be routed to a
 lower one.
@@ -88,5 +88,5 @@ lower one.
 ## Credential handling
 
 Provider keys are resolved **vault-first, then environment**. The encrypted
-secrets vault (`COMMANDER_MASTER_KEY`) uses AES-256-GCM with HKDF-SHA-256
+secrets vault (`PRAETOR_MASTER_KEY`) uses AES-256-GCM with HKDF-SHA-256
 derivation. See [Security and privacy](/security#secret-handling).

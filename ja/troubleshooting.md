@@ -20,7 +20,7 @@ It needs a native compile step.
 
 If it still fails, switch to an in-memory store with
 `API_STORE_BACKEND=memory`. In production you must also set
-`COMMANDER_ALLOW_MEMORY_STORE=1`, because the API otherwise fails closed. An
+`PRAETOR_ALLOW_MEMORY_STORE=1`, because the API otherwise fails closed. An
 in-memory store persists nothing — use it for development only.
 
 ### `npm install` reports `UNMET DEPENDENCY`
@@ -37,7 +37,7 @@ pnpm install --frozen-lockfile
 
 ### The API exits immediately on startup
 
-A required startup secret or the database connection is missing. The API refuses to start without `COMMANDER_API_KEY`, `COMMANDER_MASTER_KEY`, `JWT_SECRET`, `COMMANDER_CAPABILITY_TOKEN_KEY`, `COMMANDER_INTEGRITY_KEY`, `COMMANDER_EVIDENCE_JWKS_JSON`, and `ADMIN_PASSWORD`.
+A required startup secret or the database connection is missing. The API refuses to start without `PRAETOR_API_KEY`, `PRAETOR_MASTER_KEY`, `JWT_SECRET`, `PRAETOR_CAPABILITY_TOKEN_KEY`, `PRAETOR_INTEGRITY_KEY`, `PRAETOR_EVIDENCE_JWKS_JSON`, and `ADMIN_PASSWORD`.
 
 Additionally, the authentication subsystem strictly requires PostgreSQL: if `DATABASE_URL` is absent, the API exits with `AUTH_DATABASE_URL_REQUIRED`. In containerized deployments, boot the PostgreSQL-backed stack using `-f docker-compose.yml -f docker-compose.v2.yml -f docker-compose.kernel-tls.yml --profile v2 up -d --build`.
 
@@ -45,17 +45,17 @@ Additionally, the authentication subsystem strictly requires PostgreSQL: if `DAT
 
 Neither `API_STORE_BACKEND` nor `DATABASE_URL` is set. Configure a durable
 store, or opt into the in-memory store explicitly with
-`COMMANDER_ALLOW_MEMORY_STORE=1`.
+`PRAETOR_ALLOW_MEMORY_STORE=1`.
 
 ### Requests return `401`
 
 The API is default-deny. Either present a credential — `X-API-Key: <key>` or
 `Authorization: Bearer <key>` / `<jwt>` — or, for local development only, set
-`COMMANDER_ALLOW_ANON=1`. Note that `AUTH_DISABLED=true` returns `500` in
+`PRAETOR_ALLOW_ANON=1`. Note that `AUTH_DISABLED=true` returns `500` in
 production by design; outside production it still requires
-`COMMANDER_ALLOW_ANON=1`.
+`PRAETOR_ALLOW_ANON=1`.
 
-`COMMANDER_API_KEY` is a startup secret, not the inbound request key. Inbound
+`PRAETOR_API_KEY` is a startup secret, not the inbound request key. Inbound
 keys are issued into PostgreSQL.
 
 `/metrics`, `/v1/health`, and `/v1/openapi.json` are **not** in the public path
@@ -91,7 +91,7 @@ docker compose -f docker-compose.yml -f docker-compose.v2.yml -f docker-compose.
 
 ### Compose asks for variables that are not in `.env`
 
-The Compose files mark several secrets as required with `${VAR:?}`, including `COMMANDER_EVIDENCE_JWKS_JSON`. Generate each secret and populate your `.env` file before starting Compose.
+The Compose files mark several secrets as required with `${VAR:?}`, including `PRAETOR_EVIDENCE_JWKS_JSON`. Generate each secret and populate your `.env` file before starting Compose.
 
 ## CLI
 
@@ -100,7 +100,7 @@ The Compose files mark several secrets as required with `${VAR:?}`, including `C
 Costly commands are limited to 10 LLM-costly invocations per minute across
 processes. Wait and retry.
 
-### `commander gui` fails
+### `praetor gui` fails
 
 `gui` itself only spawns the API and the web dev server, so the failure is
 almost always the API refusing to start. Check the API output in the same
@@ -112,19 +112,19 @@ production mode, a port already in use, or a missing `apps/api/src/index.ts`
 
 ### A tool call is blocked with a sandbox error
 
-By default Commander fails closed when no OS-level sandbox is available. Set
-`COMMANDER_ALLOW_NO_SANDBOX=true` only for trusted local development — it is
+By default Praetor fails closed when no OS-level sandbox is available. Set
+`PRAETOR_ALLOW_NO_SANDBOX=true` only for trusted local development — it is
 forbidden in production.
 
-If you are selecting an isolation mechanism, `COMMANDER_SANDBOX_ISOLATION`
+If you are selecting an isolation mechanism, `PRAETOR_SANDBOX_ISOLATION`
 accepts **only** `process`, `docker`, or `gvisor`, and `process` is rejected in
 production. Seatbelt and bwrap are auto-discovered mechanisms, not values you
 can request here.
 
 ### `commander action` fails immediately
 
-`commander action` requires both `COMMANDER_API_KEY` and a reachable
-`COMMANDER_ACTION_GATEWAY_URL`. Also check the subcommand spelling: evidence is
+`commander action` requires both `PRAETOR_API_KEY` and a reachable
+`PRAETOR_ACTION_GATEWAY_URL`. Also check the subcommand spelling: evidence is
 `action evidence verify <runId>`, not `action evidence <runId>`, and there is no
 `action commands` subcommand.
 
@@ -132,17 +132,17 @@ can request here.
 
 ### The Python client hits the wrong port
 
-`CommanderGatewayClient` reads `COMMANDER_API_URL` and defaults to
+`CommanderGatewayClient` reads `PRAETOR_API_URL` and defaults to
 `http://127.0.0.1:4000`. The legacy `CommanderClient` / `CommanderClientSync`
-ignores `COMMANDER_API_URL` and still defaults to port `3001`, which is not an
+ignores `PRAETOR_API_URL` and still defaults to port `3001`, which is not an
 API port. Always pass an explicit `base_url`, or use the Gateway client.
 
-### `@commander/sdk` in-process client cannot find `@commander/core`
+### `@praetor/sdk` in-process client cannot find `@praetor/core`
 
-`CommanderClient` dynamically imports `@commander/core`, which is a peer
+`CommanderClient` dynamically imports `@praetor/core`, which is a peer
 dependency. Install it alongside the SDK, or use `CommanderGatewayClient`, which
 needs no local runtime.
 
 ## Still stuck
 
-Open a [GitHub issue](https://github.com/PStarH/Commander/issues) for questions, proposals, and reproducible bugs. Report vulnerabilities privately through [GitHub Security Advisories](https://github.com/PStarH/Commander/security/advisories/new) as described in `SECURITY.md`.
+Open a [GitHub issue](https://github.com/PStarH/Praetor/issues) for questions, proposals, and reproducible bugs. Report vulnerabilities privately through [GitHub Security Advisories](https://github.com/PStarH/Praetor/security/advisories/new) as described in `SECURITY.md`.

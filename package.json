@@ -1,7 +1,7 @@
 {
-  "name": "commander-docs",
+  "name": "praetor-docs",
   "version": "0.1.0",
-  "description": "Commander documentation — alpha runtime, action governance, and historical Shadow evaluation",
+  "description": "Praetor documentation — alpha runtime, action governance, and historical Shadow evaluation",
   "type": "module",
   "scripts": {
     "dev": "vitepress dev",

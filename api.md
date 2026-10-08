@@ -29,9 +29,9 @@ There is no `/readyz` or `/livez` route.
 | JWT | `Authorization: Bearer <jwt>`. HS256 signed with `JWT_SECRET`; access tokens 24h, refresh 7d |
 | OIDC | `OIDC_*` configuration; config persisted at `.commander/oidc-config.json` |
 | SCIM | Requires JWT role `admin`/`super_admin`, or an API-key scope of `scim`/`admin`/`*` |
-| A2A | `COMMANDER_A2A_AUTH_TOKEN` bearer, minimum 16 characters |
+| A2A | `PRAETOR_A2A_AUTH_TOKEN` bearer, minimum 16 characters |
 
-`COMMANDER_API_KEY` is a **required startup secret** and Commander's own
+`PRAETOR_API_KEY` is a **required startup secret** and Praetor's own
 credential toward the Action Gateway — it is not the inbound key store.
 
 `X-Tenant-ID` is accepted but never authoritative: it may only match the
@@ -41,13 +41,13 @@ Public (unauthenticated) paths: `/health`, `/health/detailed`, `/ready`,
 `/system/status`, `/api/openapi.json`, `/a2a/.well-known/agent-card`,
 `/mcp/.well-known/mcp`, and the `/api/auth/{login,register,refresh,logout}`
 family. Everything else is default-deny: anonymous access requires an explicit
-`COMMANDER_ALLOW_ANON=1`.
+`PRAETOR_ALLOW_ANON=1`.
 
 Note that **`/metrics`, `/v1/health`, and `/v1/openapi.json` are not in that
 public list**. They are exempted by the JWT and tenant layers, but the API's
 default-deny auth middleware still requires a credential for them. If you scrape
 `/metrics` or probe `/v1/health`, either present a credential or set
-`COMMANDER_ALLOW_ANON=1`.
+`PRAETOR_ALLOW_ANON=1`.
 
 ## Gateway `/v1` (alpha)
 
@@ -141,16 +141,16 @@ for product routes and against `/v1` (with no `/api` prefix) for the Gateway.
 | `/scim/v2` | SCIM 2.0 provisioning for Users and Groups |
 
 The `/mcp` HTTP endpoint is a management and discovery surface. To expose
-Commander tools to an MCP *client*, run the `commander-mcp-server` stdio
+Praetor tools to an MCP *client*, run the `commander-mcp-server` stdio
 process instead — see [MCP](/mcp).
 
 ## Removed and gated routes
 
 Legacy execution is allowed only when **all** four conditions hold:
 
-1. `COMMANDER_LEGACY_EXECUTION=1`
+1. `PRAETOR_LEGACY_EXECUTION=1`
 2. `NODE_ENV` is not `production`
-3. `COMMANDER_V2_MODE` is not `1`
+3. `PRAETOR_V2_MODE` is not `1`
 4. the resolved profile is not `enterprise`
 
 If any condition fails, every surface below is unavailable.
@@ -167,7 +167,7 @@ If any condition fails, every surface below is unavailable.
   authentication fails before the legacy check.
 - `/v2` bench routes (`/v2/runs`, `/v2/runs/batch`, `/v2/runs/status`,
   `/v2/effects`, `/v2/bench/anomalies`) are a benchmark harness. They are
-  mounted only when `COMMANDER_V2_BENCH_HARNESS=1` and must not be enabled in a
+  mounted only when `PRAETOR_V2_BENCH_HARNESS=1` and must not be enabled in a
   production topology.
 - The orchestrator is also mounted under a legacy versioned prefix. That alias
   is not a documented integration surface — use `/v1/*` instead.

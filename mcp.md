@@ -1,11 +1,11 @@
 # MCP (Model Context Protocol)
 
-Commander participates in MCP in two different ways, and it is easy to confuse
+Praetor participates in MCP in two different ways, and it is easy to confuse
 them:
 
 1. **`commander-mcp-server`** — a publishable **stdio** server you run alongside
    an MCP client (Claude Desktop, Cursor, and similar). This is how you expose
-   Commander to an external agent.
+   Praetor to an external agent.
 2. **The `/mcp` HTTP endpoints on the API** — a management and discovery surface
    (`POST /mcp`, `/mcp/discover`, `/mcp/connect`, `/mcp/status`,
    `/.well-known/mcp`). This is **not** the transport an MCP client uses. See
@@ -16,7 +16,7 @@ This page covers the stdio server.
 ## Install and run
 
 ```bash
-npx -y @commander/mcp-server
+npx -y @praetor/mcp-server
 # or, after install:
 commander-mcp-server
 ```
@@ -26,12 +26,12 @@ tools through the standard MCP `tools/list` capability.
 
 ## Two operating modes
 
-The mode is chosen by `COMMANDER_MCP_LOCAL_RUNTIME`, and it changes the tool set
+The mode is chosen by `PRAETOR_MCP_LOCAL_RUNTIME`, and it changes the tool set
 entirely — it is not an additive flag.
 
 ### Gateway mode (default)
 
-Used when `COMMANDER_MCP_LOCAL_RUNTIME` is not `1`. Registers the eight governed
+Used when `PRAETOR_MCP_LOCAL_RUNTIME` is not `1`. Registers the eight governed
 action tools. Every one of them talks to the Action Gateway, so external writes
 stay behind policy, approvals, and evidence.
 
@@ -48,10 +48,10 @@ stay behind policy, approvals, and evidence.
 
 ### Local runtime mode
 
-Used when `COMMANDER_MCP_LOCAL_RUNTIME=1`. Registers a different set:
+Used when `PRAETOR_MCP_LOCAL_RUNTIME=1`. Registers a different set:
 
 - **Model-router tools:** `execute_agent`, `list_models`, `route_task`.
-- **Commander's built-in tools**, exposed through `registerCommanderTools`.
+- **Praetor's built-in tools**, exposed through `registerCommanderTools`.
 
 This mode is for local development against your own machine. It is not the
 governed path.
@@ -66,7 +66,7 @@ explicitly opts in with `allowDangerousTools`. The filtered set includes:
 `file_write`, `python_execute`, and `execute_script`.
 
 Even with the opt-in, a tool that requires an external write still returns an
-`ACTION_GATEWAY_REQUIRED` error unless `COMMANDER_ACTION_GATEWAY_URL` is
+`ACTION_GATEWAY_REQUIRED` error unless `PRAETOR_ACTION_GATEWAY_URL` is
 configured — non-read-only tools cannot execute purely locally. They must be
 proposed through `/v1/actions`.
 
@@ -74,9 +74,9 @@ proposed through `/v1/actions`.
 
 | Variable | Purpose |
 | --- | --- |
-| `COMMANDER_ACTION_GATEWAY_URL` | Gateway base URL. **Required** in enterprise/production mode and whenever dangerous tools are allowed. Missing it fails closed |
-| `COMMANDER_API_KEY` | Credential presented to the gateway |
-| `COMMANDER_MCP_LOCAL_RUNTIME` | Set to `1` to switch from gateway mode to local runtime mode |
+| `PRAETOR_ACTION_GATEWAY_URL` | Gateway base URL. **Required** in enterprise/production mode and whenever dangerous tools are allowed. Missing it fails closed |
+| `PRAETOR_API_KEY` | Credential presented to the gateway |
+| `PRAETOR_MCP_LOCAL_RUNTIME` | Set to `1` to switch from gateway mode to local runtime mode |
 
 Client configuration:
 
@@ -87,8 +87,8 @@ Client configuration:
       "command": "commander-mcp-server",
       "args": [],
       "env": {
-        "COMMANDER_ACTION_GATEWAY_URL": "https://commander.example",
-        "COMMANDER_API_KEY": "replace-with-a-scoped-key"
+        "PRAETOR_ACTION_GATEWAY_URL": "https://commander.example",
+        "PRAETOR_API_KEY": "replace-with-a-scoped-key"
       }
     }
   }
@@ -102,18 +102,18 @@ are permitted:
 
 - Allowed by default: `node`, `nodejs`, `python`, `python3`, `bun`, `deno`.
 - **`npx` is always forbidden.**
-- `uvx` is forbidden unless `COMMANDER_MCP_ALLOW_UVX=1`.
-- Extend the list with `COMMANDER_MCP_ALLOWED_COMMANDS`.
+- `uvx` is forbidden unless `PRAETOR_MCP_ALLOW_UVX=1`.
+- Extend the list with `PRAETOR_MCP_ALLOWED_COMMANDS`.
 - Inline-evaluation and module-loader flags are rejected: `-e`, `-c`, `--eval`,
   `--require`, `--loader`, `--inspect*`, and short-option clusters such as `-pe`.
 
 The API `/mcp` discovery path uses its own **hardcoded** allowlist of `node`,
-`python`, and `python3`, and does not read `COMMANDER_MCP_ALLOWED_COMMANDS`.
+`python`, and `python3`, and does not read `PRAETOR_MCP_ALLOWED_COMMANDS`.
 
 ## Related integrations
 
-`@commander/openai-agents-mcp` is an independent process boundary that consumes
+`@praetor/openai-agents-mcp` is an independent process boundary that consumes
 the published MCP server over stdio using the public `@openai/agents` SDK. It
-imports no Commander packages and calls no Commander internals. Its
+imports no Praetor packages and calls no Praetor internals. Its
 deterministic mode is the CI path and makes no model-network request; `live`
 mode is opt-in.

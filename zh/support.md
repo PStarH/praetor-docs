@@ -2,8 +2,8 @@
 
 ## 技术支持与沟通渠道 (Support)
 
-- **日常使用、功能建议与缺陷反馈**：欢迎通过 [GitHub Issues](https://github.com/PStarH/Commander/issues) 提交工单，提出改进建议或提供包含可复现步骤的 Bug 报告。
-- **安全漏洞私密报告**：若发现潜在的越权漏洞、沙箱逃逸或凭据泄露风险，请务必遵循仓库中的 `SECURITY.md` 规范，通过 [GitHub Security Advisories（安全通报专区）](https://github.com/PStarH/Commander/security/advisories/new) 提交私密通报，严禁在公开 Issue 列表中披露漏洞细节。
+- **日常使用、功能建议与缺陷反馈**：欢迎通过 [GitHub Issues](https://github.com/PStarH/Praetor/issues) 提交工单，提出改进建议或提供包含可复现步骤的 Bug 报告。
+- **安全漏洞私密报告**：若发现潜在的越权漏洞、沙箱逃逸或凭据泄露风险，请务必遵循仓库中的 `SECURITY.md` 规范，通过 [GitHub Security Advisories（安全通报专区）](https://github.com/PStarH/Praetor/security/advisories/new) 提交私密通报，严禁在公开 Issue 列表中披露漏洞细节。
 
 ## 当前系统边界与成熟度声明 (Current Limits)
 
@@ -14,6 +14,6 @@
 
 ## 企业级就绪性自检清单 (Enterprise Readiness)
 
-对于正在推进企业级安全选型、合规尽职调查（Due Diligence）或试点评估的架构师与合规专家，建议查阅 Commander 官方代码仓库根目录下的 [ENTERPRISE_READINESS.md](https://github.com/PStarH/Commander/blob/master/ENTERPRISE_READINESS.md)。
+对于正在推进企业级安全选型、合规尽职调查（Due Diligence）或试点评估的架构师与合规专家，建议查阅 Praetor 官方代码仓库根目录下的 [ENTERPRISE_READINESS.md](https://github.com/PStarH/Praetor/blob/master/ENTERPRISE_READINESS.md)。
 
 该文档针对 SOC 2 控制矩阵、多租户物理/逻辑隔离原语、系统可用性 SLO 工程基线以及企业数据治理生命周期进行了条目化拆解，清晰透明地标注了每一项能力的真实落地状态（✅ 核心代码已接通、🟡 文档已声明但存在架构边界、❌ 尚待后续演进接入），并附带精确到具体源码行级别的验证索引与证据指针。

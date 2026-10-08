@@ -5,7 +5,7 @@
 - **Node.js 22.x** 与 **pnpm 9**（可通过 Corepack 自动锁定指定版本）。
 - 首次体验模拟演示环境**无需任何大模型提供商 API Key 凭据**。
 
-企业客户建议首先阅读 [Shadow Phase A（影子评估指南）](https://github.com/PStarH/Commander/blob/shadow-phase-a-0.1.0-alpha.20260910/docs/pilot/shadow/README.md)，该模式可在完全不产生任何外部写副作用的前提下回放评估历史真实调用。
+企业客户建议首先阅读 [Shadow Phase A（影子评估指南）](https://github.com/PStarH/Praetor/blob/shadow-phase-a-0.1.0-alpha.20260910/docs/pilot/shadow/README.md)，该模式可在完全不产生任何外部写副作用的前提下回放评估历史真实调用。
 
 ## 选择你的首次体验路径
 
@@ -19,8 +19,8 @@
 ## 1. 安装并运行模拟演示
 
 ```bash
-git clone https://github.com/PStarH/Commander.git
-cd Commander
+git clone https://github.com/PStarH/Praetor.git
+cd Praetor
 corepack enable
 pnpm install --frozen-lockfile
 pnpm build
@@ -55,7 +55,7 @@ pnpm test:github:offline
 pnpm demo:github --help
 ```
 
-若需在配置好的 Enterprise Gateway 上体验完整流程，请参阅 [GitHub 试点实战指南](https://github.com/PStarH/Commander/blob/master/docs/pilot/github/README.md)。
+若需在配置好的 Enterprise Gateway 上体验完整流程，请参阅 [GitHub 试点实战指南](https://github.com/PStarH/Praetor/blob/master/docs/pilot/github/README.md)。
 
 ## 4. 本地可视化界面
 
@@ -67,7 +67,7 @@ pnpm demo:github --help
 
 `pnpm gui` 会同时拉起 API 服务与前端 Vite 开发服务器。在开发环境下，API 默认使用轻量 SQLite，仅对缺失的敏感密钥输出警告；但在生产环境下，服务强制要求配置持久化数据库以及 `JWT_SECRET` 和 `ADMIN_PASSWORD`。
 
-启用 `observability` 监控剖面时，Grafana 默认监听在 `3001` 端口，注意这并不是 Commander API 的端口。
+启用 `observability` 监控剖面时，Grafana 默认监听在 `3001` 端口，注意这并不是 Praetor API 的端口。
 
 ## 下一步
 

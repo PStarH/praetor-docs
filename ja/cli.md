@@ -2,7 +2,7 @@
 
 > This page is synchronized from the canonical English documentation. 日本語 navigation is available; commands and product limits are identical in every locale.
 
-Commander's Local CLI is the primary supported interface. Run it from a source
+Praetor's Local CLI is the primary supported interface. Run it from a source
 checkout:
 
 ```bash
@@ -172,7 +172,7 @@ console for topology views instead.
 
 | Command | Purpose |
 | --- | --- |
-| `intelligence [flags]` (alias `i`) | What Commander has learned: `--stats`, `--skills`, `--patterns`, `--all` |
+| `intelligence [flags]` (alias `i`) | What Praetor has learned: `--stats`, `--skills`, `--patterns`, `--all` |
 | `experience [sub]` | `status` (default) or `reset` (`--skills`, `--patterns`, `--meta`, `--force`) |
 | `feedback [flags]` | Submit feedback: `--rating=<1-5>`, `--message`, `--bug`, `--feature`; `stats` subcommand |
 | `skill <sub>` | `list`, `view <name>`, `create <name>`, `pin`, `unpin`, `delete`, `curate` |
@@ -190,8 +190,8 @@ console for topology views instead.
 | `sandbox [status]` | Show sandbox availability, mechanisms, and profiles |
 | `security <sub>` | Adversarial batteries: `redteam`, `compliance-audit`, `adversarial-llm`, `hard-adversarial`, `unknown-adversarial` |
 
-`action` requires `COMMANDER_API_KEY` and a reachable Action Gateway
-(`COMMANDER_ACTION_GATEWAY_URL`), and takes a subcommand:
+`action` requires `PRAETOR_API_KEY` and a reachable Action Gateway
+(`PRAETOR_ACTION_GATEWAY_URL`), and takes a subcommand:
 
 | Subcommand | Purpose |
 | --- | --- |
@@ -220,7 +220,7 @@ rejected.
   --help` prints the detail for one command.
 - Costly commands are rate-limited to 10 LLM-costly invocations per minute
   across processes. Exceeding it prints a rate-limit error and exits `1`.
-- `COMMANDER_THEME` selects the terminal colour theme.
+- `PRAETOR_THEME` selects the terminal colour theme.
 - Unknown commands exit with status `1` and suggest a command whose name starts
   with the same prefix. The suggestion is a prefix match, not a fuzzy match, so
   a typo in the middle of a word produces no suggestion.

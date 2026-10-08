@@ -1,6 +1,6 @@
 # Tools
 
-Commander exposes **18 built-in tools** to the model, plus any MCP-compatible
+Praetor exposes **18 built-in tools** to the model, plus any MCP-compatible
 external tools you connect. Meta-tools are opt-in and are not part of the 18.
 
 Tools are registered in `createAllTools()` in
@@ -49,7 +49,7 @@ untrusted**.
 
 ## Tool exposure over MCP
 
-When Commander's tools are exposed to an external MCP client, a dangerous subset
+When Praetor's tools are exposed to an external MCP client, a dangerous subset
 is filtered out unless the caller opts in with `allowDangerousTools`:
 
 `exec`, `git`, `apply_patch`, `file`, `file_hash_edit`, `system`, `verify`,

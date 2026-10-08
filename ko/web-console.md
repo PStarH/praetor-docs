@@ -15,7 +15,7 @@ on port `4000` and the Vite dev server on port `5173` — then opens the browser
 It performs no database or credential checks of its own; whatever the API server
 requires at startup applies. In development the API defaults to SQLite and only
 warns about missing secrets. If you run it with a production environment
-(`NODE_ENV=production` or `COMMANDER_ENV=production`), the API needs a durable
+(`NODE_ENV=production` or `PRAETOR_ENV=production`), the API needs a durable
 store plus `JWT_SECRET` and `ADMIN_PASSWORD`, and starts no SQLite fallback.
 
 In the Compose deployment the console is served on port `3000` and nginx

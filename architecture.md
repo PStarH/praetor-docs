@@ -1,6 +1,6 @@
 # Architecture
 
-Commander has two layers: the **agent runtime** (deliberation, topologies,
+Praetor has two layers: the **agent runtime** (deliberation, topologies,
 quality gates) and the **Architecture V2 governed execution plane** (kernel,
 effect broker, worker plane). This page is a map; the binding decisions live in
 the repository's ADRs under `docs/architecture/`.
@@ -76,7 +76,7 @@ in one place.
 
 ### System Architecture & Trust Boundaries
 
-Commander establishes a strict three-plane isolation model that decouples untrusted agent reasoning from external mutations:
+Praetor establishes a strict three-plane isolation model that decouples untrusted agent reasoning from external mutations:
 
 <p align="center">
   <img src="/commander-architecture-academic.png" alt="Figure 1: High-Assurance Decoupled Control Plane Architecture" width="100%" />
@@ -86,18 +86,18 @@ Commander establishes a strict three-plane isolation model that decouples untrus
 
 | Package | Responsibility |
 | --- | --- |
-| `@commander/contracts` | Versioned shared types, error codes, state machine, event envelope, OpenAPI V1. Pure — no runtime imports |
-| `@commander/kernel` | Sole authority for durable run/step lifecycle: leases, idempotency, outbox, recovery, migrations |
-| `@commander/effect-broker` | The only sanctioned path for external writes. Two-phase `admit()` → `executeAdmitted()`, Ed25519 capability tokens, policy decisions, quotas, fencing, signed evidence |
-| `@commander/action-adapters` | External-mutation adapters (GitHub pull request, ServiceNow incident, Kubernetes rollback) with conformance test suite |
-| `@commander/worker-plane` | The only place a leased step executes. Fail-closed bootstrap |
-| `@commander/adapter-ops` | Compensation and reconciliation drain daemon |
-| `@commander/postgres-runtime` | Hardened `pg.Pool` factory: `sslmode=verify-full`, CA file, SPKI pinning |
-| `@commander/shadow-plane` | Read-only historical policy evaluation for Shadow pilots |
-| `@commander/core` | Agent runtime: orchestration, tools, providers, memory, security, CLI |
-| `@commander/sdk`, `commander-ai` | TypeScript and Python clients |
-| `@commander/mcp-server` | MCP stdio server exposing Action Gateway tools |
-| `@commander/plugin-sdk` | Plugin authoring surface |
+| `@praetor/contracts` | Versioned shared types, error codes, state machine, event envelope, OpenAPI V1. Pure — no runtime imports |
+| `@praetor/kernel` | Sole authority for durable run/step lifecycle: leases, idempotency, outbox, recovery, migrations |
+| `@praetor/effect-broker` | The only sanctioned path for external writes. Two-phase `admit()` → `executeAdmitted()`, Ed25519 capability tokens, policy decisions, quotas, fencing, signed evidence |
+| `@praetor/action-adapters` | External-mutation adapters (GitHub pull request, ServiceNow incident, Kubernetes rollback) with conformance test suite |
+| `@praetor/worker-plane` | The only place a leased step executes. Fail-closed bootstrap |
+| `@praetor/adapter-ops` | Compensation and reconciliation drain daemon |
+| `@praetor/postgres-runtime` | Hardened `pg.Pool` factory: `sslmode=verify-full`, CA file, SPKI pinning |
+| `@praetor/shadow-plane` | Read-only historical policy evaluation for Shadow pilots |
+| `@praetor/core` | Agent runtime: orchestration, tools, providers, memory, security, CLI |
+| `@praetor/sdk`, `praetor-ai` | TypeScript and Python clients |
+| `@praetor/mcp-server` | MCP stdio server exposing Action Gateway tools |
+| `@praetor/plugin-sdk` | Plugin authoring surface |
 
 ### Governance flow
 
@@ -109,7 +109,7 @@ Commander establishes a strict three-plane isolation model that decouples untrus
    and quotas, and records signed evidence.
 4. Consequential actions require approval; approvals are bound to the returned
    digest and policy snapshot.
-5. Mutations execute through dedicated action adapters (`@commander/action-adapters`).
+5. Mutations execute through dedicated action adapters (`@praetor/action-adapters`).
    If response transport is interrupted, the adapter queries external systems
    for existing outcomes before attempting retries, preventing duplicate mutations.
 6. If a step fails after a partial write, compensation runs through
@@ -117,13 +117,13 @@ Commander establishes a strict three-plane isolation model that decouples untrus
 
 ### Preflight Query-Before-Retry Protocol
 
-When external writes encounter network drops (e.g. HTTP 504 Gateway Timeout or worker restarts), naive agent retries create duplicate mutations. Commander executes a deterministic preflight query protocol:
+When external writes encounter network drops (e.g. HTTP 504 Gateway Timeout or worker restarts), naive agent retries create duplicate mutations. Praetor executes a deterministic preflight query protocol:
 
 <p align="center">
   <img src="/commander-preflight-protocol.png" alt="Figure 2: Preflight Query-Before-Retry Protocol & Lease Recovery" width="100%" />
 </p>
 
-*Figure 2: Distributed preflight query-before-retry protocol. Comparing naive agent retry storms with Commander's lease-driven exactly-once recovery across network timeouts and process crashes.*
+*Figure 2: Distributed preflight query-before-retry protocol. Comparing naive agent retry storms with Praetor's lease-driven exactly-once recovery across network timeouts and process crashes.*
 
 ### Two-Phase Cryptographic Human Gate & Evidence Lifecycle
 
@@ -156,4 +156,4 @@ file-backed state is not a multi-replica authority.
 - `docs/architecture/000-index.md` — ADR index and feature-freeze rules
 - `docs/v2-migration-guide.md` — migrating to Architecture V2
 - `docs/slo.md` — SLO definitions
-- [Why retrying an agent external action is unsafe](https://github.com/PStarH/Commander/blob/master/docs/content/why-retrying-ai-agent-external-actions-is-unsafe.md) — Failure model: why timeouts are not failures and why blind retries cause duplicate mutations
+- [Why retrying an agent external action is unsafe](https://github.com/PStarH/Praetor/blob/master/docs/content/why-retrying-ai-agent-external-actions-is-unsafe.md) — Failure model: why timeouts are not failures and why blind retries cause duplicate mutations

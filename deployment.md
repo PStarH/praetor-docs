@@ -13,16 +13,16 @@ To boot the containerized deployment with its required PostgreSQL backend, kerne
 ```bash
 cp .env.example .env
 # Required credentials in .env:
-# COMMANDER_API_KEY, COMMANDER_MASTER_KEY, JWT_SECRET,
-# COMMANDER_CAPABILITY_TOKEN_KEY, COMMANDER_INTEGRITY_KEY, ADMIN_PASSWORD.
+# PRAETOR_API_KEY, PRAETOR_MASTER_KEY, JWT_SECRET,
+# PRAETOR_CAPABILITY_TOKEN_KEY, PRAETOR_INTEGRITY_KEY, ADMIN_PASSWORD.
 # Generate each secret with `openssl rand -hex 32`.
-# Also set COMMANDER_EVIDENCE_JWKS_JSON (public JWKS for action evidence verification)
+# Also set PRAETOR_EVIDENCE_JWKS_JSON (public JWKS for action evidence verification)
 # and at least one provider key (for example OPENAI_API_KEY).
 
 # Generate database TLS certificates for the verified pool:
 sh deploy/docker/kernel-tls/generate-certificates.sh ./.commander/db-tls
-export COMMANDER_DATABASE_TLS_HOST_DIR="$PWD/.commander/db-tls"
-export COMMANDER_DATABASE_TLS_EXPECTED_SERVER_SPKI_SHA256=<printed by generator>
+export PRAETOR_DATABASE_TLS_HOST_DIR="$PWD/.commander/db-tls"
+export PRAETOR_DATABASE_TLS_EXPECTED_SERVER_SPKI_SHA256=<printed by generator>
 
 docker compose -f docker-compose.yml -f docker-compose.v2.yml -f docker-compose.kernel-tls.yml --profile v2 up -d --build
 ```
@@ -60,7 +60,7 @@ Everything beyond the API is opt-in through profiles:
 | `observability` | Prometheus (`9090`) and Grafana (`3001`) |
 | `tracing` | Jaeger (UI `16686`, OTLP HTTP `4318`, OTLP gRPC `4317`) |
 
-Grafana uses port `3001`. It is **not** a Commander API port. PostgreSQL and
+Grafana uses port `3001`. It is **not** a Praetor API port. PostgreSQL and
 Redis are not published on the host by default — bind loopback explicitly if
 you need local tooling to reach them.
 
@@ -79,10 +79,10 @@ docker compose -f docker-compose.yml -f docker-compose.v2.yml --profile v2 up -d
 | `docker-compose.cell.yml` | Cell topology |
 
 The worker profile needs PostgreSQL and Ed25519 capability/evidence keys — the
-Compose file marks `COMMANDER_CAPABILITY_PRIVATE_KEY_PEM`,
-`COMMANDER_CAPABILITY_KEY_ID`, `COMMANDER_CAPABILITY_JWKS_JSON`,
-`COMMANDER_EVIDENCE_SIGNING_PRIVATE_KEY_PEM`, and
-`COMMANDER_EVIDENCE_SIGNING_KEY_ID` as required with `${VAR:?}`. It is not part
+Compose file marks `PRAETOR_CAPABILITY_PRIVATE_KEY_PEM`,
+`PRAETOR_CAPABILITY_KEY_ID`, `PRAETOR_CAPABILITY_JWKS_JSON`,
+`PRAETOR_EVIDENCE_SIGNING_PRIVATE_KEY_PEM`, and
+`PRAETOR_EVIDENCE_SIGNING_KEY_ID` as required with `${VAR:?}`. It is not part
 of the simple local path.
 
 ## Enterprise Gateway boundary
@@ -94,7 +94,7 @@ requirements without your own validation and controls.
 ## Production prerequisites
 
 - Terminate TLS and set explicit CORS origins (`CORS_ORIGINS`; never `*`).
-- Generate a strong `COMMANDER_API_KEY` and the other required startup secrets,
+- Generate a strong `PRAETOR_API_KEY` and the other required startup secrets,
   and store provider credentials outside source control.
 - Change default observability credentials before exposing any dashboard.
 - Back up durable state and rehearse recovery before relying on it.

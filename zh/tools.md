@@ -1,6 +1,6 @@
 # 工具体系
 
-Commander 面向大语言模型开放了 **18 个内置核心工具**，并允许通过标准协议接入任何兼容 MCP 的外部工具。元工具 (Meta-tools) 属于按需启用能力，不计入上述 18 个基础工具中。
+Praetor 面向大语言模型开放了 **18 个内置核心工具**，并允许通过标准协议接入任何兼容 MCP 的外部工具。元工具 (Meta-tools) 属于按需启用能力，不计入上述 18 个基础工具中。
 
 所有工具均在 `packages/core/src/tools/index.ts` 中的 `createAllTools()` 统一注册。其中有 10 个工具采用了 STRAP 规范整合的**资源型工具 (Resource Tools)** 架构——即通过统一领域工具搭配 `action` 动作参数的方式暴露，而非拆分为几十个零散的微型 CRUD 工具。这种设计是经过深思熟虑的：过多的工具碎片会显著降低大语言模型的工具决策准确率。
 
@@ -38,7 +38,7 @@ Commander 面向大语言模型开放了 **18 个内置核心工具**，并允�
 
 ## 面向外部 MCP 的工具暴露防护
 
-当 Commander 将自身能力作为 MCP 服务向外部调用方暴露时，系统默认对危险工具集合进行安全过滤阻断；除非调用方显式声明配置 `allowDangerousTools` 选项：
+当 Praetor 将自身能力作为 MCP 服务向外部调用方暴露时，系统默认对危险工具集合进行安全过滤阻断；除非调用方显式声明配置 `allowDangerousTools` 选项：
 
 被严格过滤的危险工具包括：`exec`、`git`、`apply_patch`、`file`、`file_hash_edit`、`system`、`verify`、`code` 以及 `refine_code`。
 

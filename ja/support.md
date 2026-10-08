@@ -4,7 +4,7 @@
 
 ## Support
 
-Open a [GitHub issue](https://github.com/PStarH/Commander/issues) for usage questions, proposals, and reproducible bugs. Report vulnerabilities privately through [GitHub Security Advisories](https://github.com/PStarH/Commander/security/advisories/new) as described in the repository `SECURITY.md`; do not open public vulnerability issues.
+Open a [GitHub issue](https://github.com/PStarH/Praetor/issues) for usage questions, proposals, and reproducible bugs. Report vulnerabilities privately through [GitHub Security Advisories](https://github.com/PStarH/Praetor/security/advisories/new) as described in the repository `SECURITY.md`; do not open public vulnerability issues.
 
 ## Current limits
 
@@ -17,4 +17,4 @@ Open a [GitHub issue](https://github.com/PStarH/Commander/issues) for usage ques
 
 ## Enterprise readiness checklist
 
-For technical due diligence, compliance reviews, and pilot sign-off, consult [ENTERPRISE_READINESS.md](https://github.com/PStarH/Commander/blob/master/ENTERPRISE_READINESS.md) in the Commander repository. It tracks the explicit status (✅ wired, 🟡 documented gap, ❌ pending) and line-level evidence pointers for SOC 2 controls, multi-tenancy isolation primitives, SLO baselines, and data governance.
+For technical due diligence, compliance reviews, and pilot sign-off, consult [ENTERPRISE_READINESS.md](https://github.com/PStarH/Praetor/blob/master/ENTERPRISE_READINESS.md) in the Praetor repository. It tracks the explicit status (✅ wired, 🟡 documented gap, ❌ pending) and line-level evidence pointers for SOC 2 controls, multi-tenancy isolation primitives, SLO baselines, and data governance.

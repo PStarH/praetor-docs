@@ -61,14 +61,14 @@ function theme(locale: string): DefaultTheme.Config {
         ],
       },
     ],
-    socialLinks: [{ icon: 'github', link: 'https://github.com/PStarH/Commander' }],
+    socialLinks: [{ icon: 'github', link: 'https://github.com/PStarH/Praetor' }],
     editLink: {
-      pattern: 'https://github.com/PStarH/commander-docs/edit/master/:path',
+      pattern: 'https://github.com/PStarH/praetor-docs/edit/master/:path',
       text: 'Edit this page on GitHub',
     },
     footer: {
       message: 'MIT licensed.',
-      copyright: 'Copyright 2026 Commander Contributors',
+      copyright: 'Copyright 2026 Praetor Contributors',
     },
   }
 }
@@ -130,9 +130,9 @@ function themeZh(): DefaultTheme.Config {
         ],
       },
     ],
-    socialLinks: [{ icon: 'github', link: 'https://github.com/PStarH/Commander' }],
+    socialLinks: [{ icon: 'github', link: 'https://github.com/PStarH/Praetor' }],
     editLink: {
-      pattern: 'https://github.com/PStarH/commander-docs/edit/master/:path',
+      pattern: 'https://github.com/PStarH/praetor-docs/edit/master/:path',
       text: '在 GitHub 上编辑此页',
     },
     lastUpdated: {
@@ -144,28 +144,28 @@ function themeZh(): DefaultTheme.Config {
     },
     footer: {
       message: '采用 MIT 许可证开源。',
-      copyright: '版权所有 © 2026 Commander 贡献者',
+      copyright: '版权所有 © 2026 Praetor 贡献者',
     },
   }
 }
 
 export default defineConfig({
-  title: 'Commander',
+  title: 'Praetor',
   description: 'Approval and recovery for Coding and DevOps agents, starting with GitHub pull requests.',
-  base: '/commander-docs/',
+  base: process.env.DOCS_BASE ?? '/commander-docs/',
   cleanUrls: false,
   lastUpdated: true,
   ignoreDeadLinks: [/^https?:\/\/localhost/],
-  sitemap: { hostname: 'https://pstarh.github.io/commander-docs/' },
+  sitemap: { hostname: 'https://pstarh.github.io/praetor-docs/' },
   head: [
     ['link', { rel: 'icon', type: 'image/svg+xml', href: '/commander-docs/favicon.svg' }],
     ['meta', { property: 'og:type', content: 'website' }],
-    ['meta', { property: 'og:site_name', content: 'Commander Documentation' }],
-    ['meta', { property: 'og:title', content: 'Commander — Autonomous Agent Control Plane & Recovery Runtime' }],
+    ['meta', { property: 'og:site_name', content: 'Praetor Documentation' }],
+    ['meta', { property: 'og:title', content: 'Praetor — Autonomous Agent Control Plane & Recovery Runtime' }],
     ['meta', { property: 'og:description', content: 'Approval, preflight idempotency, Ed25519 capability tokens, and sub-5s crash recovery for Coding and DevOps agents.' }],
     ['meta', { property: 'og:image', content: 'https://pstarh.github.io/commander-docs/commander-preflight-protocol.png' }],
     ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
-    ['meta', { name: 'twitter:title', content: 'Commander — Control Plane & Resilience Runtime for AI Agents' }],
+    ['meta', { name: 'twitter:title', content: 'Praetor — Control Plane & Resilience Runtime for AI Agents' }],
     ['meta', { name: 'twitter:description', content: 'Stop AI agents from wrecking production: preflight idempotency, capability tokens, and crash recovery.' }],
     ['meta', { name: 'twitter:image', content: 'https://pstarh.github.io/commander-docs/commander-preflight-protocol.png' }],
   ],

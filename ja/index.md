@@ -1,4 +1,4 @@
-# Commander
+# Praetor
 
 > This page is synchronized from the canonical English documentation. 日本語 navigation is available; commands and product limits are identical in every locale.
 
@@ -10,10 +10,10 @@ Autonomous agents are rapidly taking on mission-critical workflows: modifying co
 
 Blindly retrying creates duplicate PRs, double transactions, and corrupted state. Simply giving up leaves orphaned mutations.
 
-Commander solves this fundamental distributed systems problem. It records the approved request and its execution state outside the agent, performs **preflight query-before-retry** to detect whether a mutation already took effect, and stops in an explicit `UNKNOWN` state when the evidence is ambiguous rather than making dangerous assumptions.
+Praetor solves this fundamental distributed systems problem. It records the approved request and its execution state outside the agent, performs **preflight query-before-retry** to detect whether a mutation already took effect, and stops in an explicit `UNKNOWN` state when the evidence is ambiguous rather than making dangerous assumptions.
 
 <p align="center">
-  <img src="/commander-overview.png" alt="Commander High-Level Architecture Overview" width="100%" />
+  <img src="/commander-overview.png" alt="Praetor High-Level Architecture Overview" width="100%" />
 </p>
 
 <details>
@@ -27,7 +27,7 @@ Commander solves this fundamental distributed systems problem. It records the ap
                               │ 1. Propose Mutation (No direct write tokens)
                               ▼
    ┌────────────────────────────────────────────────────────┐
-   │            Commander Control Plane                     │
+   │            Praetor Control Plane                     │
    │  ┌─────────────────────────┐ ┌──────────────────────┐  │
    │  │ Preflight Idempotency   │ │ Two-Phase Human Gate │  │
    │  │ (Query-Before-Retry)    │ │ (Cryptographic Hash) │  │
@@ -47,11 +47,11 @@ Commander solves this fundamental distributed systems problem. It records the ap
 
 </details>
 
-Read the technical essay: [Why retrying an AI agent's external action is unsafe](https://github.com/PStarH/Commander/blob/master/docs/content/why-retrying-ai-agent-external-actions-is-unsafe.md).
+Read the technical essay: [Why retrying an AI agent's external action is unsafe](https://github.com/PStarH/Praetor/blob/master/docs/content/why-retrying-ai-agent-external-actions-is-unsafe.md).
 
 ## The Distributed Systems Problem for AI Agents
 
-| Challenge | Naive Agent Execution | Commander Governed Action |
+| Challenge | Naive Agent Execution | Praetor Governed Action |
 | --- | --- | --- |
 | **Response Loss** (e.g. 504 Gateway Timeout during PR creation) | Re-plans or retries blindly → **Duplicate PRs & mutations** | **Preflight Query-Before-Retry**: Checks remote outcome by action identity before retry |
 | **Worker Crash Mid-Task** | State lost or restarted from zero with orphaned external side effects | **Durable PostgreSQL Kernel**: Step lease reclaims; new worker resumes safely |
@@ -64,7 +64,7 @@ Read the technical essay: [Why retrying an AI agent's external action is unsafe]
   <img src="/commander-preflight-protocol.png" alt="Figure 1: Preflight Query-Before-Retry Protocol & Fault Recovery" width="100%" />
 </p>
 
-## ⚡ 4 Ways to Experience Commander (Under 60 Seconds)
+## ⚡ 4 Ways to Experience Praetor (Under 60 Seconds)
 
 | Path | Command | What It Exercises |
 | --- | --- | --- |
@@ -75,7 +75,7 @@ Read the technical essay: [Why retrying an AI agent's external action is unsafe]
 
 ### 📦 SDK & MCP Integration
 
-#### Python SDK (`commander-ai`)
+#### Python SDK (`praetor-ai`)
 ```python
 from commander import CommanderClient
 
@@ -115,8 +115,8 @@ Works with Claude Code, Cursor, Windsurf, LangGraph, or OpenAI Agents SDK:
     "commander": {
       "command": "commander-mcp-server",
       "env": {
-        "COMMANDER_ACTION_GATEWAY_URL": "http://127.0.0.1:4000",
-        "COMMANDER_API_KEY": "cmd-..."
+        "PRAETOR_ACTION_GATEWAY_URL": "http://127.0.0.1:4000",
+        "PRAETOR_API_KEY": "cmd-..."
       }
     }
   }
@@ -125,7 +125,7 @@ Works with Claude Code, Cursor, Windsurf, LangGraph, or OpenAI Agents SDK:
 
 ## Core Architecture & Capabilities
 
-Commander provides a robust execution fabric that separates agent reasoning from external side-effects:
+Praetor provides a robust execution fabric that separates agent reasoning from external side-effects:
 
 - **Deliberation Engine**: Classifies incoming tasks by complexity and automatically selects one of five canonical execution topologies (`SINGLE`, `CHAIN`, `DISPATCH`, `ORCHESTRATOR`, `REVIEW`).
 - **25 LLM Providers with Auto-Failover**: Seamlessly fallback across OpenAI, Anthropic, Gemini, Groq, Mistral, Ollama, DeepSeek, and 18 others with unified configuration. See [Providers](/providers).
@@ -136,17 +136,17 @@ Commander provides a robust execution fabric that separates agent reasoning from
 
 ## Enterprise evaluation & pilots
 
-Commander is alpha. Two evaluation paths are available:
+Praetor is alpha. Two evaluation paths are available:
 
-- **GitHub Pilot (governed actions & recovery):** A narrow pilot for same-repository PR creation from existing branches. An agent proposes the action; a human approves the exact request. When network responses drop, recovery queries GitHub using persisted action identity rather than creating duplicate PRs. See the [GitHub pilot guide](https://github.com/PStarH/Commander/blob/master/docs/pilot/github/README.md).
-- **Shadow Phase A (historical evaluation):** Customer-operated evaluation of historical observations against a pinned policy. It executes no external actions. Download the [Shadow Phase A release package](https://github.com/PStarH/Commander/releases/tag/shadow-phase-a-0.1.0-alpha.20260910).
-- **Enterprise Pilot Readiness:** An explicit checklist of security, multi-tenancy, SLO, and data governance controls with code and baseline evidence pointers. Review [ENTERPRISE_READINESS.md](https://github.com/PStarH/Commander/blob/master/ENTERPRISE_READINESS.md) before production pilots.
+- **GitHub Pilot (governed actions & recovery):** A narrow pilot for same-repository PR creation from existing branches. An agent proposes the action; a human approves the exact request. When network responses drop, recovery queries GitHub using persisted action identity rather than creating duplicate PRs. See the [GitHub pilot guide](https://github.com/PStarH/Praetor/blob/master/docs/pilot/github/README.md).
+- **Shadow Phase A (historical evaluation):** Customer-operated evaluation of historical observations against a pinned policy. It executes no external actions. Download the [Shadow Phase A release package](https://github.com/PStarH/Praetor/releases/tag/shadow-phase-a-0.1.0-alpha.20260910).
+- **Enterprise Pilot Readiness:** An explicit checklist of security, multi-tenancy, SLO, and data governance controls with code and baseline evidence pointers. Review [ENTERPRISE_READINESS.md](https://github.com/PStarH/Praetor/blob/master/ENTERPRISE_READINESS.md) before production pilots.
 
 ## Development product paths
 
 - **Local CLI:** the supported default for one developer or a local team.
 - **Web console:** a local interface served with the API.
-- **Enterprise Gateway:** an alpha `/v1` server path (`apps/api` → `@commander/kernel` Postgres → worker-plane + effect-broker). It is not a production-proven multi-tenant SaaS.
+- **Enterprise Gateway:** an alpha `/v1` server path (`apps/api` → `@praetor/kernel` Postgres → worker-plane + effect-broker). It is not a production-proven multi-tenant SaaS.
 
 ## Start here
 

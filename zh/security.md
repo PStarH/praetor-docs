@@ -1,10 +1,10 @@
 # 安全体系与隐私保护
 
-Commander 目前处于 **Alpha** 阶段。官方代码库明确声明其尚未达到最终生产就绪，且多租户硬隔离特性**尚未经过生产级实战检验**。本页面客观阐明系统中已存在的安全防御控制措施，以及——同样重要的——**当前尚未实现的限制**。在依赖本系统前，请务必详阅文末的 [限制与诚实免责声明](#限制与诚实免责声明)。
+Praetor 目前处于 **Alpha** 阶段。官方代码库明确声明其尚未达到最终生产就绪，且多租户硬隔离特性**尚未经过生产级实战检验**。本页面客观阐明系统中已存在的安全防御控制措施，以及——同样重要的——**当前尚未实现的限制**。在依赖本系统前，请务必详阅文末的 [限制与诚实免责声明](#限制与诚实免责声明)。
 
 ## 一句话威胁模型 (Threat Model)
 
-Commander 运行在您的宿主机或集群中，持有大模型提供商凭据，拥有文件读写与代码执行权能。核心需要保护的资产是：大模型 API 密钥、Commander 内部机密主密钥、流经任务的客户源代码与数据、以及审计存证链的防篡改完整性。面临的主要风险是：凭据被窃、通过工具输出发起的间接提示词注入、智能体工具越权、多租户环境下的租户数据渗透泄露、以及不受约束的无限制外部恶意写入。Commander 针对上述各维度均设计了防御措施，但大部分控制项需要显式配置方可生效，且部分属于可选激活项。
+Praetor 运行在您的宿主机或集群中，持有大模型提供商凭据，拥有文件读写与代码执行权能。核心需要保护的资产是：大模型 API 密钥、Praetor 内部机密主密钥、流经任务的客户源代码与数据、以及审计存证链的防篡改完整性。面临的主要风险是：凭据被窃、通过工具输出发起的间接提示词注入、智能体工具越权、多租户环境下的租户数据渗透泄露、以及不受约束的无限制外部恶意写入。Praetor 针对上述各维度均设计了防御措施，但大部分控制项需要显式配置方可生效，且部分属于可选激活项。
 
 ## 身份认证机制 (Authentication)
 
@@ -14,19 +14,19 @@ Commander 运行在您的宿主机或集群中，持有大模型提供商凭据�
 | JWT | 请求头携带 `Authorization: Bearer <jwt>`。**仅支持 HS256 对称签名 HMAC**。访问令牌有效期 24 小时，刷新令牌 7 天。刷新令牌为单次消费，使用后即刻吊销 |
 | OIDC | 支持 `GET/POST /api/auth/oidc/*`。通过 JWKS 校验 ID Token，支持 RS256/384/512 与 ES256/384/512 非对称签名算法 |
 | SCIM 2.0 | 用户与组织目录自动化同步。需要管理员 JWT 角色或包含 `scim` / `admin` / `*` 作用域的 API Key |
-| A2A (智能体间通信) | 携带 `COMMANDER_A2A_AUTH_TOKEN`（或兼容 `A2A_AUTH_TOKEN`）Bearer 令牌，最小长度 16 字符 |
+| A2A (智能体间通信) | 携带 `PRAETOR_A2A_AUTH_TOKEN`（或兼容 `A2A_AUTH_TOKEN`）Bearer 令牌，最小长度 16 字符 |
 
 **服务启动时强制校验的密钥规则**
 
 | 环境变量 | 强制校验规则 |
 | --- | --- |
 | `JWT_SECRET` | 任何环境必填。最小长度 32 字符，拒绝已知的常见公开默认弱密码 |
-| `ADMIN_PASSWORD` | 最小长度 16 字符，拒绝默认弱密码。在生产环境或 `COMMANDER_API_REPLICAS > 1` 时强制必填 |
-| `COMMANDER_MASTER_KEY` | 最小长度 32 字符，作为加密密钥库 (Encrypted Secrets Vault) 的根主密钥 |
-| `COMMANDER_API_KEY` | 生产环境启动必填，作为 Commander 自身面向 Action Gateway 调用的凭据。注意这**不是**外部调用者的接入密钥 |
-| `COMMANDER_CAPABILITY_TOKEN_KEY` | 生产环境必填。用于 API 层权能令牌 (Capability Tokens) 的 HMAC 签名密钥 |
-| `COMMANDER_INTEGRITY_KEY` | 生产环境必填。用于 PostgreSQL WAL 事件防篡改签名的 HMAC 密钥 |
-| `COMMANDER_EVIDENCE_JWKS_JSON` | 在 Compose 部署中强制必填。供 API 服务验证 Worker Ed25519 签名存证证据的公钥 JWKS 字符串 |
+| `ADMIN_PASSWORD` | 最小长度 16 字符，拒绝默认弱密码。在生产环境或 `PRAETOR_API_REPLICAS > 1` 时强制必填 |
+| `PRAETOR_MASTER_KEY` | 最小长度 32 字符，作为加密密钥库 (Encrypted Secrets Vault) 的根主密钥 |
+| `PRAETOR_API_KEY` | 生产环境启动必填，作为 Praetor 自身面向 Action Gateway 调用的凭据。注意这**不是**外部调用者的接入密钥 |
+| `PRAETOR_CAPABILITY_TOKEN_KEY` | 生产环境必填。用于 API 层权能令牌 (Capability Tokens) 的 HMAC 签名密钥 |
+| `PRAETOR_INTEGRITY_KEY` | 生产环境必填。用于 PostgreSQL WAL 事件防篡改签名的 HMAC 密钥 |
+| `PRAETOR_EVIDENCE_JWKS_JSON` | 在 Compose 部署中强制必填。供 API 服务验证 Worker Ed25519 签名存证证据的公钥 JWKS 字符串 |
 
 在**生产环境 (`NODE_ENV=production`)** 下，若启动密钥缺失或强度不足，服务将**立即拒绝启动并退出进程**。在非生产环境下，除 `JWT_SECRET` 强制必填外，其余缺失项仅输出告警。
 
@@ -64,8 +64,8 @@ Commander 运行在您的宿主机或集群中，持有大模型提供商凭据�
 
 | 作用平面 | 算法机制 | 深度绑定的安全上下文 |
 | --- | --- | --- |
-| API 层 / 工具调用平面 | HMAC-SHA-256 (`COMMANDER_CAPABILITY_TOKEN_KEY`) | 主体 (subject)、受众 (audience)、工具作用域、参数结构特征、风险等级、TTL（默认上限 300 秒）、委托深度（上限 3 次）、随机数 (nonce) |
-| Worker 执行平面与 adapter-ops | **Ed25519 非对称签名** (`COMMANDER_CAPABILITY_PRIVATE_KEY_PEM` + JWKS + key id) | 租户 ID、任务 run ID、步骤 step ID、生效动作类型、**请求哈希 (request hash)**、**动作意图摘要 (action digest)**、**策略快照版本 (policy snapshot)**、负载元数据、Worker 隔离栅世代编号 (fencing token)、随机数 |
+| API 层 / 工具调用平面 | HMAC-SHA-256 (`PRAETOR_CAPABILITY_TOKEN_KEY`) | 主体 (subject)、受众 (audience)、工具作用域、参数结构特征、风险等级、TTL（默认上限 300 秒）、委托深度（上限 3 次）、随机数 (nonce) |
+| Worker 执行平面与 adapter-ops | **Ed25519 非对称签名** (`PRAETOR_CAPABILITY_PRIVATE_KEY_PEM` + JWKS + key id) | 租户 ID、任务 run ID、步骤 step ID、生效动作类型、**请求哈希 (request hash)**、**动作意图摘要 (action digest)**、**策略快照版本 (policy snapshot)**、负载元数据、Worker 隔离栅世代编号 (fencing token)、随机数 |
 
 只有在 Worker 平面的 Ed25519 签名路径下，系统才会严格将令牌与请求参数哈希、动作意图摘要及策略快照完成不可变绑定。HMAC 路径不具备此强绑定能力。此外，HMAC 令牌的吊销机制仅保存在**单机进程本地内存**中，进程重启即失效；而持久化的防重放与令牌吊销存储仅存在于 Ed25519 链路中。
 
@@ -94,13 +94,13 @@ Commander 运行在您的宿主机或集群中，持有大模型提供商凭据�
 
 **配置预设剖面 (Profiles)：** `read-only`（只读）、`workspace-write`（工作区写入）、`full-access`（完全访问）、`hardened`（强化隔离）。其中 `hardened` 为带有反向代理网络、独立暂存目录、512 MB 内存与 1 核心 CPU 配额，并附带 120 秒硬超时的强隔离环境。在生产环境下，系统**彻底禁止启用 `full-access`**。
 
-**底层实现机制：** 沙箱模块在启动时能主动探测宿主机机制（macOS `seatbelt`、Linux `bwrap`、gVisor、Docker、Windows AppContainer、V8 Isolate、TEE 及 SSH 等）。但在配置 `COMMANDER_SANDBOX_ISOLATION` 时，**仅接受 `process`、`docker` 或 `gvisor`**：
+**底层实现机制：** 沙箱模块在启动时能主动探测宿主机机制（macOS `seatbelt`、Linux `bwrap`、gVisor、Docker、Windows AppContainer、V8 Isolate、TEE 及 SSH 等）。但在配置 `PRAETOR_SANDBOX_ISOLATION` 时，**仅接受 `process`、`docker` 或 `gvisor`**：
 
 - 生产与预发环境默认采用 `docker`，本地开发与单元测试默认采用 `process`。
 - 在生产环境下配置 `process` 将被系统**直接拒决**，因为进程级伪沙箱不符合基准安全合规要求。
 - 因此，生产环境合法可用的隔离底层**仅限 Docker 或 gVisor**。Seatbelt 与 bwrap 仅属于探测机制，非生产可选方案。
 
-**Fail-closed 启动探针：** 若宿主机未安装可用的操作系统级沙箱，Commander 将直接抛出 `SandboxInitializationError` 并终止运行。文档中虽然记录有 `COMMANDER_ALLOW_NO_SANDBOX` 逃逸开关，但该开关在**生产环境下被强制禁用**。生产启动时，系统会在选定的沙箱中运行微型探针，探针失败或机制不符合策略则立刻退出；若逃逸检测器本身加载失败，进程将以退出码 126 终止。
+**Fail-closed 启动探针：** 若宿主机未安装可用的操作系统级沙箱，Praetor 将直接抛出 `SandboxInitializationError` 并终止运行。文档中虽然记录有 `PRAETOR_ALLOW_NO_SANDBOX` 逃逸开关，但该开关在**生产环境下被强制禁用**。生产启动时，系统会在选定的沙箱中运行微型探针，探针失败或机制不符合策略则立刻退出；若逃逸检测器本身加载失败，进程将以退出码 126 终止。
 
 ## 受治理的外部写操作
 
@@ -118,7 +118,7 @@ Effect Broker 是外部生产写操作的唯一合法通道，强制分为严格
 ## 敏感凭据防护
 
 - `EncryptedSecretsVault` 使用 **AES-256-GCM** 算法加密存储敏感静态凭据，利用 **HKDF-SHA-256** 按凭据和版本派生专属密钥，辅以高熵随机 IV 和 Salt。支持多达 10 个版本的滚动轮转与加密导出。
-- 加密库由根主密钥 `COMMANDER_MASTER_KEY` 保护。生产环境下若未配置该密钥，服务拒绝启动；非生产环境下会临时生成内存瞬态密钥并输出警告。
+- 加密库由根主密钥 `PRAETOR_MASTER_KEY` 保护。生产环境下若未配置该密钥，服务拒绝启动；非生产环境下会临时生成内存瞬态密钥并输出警告。
 - 供应商 API 密钥的解析顺序为：优先读取加密密钥库，未命中再回退查找环境变量。
 
 **系统不存在全局日志拦截脱敏器。** 数据脱敏针对具体敏感场景分别部署：
@@ -130,7 +130,7 @@ Effect Broker 是外部生产写操作的唯一合法通道，强制分为严格
 
 ## 提示词注入、毒化攻击与内容扫描
 
-Commander 内置了完备的防御组件：
+Praetor 内置了完备的防御组件：
 
 | 关注安全风险 | 防御组件与控制措施 |
 | --- | --- |
@@ -150,7 +150,7 @@ Commander 内置了完备的防御组件：
 
 - **CORS 跨域资源共享**：严格基于白名单机制，从不开放通配符 `*`。仅当请求来源完全命中白名单时才附带凭据传输。若未配置 `CORS_ORIGINS`，系统默认回退至仅允许 localhost 访问并抛出告警。
 - **反向代理信任 (`TRUST_PROXY_HOPS`)**：默认值为 0（不信任任何外部代理），此时直接忽略客户端伪造的 `X-Forwarded-For`。非法值会导致服务拒绝启动。位于负载均衡器后方时请根据拓扑层级正确配置，否则限流与 IP 封禁模块将直接按负载均衡器的内部 IP 进行判定。
-- **MCP stdio 命令白名单：** API 端的 `/mcp` 服务发现路径仅允许 `node`、`python` 与 `python3` 命令。内核 MCP 客户端支持 `node`、`nodejs`、`python`、`python3`、`bun`、`deno`；**`npx` 在任何情况下被强制禁止执行**；使用 `uvx` 需显式声明 `COMMANDER_MCP_ALLOW_UVX=1`。用于内联动态求值与模块加载的危险参数（如 `-e`、`-c`、`--eval`、`--require`、`--loader`、`--inspect`）会被直接拒绝。可通过 `COMMANDER_MCP_ALLOWED_COMMANDS` 安全扩展白名单。
+- **MCP stdio 命令白名单：** API 端的 `/mcp` 服务发现路径仅允许 `node`、`python` 与 `python3` 命令。内核 MCP 客户端支持 `node`、`nodejs`、`python`、`python3`、`bun`、`deno`；**`npx` 在任何情况下被强制禁止执行**；使用 `uvx` 需显式声明 `PRAETOR_MCP_ALLOW_UVX=1`。用于内联动态求值与模块加载的危险参数（如 `-e`、`-c`、`--eval`、`--require`、`--loader`、`--inspect`）会被直接拒绝。可通过 `PRAETOR_MCP_ALLOWED_COMMANDS` 安全扩展白名单。
 - **安全响应头**：默认禁用 `X-Powered-By`，生产环境开启 HSTS，全面注入 CSP、`Referrer-Policy` 与 `Permissions-Policy`。
 
 ## 审计日志机制 (Audit Logging)
@@ -158,8 +158,8 @@ Commander 内置了完备的防御组件：
 - `SecurityEventType` 监控事件覆盖：沙箱违规、认证成功与失败、触发限流、人工审批判定、内容威胁阻断、执行策略违规、凭据提取尝试、路径穿越与命令注入攻击、记忆毒化、配置变更、密钥轮转等。
 - 安全事件以**追加写入式 (append-only) NDJSON** 格式保存于 `.commander_security/` 目录中，附带包含 10,000 条最近记录的内存环形缓冲区。
 - 所有产生状态变更的 API 请求（`POST`/`PUT`/`PATCH`/`DELETE`）均被记录为 `user_action` 类型事件，并对请求体执行脱敏。
-- **防篡改存证链条为可选启用项。** 仅当配置了 `COMMANDER_AUDIT_CHAIN_KEY` 时，日志项之间才会通过 `HMAC-SHA-256` 构成链式哈希校验，从而能够检测出任何事后修改、删除、插入或乱序篡改。此外，可通过 `COMMANDER_AUDIT_MANIFEST_DIR` 开启基于非对称公私钥（RSA-PSS）的 L2 清单存证。**若未进行上述配置，审计日志仅保持普通的追加存储格式，不具备密码学防篡改保障。**
-- 针对 PostgreSQL WAL 事件的防篡改签名由独立的 `COMMANDER_INTEGRITY_KEY` 保障，请勿将这两个不同层级的密钥混淆。
+- **防篡改存证链条为可选启用项。** 仅当配置了 `PRAETOR_AUDIT_CHAIN_KEY` 时，日志项之间才会通过 `HMAC-SHA-256` 构成链式哈希校验，从而能够检测出任何事后修改、删除、插入或乱序篡改。此外，可通过 `PRAETOR_AUDIT_MANIFEST_DIR` 开启基于非对称公私钥（RSA-PSS）的 L2 清单存证。**若未进行上述配置，审计日志仅保持普通的追加存储格式，不具备密码学防篡改保障。**
+- 针对 PostgreSQL WAL 事件的防篡改签名由独立的 `PRAETOR_INTEGRITY_KEY` 保障，请勿将这两个不同层级的密钥混淆。
 
 ## 访问速率限制 (Rate Limiting)
 
@@ -174,9 +174,9 @@ CLI 命令行工具在跨进程层面限制高消耗调用（每分钟最多发�
 | 防御守卫项 | 触发表现与处理规则 |
 | --- | --- |
 | `AUTH_DISABLED=true` | 所有请求一律返回 **500 Internal Server Error**，生产环境坚决禁止关闭鉴权 |
-| `COMMANDER_ALLOW_NO_SANDBOX` | 强制禁用；沙箱初始化失败直接抛出异常终止进程 |
-| `COMMANDER_ALLOW_UNCHECKED_EXEC` | 强制禁用；若逃逸检测失效直接安全退出 |
-| 缺少持久化存储 | 必须正确配置 `API_STORE_BACKEND` 或 `DATABASE_URL`，拒绝使用纯内存；除显式开启 `COMMANDER_ALLOW_MEMORY_STORE=1` 调试模式外禁止裸启 |
+| `PRAETOR_ALLOW_NO_SANDBOX` | 强制禁用；沙箱初始化失败直接抛出异常终止进程 |
+| `PRAETOR_ALLOW_UNCHECKED_EXEC` | 强制禁用；若逃逸检测失效直接安全退出 |
+| 缺少持久化存储 | 必须正确配置 `API_STORE_BACKEND` 或 `DATABASE_URL`，拒绝使用纯内存；除显式开启 `PRAETOR_ALLOW_MEMORY_STORE=1` 调试模式外禁止裸启 |
 | 密钥缺失或强度过低 | 立即以退出码 `process.exit(1)` 中止 |
 | PostgreSQL 传输未加密 | 强制要求 `sslmode=verify-full`、提供有效 CA 证书文件，并提供 64 位十六进制的 SPKI SHA-256 服务端公钥指纹固定 |
 | 权能签名密钥不合规 | 拒绝使用临时生成的或占位符类型的 Ed25519 密钥对启动 |
@@ -186,20 +186,20 @@ CLI 命令行工具在跨进程层面限制高消耗调用（每分钟最多发�
 
 本章节旨在客观划清技术边界，避免过度承诺产品能力：
 
-1. **处于 Alpha 阶段：** 官方代码库已明确指出 Commander 尚未达到工业级全面就绪标准，多租户隔离特性**尚未经过生产级严苛考验**。请勿将本文档视作具有法律约束力的安全认证报告。
+1. **处于 Alpha 阶段：** 官方代码库已明确指出 Praetor 尚未达到工业级全面就绪标准，多租户隔离特性**尚未经过生产级严苛考验**。请勿将本文档视作具有法律约束力的安全认证报告。
 2. **API Key 采用未加盐 SHA-256 存储**，而非高强度防碰撞的内存敏感 KDF 算法（如 Argon2 或 bcrypt）。该实现适用于高熵随机生成的复杂 Key，但防破解强度低于用户密码采用的 bcrypt。
-3. **Commander 原生 JWT 采用 HS256 对称加密**。当前对 Access 与 Refresh Token 不支持非对称签名；非对称验签机制仅用于外部 OIDC ID Token。
+3. **Praetor 原生 JWT 采用 HS256 对称加密**。当前对 Access 与 Refresh Token 不支持非对称签名；非对称验签机制仅用于外部 OIDC ID Token。
 4. **HMAC 权能令牌的吊销列表保存在单机内存中**，无法在服务重启后持久保持。
 5. **外部写操作的事务补偿是尽力而为的 (Best-effort)**，不保证所有外部变更都能成功回滚；遇到物理不可逆情况将转为人工介入。
 6. **不存在全局统一日志拦截脱敏器**，脱敏只发生在特定的审计日志与网络边界处。
-7. **审计日志的密码学防篡改特性为可选开关**，需显式配置 `COMMANDER_AUDIT_CHAIN_KEY` 激活。
+7. **审计日志的密码学防篡改特性为可选开关**，需显式配置 `PRAETOR_AUDIT_CHAIN_KEY` 激活。
 8. **API Key 的权限作用域模型较粗**，通过生成接口仅能开辟 `read`、`write`、`admin` 三种权限，无法直接创建更细粒度权限的密钥。
 9. **SCIM 目录同步目前基于本地文件系统存储**（位于 `data/scim/<tenantId>`），未接入 PostgreSQL。
 10. **`/metrics` 监控指标端点默认需要鉴权**，受 API 默认拒绝安全中间件保护，并非公开可访问。
 
 ## 敏感凭据与数据保护指引
 
-- 切勿将大模型 API Key 或 `COMMANDER_API_KEY` 硬编码在代码仓库中，始终优先使用内置的加密密钥库进行管理。
+- 切勿将大模型 API Key 或 `PRAETOR_API_KEY` 硬编码在代码仓库中，始终优先使用内置的加密密钥库进行管理。
 - 严格限制智能体能够接触生产系统的工具集合，优先采用 `read-only` 或 `workspace-write` 等受限沙箱配置。
 - 启动正式试点前，务必审阅涉及客户敏感数据的日志归档策略、留存周期与异地备份机制。
 - 预先建立清晰的数据删除与事故应急响应预案。可通过 `POST /v1/privacy/erasure` 提交符合合规要求的数据擦除工单。
@@ -210,4 +210,4 @@ CLI 命令行工具在跨进程层面限制高消耗调用（每分钟最多发�
 
 ## 合规标准参考
 
-本项目中引用的 ISO 42001 与 NIST AI RMF 技术映射属于**合规指引与辅助报告工具，绝不构成已通过第三方审计的合规资质背书**。Commander 暂未通过 SOC 2 正式审计认证；内嵌的 OWASP 与 MITRE ATLAS 映射仅作为纵深防御的数据遥测支撑，非第三方认可的控制措施集合。
+本项目中引用的 ISO 42001 与 NIST AI RMF 技术映射属于**合规指引与辅助报告工具，绝不构成已通过第三方审计的合规资质背书**。Praetor 暂未通过 SOC 2 正式审计认证；内嵌的 OWASP 与 MITRE ATLAS 映射仅作为纵深防御的数据遥测支撑，非第三方认可的控制措施集合。

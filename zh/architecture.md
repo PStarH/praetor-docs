@@ -1,6 +1,6 @@
 # 架构设计
 
-Commander 分为两个核心层级：**智能体运行时**（任务审议、拓扑编排、质量门禁）与 **Architecture V2 受治理执行平面**（内核、Effect Broker 效果代理、Worker 执行平面）。本页面提供系统全景图谱；具有约束力的设计决策记录在仓库 `docs/architecture/` 目录下的 ADR 架构决策记录中。
+Praetor 分为两个核心层级：**智能体运行时**（任务审议、拓扑编排、质量门禁）与 **Architecture V2 受治理执行平面**（内核、Effect Broker 效果代理、Worker 执行平面）。本页面提供系统全景图谱；具有约束力的设计决策记录在仓库 `docs/architecture/` 目录下的 ADR 架构决策记录中。
 
 ## 任务审议机制 (Deliberation)
 
@@ -63,7 +63,7 @@ Architecture V2 将**持久化管理权威**与**工作执行平面**严格分�
 
 ### 系统架构与信任边界
 
-Commander 确立了严格的三层隔离模型，解耦不受信智能体推理与外部基础设施变更：
+Praetor 确立了严格的三层隔离模型，解耦不受信智能体推理与外部基础设施变更：
 
 <p align="center">
   <img src="/commander-architecture-academic-zh.png" alt="图 1: 高保障解耦控制面架构全景" width="100%" />
@@ -73,18 +73,18 @@ Commander 确立了严格的三层隔离模型，解耦不受信智能体推理�
 
 | 核心代码包 | 核心架构职责 |
 | --- | --- |
-| `@commander/contracts` | 版本化共享类型、错误码字典、状态机、事件信封与 OpenAPI V1 规范。纯类型包，零运行时依赖 |
-| `@commander/kernel` | 持久化生命周期的唯一法定权威：负责任务/步骤租赁、幂等排重、发件箱 (Outbox) 与崩溃数据迁移 |
-| `@commander/effect-broker` | 外部写入的唯一受批准路径。负责两阶段 `admit()` → `executeAdmitted()` 准入、Ed25519 权能令牌签名、配额与策略引擎 |
-| `@commander/action-adapters` | 目标系统适配器（GitHub PR、ServiceNow 事故单、Kubernetes 回滚等），配备完备的合规测试套件 |
-| `@commander/worker-plane` | 被租赁步骤运行的唯一合法执行面，具备 Fail-closed 失败闭合启动校验 |
-| `@commander/adapter-ops` | 负责事务补偿与孤立状态对齐清理的守护进程 |
-| `@commander/postgres-runtime` | 强化的 `pg.Pool` 运行时工厂：强制 `sslmode=verify-full`、CA 证书校验与 SPKI 公钥固定 |
-| `@commander/shadow-plane` | 面向 Shadow 影子模式的只读历史策略对比评估引擎 |
-| `@commander/core` | 智能体本地运行时：任务编排、工具集、供应商接入、上下文记忆与本地 CLI |
-| `@commander/sdk`, `commander-ai` | 官方提供的 TypeScript 与 Python 客户端库 |
-| `@commander/mcp-server` | 暴露 Action Gateway 治理能力的 stdio MCP 服务端 |
-| `@commander/plugin-sdk` | 供外部扩展插件的官方接入规范 |
+| `@praetor/contracts` | 版本化共享类型、错误码字典、状态机、事件信封与 OpenAPI V1 规范。纯类型包，零运行时依赖 |
+| `@praetor/kernel` | 持久化生命周期的唯一法定权威：负责任务/步骤租赁、幂等排重、发件箱 (Outbox) 与崩溃数据迁移 |
+| `@praetor/effect-broker` | 外部写入的唯一受批准路径。负责两阶段 `admit()` → `executeAdmitted()` 准入、Ed25519 权能令牌签名、配额与策略引擎 |
+| `@praetor/action-adapters` | 目标系统适配器（GitHub PR、ServiceNow 事故单、Kubernetes 回滚等），配备完备的合规测试套件 |
+| `@praetor/worker-plane` | 被租赁步骤运行的唯一合法执行面，具备 Fail-closed 失败闭合启动校验 |
+| `@praetor/adapter-ops` | 负责事务补偿与孤立状态对齐清理的守护进程 |
+| `@praetor/postgres-runtime` | 强化的 `pg.Pool` 运行时工厂：强制 `sslmode=verify-full`、CA 证书校验与 SPKI 公钥固定 |
+| `@praetor/shadow-plane` | 面向 Shadow 影子模式的只读历史策略对比评估引擎 |
+| `@praetor/core` | 智能体本地运行时：任务编排、工具集、供应商接入、上下文记忆与本地 CLI |
+| `@praetor/sdk`, `praetor-ai` | 官方提供的 TypeScript 与 Python 客户端库 |
+| `@praetor/mcp-server` | 暴露 Action Gateway 治理能力的 stdio MCP 服务端 |
+| `@praetor/plugin-sdk` | 供外部扩展插件的官方接入规范 |
 
 ### 治理执行流 (Governance flow)
 
@@ -92,18 +92,18 @@ Commander 确立了严格的三层隔离模型，解耦不受信智能体推理�
 2. 具备权能感知能力的 Worker 节点以步骤租约形式申领任务步骤。
 3. 任何需要对外写入的步骤必须经由 Effect Broker：验证权能令牌有效性、绑定请求参数哈希、核验策略配额并签发审计凭证。
 4. 高危或关键动作必须由人类批准；审批票据严格锁定请求的唯一摘要快照与策略版本。
-5. 最终通过专用适配器（`@commander/action-adapters`）下发外部操作。若网络传输中断，适配器在重试前必先向目标系统查询现有结果，彻底阻断重复副作用。
+5. 最终通过专用适配器（`@praetor/action-adapters`）下发外部操作。若网络传输中断，适配器在重试前必先向目标系统查询现有结果，彻底阻断重复副作用。
 6. 若步骤在局部写入后异常中止，补偿动作由 `adapter-ops` 守护进程负责幂等回滚与最终状态对齐。
 
 ### Preflight 执行前排重与故障恢复协议
 
-当外部写入遭遇网络丢包（如 HTTP 504 网关超时或 Worker 意外断电）时，传统智能体的盲目重试会引发生产级灾难。Commander 执行确定性的 Preflight 预检协议：
+当外部写入遭遇网络丢包（如 HTTP 504 网关超时或 Worker 意外断电）时，传统智能体的盲目重试会引发生产级灾难。Praetor 执行确定性的 Preflight 预检协议：
 
 <p align="center">
   <img src="/commander-preflight-protocol-zh.png" alt="图 2: Preflight 执行前排重与租约恢复协议" width="100%" />
 </p>
 
-*图 2: 分布式 Preflight 预检与故障恢复协议对比图。直观呈现传统智能体盲目重试导致的重复写灾难，与 Commander 基于 WAL 租约接管与外部预检实现 Exactly-Once 恢复的确定性时序。*
+*图 2: 分布式 Preflight 预检与故障恢复协议对比图。直观呈现传统智能体盲目重试导致的重复写灾难，与 Praetor 基于 WAL 租约接管与外部预检实现 Exactly-Once 恢复的确定性时序。*
 
 ### 两阶段人机密码学签名与存证全生命周期
 
@@ -135,4 +135,4 @@ Commander 确立了严格的三层隔离模型，解耦不受信智能体推理�
 - `docs/architecture/000-index.md` — ADR 架构决策索引与特性冻结规范
 - `docs/v2-migration-guide.md` — 升级至 Architecture V2 迁移指南
 - `docs/slo.md` — 系统 SLO 服务等级目标
-- [为什么智能体的外部写操作不能盲目重试？](https://github.com/PStarH/Commander/blob/master/docs/content/why-retrying-ai-agent-external-actions-is-unsafe.md) — 深入剖析超时绝非失败、盲目重试必致重复写入的分布式故障模型
+- [为什么智能体的外部写操作不能盲目重试？](https://github.com/PStarH/Praetor/blob/master/docs/content/why-retrying-ai-agent-external-actions-is-unsafe.md) — 深入剖析超时绝非失败、盲目重试必致重复写入的分布式故障模型

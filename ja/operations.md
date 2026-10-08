@@ -26,12 +26,12 @@ Background deploy units expose their own ports:
 
 | Unit | Port | Endpoints |
 | --- | --- | --- |
-| `kernel-ops` | `8081` (`COMMANDER_OPS_HEALTH_PORT`) | `/health`, `/ready` |
-| `adapter-ops` | `8082` (`COMMANDER_ADAPTER_OPS_HEALTH_PORT`) | `/health`, `/ready`, `/livez` |
-| `worker` | `8083` (`COMMANDER_WORKER_HEALTH_PORT`) | `/health`, `/ready` |
+| `kernel-ops` | `8081` (`PRAETOR_OPS_HEALTH_PORT`) | `/health`, `/ready` |
+| `adapter-ops` | `8082` (`PRAETOR_ADAPTER_OPS_HEALTH_PORT`) | `/health`, `/ready`, `/livez` |
+| `worker` | `8083` (`PRAETOR_WORKER_HEALTH_PORT`) | `/health`, `/ready` |
 
 `8081` and `8082` are code defaults. `8083` is **not** — if
-`COMMANDER_WORKER_HEALTH_PORT` is unset the worker health server is disabled
+`PRAETOR_WORKER_HEALTH_PORT` is unset the worker health server is disabled
 entirely. The `8083` value comes from the Compose and Helm manifests.
 
 ### What "ready" means for each unit

@@ -1,6 +1,6 @@
-# Commander Docs
+# Praetor Docs
 
-The public VitePress documentation for Commander.
+The public VitePress documentation for Praetor.
 
 ## Development
 
@@ -16,8 +16,8 @@ ports, security limits, and evidence claims identical across every locale.
 
 ## Public documentation boundary
 
-- Commander API: `http://localhost:4000`
-- Commander web interface: `http://localhost:3000`
+- Praetor API: `http://localhost:4000`
+- Praetor web interface: `http://localhost:3000`
 - Enterprise Gateway: alpha; not production-proven multi-tenant SaaS
 - Benchmarks: regression evidence, not production SLAs or certifications
 

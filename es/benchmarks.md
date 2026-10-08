@@ -2,7 +2,7 @@
 
 > This page is synchronized from the canonical English documentation. Español navigation is available; commands and product limits are identical in every locale.
 
-Commander maintains benchmark suites for regression detection, defensive validation, and performance tracking.
+Praetor maintains benchmark suites for regression detection, defensive validation, and performance tracking.
 
 > **Evidence boundary:** Results documented here run in **simulated/scripted harnesses** or as **CI baselines**. They are not customer SLAs, production SOC evidence, or independent security certifications. A benchmark measurement reflects its test harness, case manifest, raw output, and declared environment provenance.
 
@@ -51,7 +51,7 @@ pnpm bench:tenant-isolation  # Cross-tenant fuzz test (1,000 mutations, 6 attack
 
 ### Prompt injection defense (AgentDojo)
 
-Commander's security benchmark runner evaluates defenses against indirect prompt injection across three configured boundaries:
+Praetor's security benchmark runner evaluates defenses against indirect prompt injection across three configured boundaries:
 
 1. **Input boundary:** Prompt sanitization, delimiter enforcement, and canary token tracking.
 2. **Tool boundary:** Ed25519 / HMAC capability-token verification, argument structure validation, and trust tiers (`trusted` vs `untrusted` tools).
@@ -68,7 +68,7 @@ In enterprise production infrastructure, **the primary obstacle to deploying aut
 - What happens when an attacker injects indirect prompt injection into tool outputs?
 - What happens when network latency causes a split-brain condition between concurrent workers?
 
-Commander's benchmark infrastructure explicitly prioritizes **fault injection, recovery determinism, and defensive robustness**. Rather than claiming model-level intelligence, Commander proves that the surrounding execution plane guarantees idempotency, cryptographic verification, and state recovery when upstream models and downstream networks fail.
+Praetor's benchmark infrastructure explicitly prioritizes **fault injection, recovery determinism, and defensive robustness**. Rather than claiming model-level intelligence, Praetor proves that the surrounding execution plane guarantees idempotency, cryptographic verification, and state recovery when upstream models and downstream networks fail.
 
 ### Chaos engineering & fault recovery (Chaos 255)
 
@@ -107,4 +107,4 @@ For production diligence, external benchmarks should not replace an in-house pro
 
 1. **Test real tool boundaries:** Evaluate whether sensitive tools (`exec`, `git`, external APIs) are gated behind appropriate capability tokens and human approvals.
 2. **Inject transport faults:** Exercise response loss on external writes (e.g. using the GitHub pilot test proxy) to verify that recovery queries avoid duplicate writes.
-3. **Verify audit retention:** Inspect signed evidence bundles and verify Ed25519 JWS signatures with `@commander/sdk`'s `verifyActionEvidence()`.
+3. **Verify audit retention:** Inspect signed evidence bundles and verify Ed25519 JWS signatures with `@praetor/sdk`'s `verifyActionEvidence()`.

@@ -1,6 +1,6 @@
 # 命令行参考手册 (CLI Reference)
 
-Commander Local CLI 是官方主推支持的核心交互入口。你可以在源码检出目录中直接执行：
+Praetor Local CLI 是官方主推支持的核心交互入口。你可以在源码检出目录中直接执行：
 
 ```bash
 pnpm exec tsx packages/core/src/cliEntry.ts <command> [flags]
@@ -158,7 +158,7 @@ commander goal judge "Fix all TypeScript errors in src/"
 
 | 命令 | 用途与说明 |
 | --- | --- |
-| `intelligence [flags]`（别名 `i`） | 检视 Commander 已学习沉淀的知识经验：`--stats`、`--skills`、`--patterns`、`--all` |
+| `intelligence [flags]`（别名 `i`） | 检视 Praetor 已学习沉淀的知识经验：`--stats`、`--skills`、`--patterns`、`--all` |
 | `experience [sub]` | 经验池管理：`status`（默认）或 `reset` 重置经验（`--skills`、`--patterns`、`--meta`、`--force`） |
 | `feedback [flags]` | 提交运行反馈：`--rating=<1-5>`、`--message`、`--bug`、`--feature`；`stats` 查看聚合统计 |
 | `skill <sub>` | 智能体技能沉淀管理：`list`、`view <name>`、`create <name>`、`pin`、`unpin`、`delete`、`curate` |
@@ -176,7 +176,7 @@ commander goal judge "Fix all TypeScript errors in src/"
 | `sandbox [status]` | 检查操作系统级沙箱支持状态、底层实现机制及隔离画像 |
 | `security <sub>` | 红蓝对抗安全验证套件：`redteam`、`compliance-audit`、`adversarial-llm`、`hard-adversarial`、`unknown-adversarial` |
 
-`action` 相关的子命令依赖环境变量 `COMMANDER_API_KEY` 以及可连通的 `COMMANDER_ACTION_GATEWAY_URL`：
+`action` 相关的子命令依赖环境变量 `PRAETOR_API_KEY` 以及可连通的 `PRAETOR_ACTION_GATEWAY_URL`：
 
 | 子命令 | 用途与说明 |
 | --- | --- |
@@ -198,7 +198,7 @@ commander goal judge "Fix all TypeScript errors in src/"
 - `--version` / `version`：打印当前版本号与当前生效的 Profile。生效 Profile 恒为 `local`；本地 CLI 绝不会自动路由至 Enterprise Gateway。
 - `--help` / `help`：打印命令列表；`help --all` 输出展开的完整列表。`<command> --help` 打印单个命令的详细说明。
 - 针对高消耗命令，多进程间统一实施每分钟最多 10 次大模型调用限制。超过阈值将打印限流警告并以状态码 `1` 退出。
-- `COMMANDER_THEME`：设置终端高亮主题。
+- `PRAETOR_THEME`：设置终端高亮主题。
 - 输入未知命令时，系统将以状态码 `1` 退出，并基于前缀匹配给出推荐命令提示（注意：此为前缀匹配而非模糊拼写纠错，单词中间拼写错误不会触发提示）。
 - 发生异常错误时，CLI 会打印详细错误信息并建议运行 `commander doctor` 与 `commander quickstart` 进行诊断。
 

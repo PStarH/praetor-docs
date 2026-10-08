@@ -16,17 +16,17 @@ curl http://localhost:4000/metrics         # Prometheus / OpenMetrics 监控指�
 `/health` 仅探测进程生命周期存活与堆内存是否健康；`/ready` 则会真实执行全套探针，当检测到数据库连接池异常、分布式内核失联或存证仓库不可写时，遵循安全闭环原则直接返回 `503`。
 
 > [!NOTE]
-> Commander API 服务的标准就绪探针为 `/ready`。分布式运维组件的探针端口定义如下表所示。
+> Praetor API 服务的标准就绪探针为 `/ready`。分布式运维组件的探针端口定义如下表所示。
 
 分布式后台守护组件分别暴露了独立的探针服务端口：
 
 | 运维组件 | 监听端口 | 暴露的端点 |
 | --- | --- | --- |
-| `kernel-ops` | `8081` (`COMMANDER_OPS_HEALTH_PORT`) | `/health`, `/ready` |
-| `adapter-ops` | `8082` (`COMMANDER_ADAPTER_OPS_HEALTH_PORT`) | `/health`, `/ready`, `/livez` |
-| `worker` | `8083` (`COMMANDER_WORKER_HEALTH_PORT`) | `/health`, `/ready` |
+| `kernel-ops` | `8081` (`PRAETOR_OPS_HEALTH_PORT`) | `/health`, `/ready` |
+| `adapter-ops` | `8082` (`PRAETOR_ADAPTER_OPS_HEALTH_PORT`) | `/health`, `/ready`, `/livez` |
+| `worker` | `8083` (`PRAETOR_WORKER_HEALTH_PORT`) | `/health`, `/ready` |
 
-`8081` 与 `8082` 在代码中包含默认值；而 `8083` **没有代码默认值**——若环境变量 `COMMANDER_WORKER_HEALTH_PORT` 未声明，Worker 节点将彻底关闭健康检查服务（该端口值由官方 Compose 和 Helm 模板显式注入）。
+`8081` 与 `8082` 在代码中包含默认值；而 `8083` **没有代码默认值**——若环境变量 `PRAETOR_WORKER_HEALTH_PORT` 未声明，Worker 节点将彻底关闭健康检查服务（该端口值由官方 Compose 和 Helm 模板显式注入）。
 
 ### 各运维组件的“就绪 (Ready)”语义判定标准
 

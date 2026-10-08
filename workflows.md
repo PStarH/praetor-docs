@@ -1,6 +1,6 @@
 # Workflows and automation
 
-Commander has four overlapping automation surfaces. They are independent of each
+Praetor has four overlapping automation surfaces. They are independent of each
 other and persistence differs between them, so pick deliberately:
 
 | Surface | Command | Best for |
@@ -112,6 +112,6 @@ Automated runs still pass through the same approval model as interactive ones.
   want scheduled workflows to survive a restart.
 - `pause` and `resume` act on the schedule, not on an in-flight run. To stop a
   run that is already executing, use `commander jobs <jobId> --stop`.
-- Workflow, schedule, and webhook state is held in local Commander state. It is
+- Workflow, schedule, and webhook state is held in local Praetor state. It is
   not a multi-replica authority — see
   [Operations and rollback](/operations#data-recovery).

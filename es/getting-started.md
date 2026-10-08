@@ -7,7 +7,7 @@
 - **Node.js 22.x** and **pnpm 9** (Corepack selects the pinned version).
 - No provider credentials are needed for the first simulated demo.
 
-Enterprise customers should start with [Shadow Phase A](https://github.com/PStarH/Commander/blob/shadow-phase-a-0.1.0-alpha.20260910/docs/pilot/shadow/README.md),
+Enterprise customers should start with [Shadow Phase A](https://github.com/PStarH/Praetor/blob/shadow-phase-a-0.1.0-alpha.20260910/docs/pilot/shadow/README.md),
 which evaluates historical observations without external actions.
 
 ## Choose your first experience
@@ -22,8 +22,8 @@ which evaluates historical observations without external actions.
 ## 1. Install and run the simulated demo
 
 ```bash
-git clone https://github.com/PStarH/Commander.git
-cd Commander
+git clone https://github.com/PStarH/Praetor.git
+cd Praetor
 corepack enable
 pnpm install --frozen-lockfile
 pnpm build
@@ -63,7 +63,7 @@ pnpm test:github:offline
 pnpm demo:github --help
 ```
 
-See the [GitHub pilot guide](https://github.com/PStarH/Commander/blob/master/docs/pilot/github/README.md) for running against a configured Enterprise Gateway.
+See the [GitHub pilot guide](https://github.com/PStarH/Praetor/blob/master/docs/pilot/github/README.md) for running against a configured Enterprise Gateway.
 
 ## 4. Local interfaces
 
@@ -79,7 +79,7 @@ it with a production environment and it instead requires a durable store plus
 `JWT_SECRET` and `ADMIN_PASSWORD`.
 
 Grafana, when the `observability` profile is enabled, uses port `3001`. It is
-not a Commander API port.
+not a Praetor API port.
 
 ## Next steps
 

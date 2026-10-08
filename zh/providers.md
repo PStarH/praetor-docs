@@ -1,6 +1,6 @@
 # 模型提供商
 
-Commander 深度支持 **25 家大模型供应商**。只需在环境中配置至少一个供应商的 API Key，系统即可智能识别并自动加载。
+Praetor 深度支持 **25 家大模型供应商**。只需在环境中配置至少一个供应商的 API Key，系统即可智能识别并自动加载。
 
 系统以代码注册表为唯一法定基准：位于 `packages/core/src/runtime/providers/providerRegistry.ts` 中的 `registerProvider()` 清单明确规定了自动探测优先级、环境变量映射表、默认 Base URL、默认模型名称与 API 协议类型。接入全新供应商仅需一次标准的 `registerProvider()` 调用。
 
@@ -61,12 +61,12 @@ Commander 深度支持 **25 家大模型供应商**。只需在环境中配置�
 
 ## 故障转移链 (Failover)
 
-系统支持构建动态容灾故障转移链。执行 `commander init` 时，脚手架会自动扫描本地已配置的 API 密钥、测试网络连通性、压测往返延迟，并将最优的容灾链保存至 `.commander.json` 中。每个供应商均具备独立的熔断器组件，实时监测错误率并在连续失败时触发熔断，自动将流量平滑引流至链条中的下一家健康供应商。
+系统支持构建动态容灾故障转移链。执行 `praetor init` 时，脚手架会自动扫描本地已配置的 API 密钥、测试网络连通性、压测往返延迟，并将最优的容灾链保存至 `.commander.json` 中。每个供应商均具备独立的熔断器组件，实时监测错误率并在连续失败时触发熔断，自动将流量平滑引流至链条中的下一家健康供应商。
 
 ## 模型能力分级 (Model Tiers)
 
-通过环境变量 `COMMANDER_MIN_SENSITIVE_MODEL_TIER` 可以为高敏感度或关键代码变更步骤设定最低模型基线。系统划分了四个能力梯队：`eco`（轻量经济型）、`standard`（标准生产型）、`power`（高推理算力型）与 `consensus`（共识裁判型）；系统默认等级为 `standard`。标记为需要高等级模型的步骤绝不会被降级分发给低梯队模型。
+通过环境变量 `PRAETOR_MIN_SENSITIVE_MODEL_TIER` 可以为高敏感度或关键代码变更步骤设定最低模型基线。系统划分了四个能力梯队：`eco`（轻量经济型）、`standard`（标准生产型）、`power`（高推理算力型）与 `consensus`（共识裁判型）；系统默认等级为 `standard`。标记为需要高等级模型的步骤绝不会被降级分发给低梯队模型。
 
 ## 凭据安全存储机制
 
-系统对于模型密钥的加载遵循 **“加密密钥库优先，环境变量回退”** 的原则。内置的 `EncryptedSecretsVault` 采用 AES-256-GCM 与 HKDF-SHA-256 派生算法对密钥进行静态加密存储，由 `COMMANDER_MASTER_KEY` 统一保护。详见 [安全体系与隐私保护](/zh/security#敏感凭据防护)。
+系统对于模型密钥的加载遵循 **“加密密钥库优先，环境变量回退”** 的原则。内置的 `EncryptedSecretsVault` 采用 AES-256-GCM 与 HKDF-SHA-256 派生算法对密钥进行静态加密存储，由 `PRAETOR_MASTER_KEY` 统一保护。详见 [安全体系与隐私保护](/zh/security#敏感凭据防护)。

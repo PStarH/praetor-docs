@@ -1,13 +1,13 @@
 # Web 管理控制台 (Web Console)
 
-Commander Web 管理控制台（作战指挥室）是一个基于 React 构建的单页应用 (SPA)。你可以通过以下两种方式之一启动并访问：
+Praetor Web 管理控制台（作战指挥室）是一个基于 React 构建的单页应用 (SPA)。你可以通过以下两种方式之一启动并访问：
 
 | 启动模式 | 命令行指令 | 访问地址与端口 |
 | --- | --- | --- |
 | 本地开发模式 | `pnpm gui` | `http://localhost:5173`（API 服务监听 `4000`） |
 | 容器化部署 | `docker compose --profile web up` | `http://localhost:3000` |
 
-`pnpm gui` 会在本地自动派生两个子进程：监听在 `4000` 端口的 API 服务，以及监听在 `5173` 端口的 Vite 前端开发服务器，并自动在浏览器中打开主页。该命令自身不执行额外的凭据检查，API 服务启动所需的各项要求完全适用。在本地开发模式下，API 默认使用轻量的 SQLite 存储；如果在生产模式环境变量（`NODE_ENV=production` 或 `COMMANDER_ENV=production`）下运行，API 必须挂载持久化数据库与安全凭据。
+`pnpm gui` 会在本地自动派生两个子进程：监听在 `4000` 端口的 API 服务，以及监听在 `5173` 端口的 Vite 前端开发服务器，并自动在浏览器中打开主页。该命令自身不执行额外的凭据检查，API 服务启动所需的各项要求完全适用。在本地开发模式下，API 默认使用轻量的 SQLite 存储；如果在生产模式环境变量（`NODE_ENV=production` 或 `PRAETOR_ENV=production`）下运行，API 必须挂载持久化数据库与安全凭据。
 
 在 Docker Compose 容器化部署中，前端静态资源托管在 Nginx 容器内并通过 `3000` 端口对外暴露，Nginx 会将 `/api` 与 `/v1` 的流量反向代理转发给内部的 `api` 服务。请注意：端口 `3001` 属于 Grafana 监控大屏，并非前端控制台。
 

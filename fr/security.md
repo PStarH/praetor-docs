@@ -2,20 +2,20 @@
 
 > This page is synchronized from the canonical English documentation. Français navigation is available; commands and product limits are identical in every locale.
 
-Commander is **alpha**. Its own repository states it is not production-ready and
+Praetor is **alpha**. Its own repository states it is not production-ready and
 that tenant isolation is *not production-proven*. This page describes the
 controls that exist and — just as importantly — the ones that do not. Read the
 [Limits](#limits-and-honest-caveats) section before relying on any of it.
 
 ## Threat model in one paragraph
 
-Commander runs on your machine or in your cluster, holds provider credentials,
+Praetor runs on your machine or in your cluster, holds provider credentials,
 can read and write files, and can execute code. The assets worth protecting are
-provider API keys, the Commander secret material, customer source and data that
+provider API keys, the Praetor secret material, customer source and data that
 flows through tasks, and the integrity of the audit trail. The main risks are
 credential theft, prompt injection via tool output, excessive tool authority,
 tenant data bleed in multi-tenant deployments, and unbounded external writes.
-Commander has controls for each of these, but most of them must be configured to
+Praetor has controls for each of these, but most of them must be configured to
 be effective, and several are opt-in.
 
 ## Authentication
@@ -26,19 +26,19 @@ be effective, and several are opt-in.
 | JWT | `Authorization: Bearer <jwt>`. **HS256 (symmetric HMAC) only.** Access tokens 24h, refresh tokens 7d. Refresh tokens are single-use and revoked on consumption |
 | OIDC | `GET/POST /api/auth/oidc/*`. ID tokens verified via JWKS using RS256/384/512 or ES256/384/512 |
 | SCIM 2.0 | User and group provisioning. Requires an admin JWT role or an API-key scope of `scim` / `admin` / `*` |
-| A2A | `COMMANDER_A2A_AUTH_TOKEN` bearer (also accepts `A2A_AUTH_TOKEN`), minimum 16 characters |
+| A2A | `PRAETOR_A2A_AUTH_TOKEN` bearer (also accepts `A2A_AUTH_TOKEN`), minimum 16 characters |
 
 **Secret requirements enforced at startup**
 
 | Variable | Rule |
 | --- | --- |
 | `JWT_SECRET` | Always required. Minimum 32 characters, and known public defaults are rejected |
-| `ADMIN_PASSWORD` | Minimum 16 characters; the default value is rejected. Required in production, or when `COMMANDER_API_REPLICAS > 1` |
-| `COMMANDER_MASTER_KEY` | Minimum 32 characters. Keys the encrypted secrets vault |
-| `COMMANDER_API_KEY` | Required startup secret in production, and Commander's own credential toward the Action Gateway. It is **not** the inbound request key store |
-| `COMMANDER_CAPABILITY_TOKEN_KEY` | Required in production. HMAC key for API-surface capability tokens |
-| `COMMANDER_INTEGRITY_KEY` | Required in production. HMAC key for WAL event signing |
-| `COMMANDER_EVIDENCE_JWKS_JSON` | Required in Compose deployments. Public JWKS string used by the API to verify Ed25519-signed action evidence |
+| `ADMIN_PASSWORD` | Minimum 16 characters; the default value is rejected. Required in production, or when `PRAETOR_API_REPLICAS > 1` |
+| `PRAETOR_MASTER_KEY` | Minimum 32 characters. Keys the encrypted secrets vault |
+| `PRAETOR_API_KEY` | Required startup secret in production, and Praetor's own credential toward the Action Gateway. It is **not** the inbound request key store |
+| `PRAETOR_CAPABILITY_TOKEN_KEY` | Required in production. HMAC key for API-surface capability tokens |
+| `PRAETOR_INTEGRITY_KEY` | Required in production. HMAC key for WAL event signing |
+| `PRAETOR_EVIDENCE_JWKS_JSON` | Required in Compose deployments. Public JWKS string used by the API to verify Ed25519-signed action evidence |
 
 In **production**, a missing or weak value for startup secrets aborts
 startup. Outside production, a missing value is a warning, not a failure —
@@ -98,8 +98,8 @@ There are **two different implementations**, and the distinction matters.
 
 | Surface | Algorithm | Binds |
 | --- | --- | --- |
-| API / tool-call surface | HMAC-SHA-256 (`COMMANDER_CAPABILITY_TOKEN_KEY`) | subject, audience, tool scope, argument shapes, risk, TTL (default max 300s), delegation depth (max 3), nonce |
-| Worker plane and adapter-ops | **Ed25519** (`COMMANDER_CAPABILITY_PRIVATE_KEY_PEM` + JWKS + key id) | tenant, run, step, effect types, **request hash**, **action digest**, **policy snapshot**, workload, worker generation (fencing), nonce |
+| API / tool-call surface | HMAC-SHA-256 (`PRAETOR_CAPABILITY_TOKEN_KEY`) | subject, audience, tool scope, argument shapes, risk, TTL (default max 300s), delegation depth (max 3), nonce |
+| Worker plane and adapter-ops | **Ed25519** (`PRAETOR_CAPABILITY_PRIVATE_KEY_PEM` + JWKS + key id) | tenant, run, step, effect types, **request hash**, **action digest**, **policy snapshot**, workload, worker generation (fencing), nonce |
 
 Only the Ed25519 path binds a request hash, action digest, and policy snapshot.
 The HMAC path does not. HMAC token revocation is a **process-local in-memory
@@ -144,13 +144,13 @@ receipts against a supplied JWKS.
 
 **Profiles:** `read-only`, `workspace-write`, `full-access`, `hardened`.
 `hardened` is workspace-write with proxied network, a staging directory, 512 MB
-and 1 CPU limits, and a 120-second timeout. `COMMANDER_SANDBOX_MODE` can select
+and 1 CPU limits, and a 120-second timeout. `PRAETOR_SANDBOX_MODE` can select
 a profile but can never select `full-access`; `full-access` is forbidden in
 production.
 
 **Mechanisms.** The sandbox can discover `seatbelt` (macOS), `bwrap`, gVisor,
 Docker, AppContainer, V8 isolate, TEE, and SSH backends. However,
-`COMMANDER_SANDBOX_ISOLATION` accepts **only** `process`, `docker`, or
+`PRAETOR_SANDBOX_ISOLATION` accepts **only** `process`, `docker`, or
 `gvisor`:
 
 - Default is `docker` in production and staging, `process` in development and
@@ -159,10 +159,10 @@ Docker, AppContainer, V8 isolate, TEE, and SSH backends. However,
 - So the production-selectable baseline is **Docker or gVisor only**. Seatbelt
   and bwrap are discovered mechanisms, not selectable production isolations.
 
-**Fail-closed behaviour.** If no OS-level sandbox is available, Commander throws
+**Fail-closed behaviour.** If no OS-level sandbox is available, Praetor throws
 `SandboxInitializationError` and refuses to run. The documented escape hatch is
-`COMMANDER_ALLOW_NO_SANDBOX`, which is **forbidden in production**. In
-production, Commander also runs a startup probe under the selected mechanism and
+`PRAETOR_ALLOW_NO_SANDBOX`, which is **forbidden in production**. In
+production, Praetor also runs a startup probe under the selected mechanism and
 refuses to start if the probe fails or the mechanism does not match policy. If
 the escape detector itself cannot load, execution fails closed with exit code
 126.
@@ -201,7 +201,7 @@ rollback.
   **HKDF-SHA-256** for per-secret, per-version key derivation, with a random IV
   and salt. It supports versioned rotation (up to 10 versions) and encrypted
   export.
-- The vault is keyed by `COMMANDER_MASTER_KEY`. In production it refuses to
+- The vault is keyed by `PRAETOR_MASTER_KEY`. In production it refuses to
   start without it; outside production it generates an ephemeral key and warns.
 - Provider keys are resolved vault-first, then from the environment.
 
@@ -219,7 +219,7 @@ not as an enforced invariant of the platform.
 
 ## Injection, poisoning, and content scanning
 
-Commander ships a large set of defences. The notable ones:
+Praetor ships a large set of defences. The notable ones:
 
 | Concern | Module / control |
 | --- | --- |
@@ -249,9 +249,9 @@ certification**.
 - **MCP stdio commands:** the API `/mcp` discovery path allows only `node`,
   `python`, and `python3`. The core MCP client allows `node`, `nodejs`,
   `python`, `python3`, `bun`, `deno`; **`npx` is always forbidden** and `uvx`
-  requires `COMMANDER_MCP_ALLOW_UVX=1`. Inline-evaluation and module-loader
+  requires `PRAETOR_MCP_ALLOW_UVX=1`. Inline-evaluation and module-loader
   flags (`-e`, `-c`, `--eval`, `--require`, `--loader`, `--inspect`) are
-  rejected. `COMMANDER_MCP_ALLOWED_COMMANDS` extends the list.
+  rejected. `PRAETOR_MCP_ALLOWED_COMMANDS` extends the list.
 - Security headers: `X-Powered-By` disabled, HSTS in production, CSP,
   `Referrer-Policy`, `Permissions-Policy`.
 
@@ -265,13 +265,13 @@ certification**.
   `.commander_security/`, with a 10,000-event in-memory ring buffer.
 - All API `POST`/`PUT`/`PATCH`/`DELETE` requests are recorded as `user_action`
   with redacted bodies.
-- **Tamper-evidence is opt-in.** With `COMMANDER_AUDIT_CHAIN_KEY` set, entries
+- **Tamper-evidence is opt-in.** With `PRAETOR_AUDIT_CHAIN_KEY` set, entries
   are chained with `HMAC-SHA-256` and verification detects modification,
   deletion, insertion, and reordering. An asymmetric L2 manifest (RSA-PSS) is
-  available via `COMMANDER_AUDIT_MANIFEST_DIR`. **Without these, the audit log
+  available via `PRAETOR_AUDIT_MANIFEST_DIR`. **Without these, the audit log
   is append-only but not cryptographically chained.**
-- Separately, `COMMANDER_INTEGRITY_KEY` adds an HMAC signature to every
-  persisted WAL event. It is a different key from `COMMANDER_AUDIT_CHAIN_KEY` —
+- Separately, `PRAETOR_INTEGRITY_KEY` adds an HMAC signature to every
+  persisted WAL event. It is a different key from `PRAETOR_AUDIT_CHAIN_KEY` —
   do not conflate them.
 
 ## Rate limiting
@@ -293,9 +293,9 @@ These refuse to start or fail closed in production:
 | Guard | Behaviour |
 | --- | --- |
 | `AUTH_DISABLED=true` | Returns **500** on every request. Never honoured in production |
-| `COMMANDER_ALLOW_NO_SANDBOX` | Forbidden; sandbox initialization throws |
-| `COMMANDER_ALLOW_UNCHECKED_EXEC` | Forbidden; escape detection fails closed |
-| No durable store | Boot refused unless `API_STORE_BACKEND` or `DATABASE_URL` is set; escape hatch `COMMANDER_ALLOW_MEMORY_STORE=1` |
+| `PRAETOR_ALLOW_NO_SANDBOX` | Forbidden; sandbox initialization throws |
+| `PRAETOR_ALLOW_UNCHECKED_EXEC` | Forbidden; escape detection fails closed |
+| No durable store | Boot refused unless `API_STORE_BACKEND` or `DATABASE_URL` is set; escape hatch `PRAETOR_ALLOW_MEMORY_STORE=1` |
 | Weak or missing secrets | `process.exit(1)` |
 | Postgres TLS | Requires exactly `sslmode=verify-full`, a CA file, and a pinned 64-hex server SPKI SHA-256 |
 | Capability authority | Refuses ephemeral or placeholder Ed25519 material |
@@ -306,20 +306,20 @@ These refuse to start or fail closed in production:
 This section exists because the rest of the page would otherwise overstate the
 product.
 
-1. **Alpha.** The repository states Commander is not production-ready and that
+1. **Alpha.** The repository states Praetor is not production-ready and that
    tenant isolation is not production-proven. Do not treat this page as a
    production security attestation.
 2. **API keys use unsalted SHA-256**, not a memory-hard KDF. This is adequate
    for high-entropy random keys but is weaker than bcrypt or Argon2. Passwords,
    by contrast, use bcrypt.
-3. **Commander's own JWTs are HS256 symmetric.** There is no asymmetric option
+3. **Praetor's own JWTs are HS256 symmetric.** There is no asymmetric option
    for access or refresh tokens; asymmetric verification exists only for OIDC ID
    tokens.
 4. **HMAC capability-token revocation is not durable** and does not survive a
    restart.
 5. **Compensation is not guaranteed**; it can escalate.
 6. **No global log redaction.** Redaction is per call site.
-7. **Audit tamper-evidence is opt-in** via `COMMANDER_AUDIT_CHAIN_KEY`.
+7. **Audit tamper-evidence is opt-in** via `PRAETOR_AUDIT_CHAIN_KEY`.
 8. **The API-key scope model is coarse** — only `read`, `write`, and `admin` can
    be minted, while routes check many finer strings that the creation API cannot
    produce.
@@ -329,7 +329,7 @@ product.
 
 ## Data and credentials
 
-- Keep provider API keys and `COMMANDER_API_KEY` out of source control; prefer
+- Keep provider API keys and `PRAETOR_API_KEY` out of source control; prefer
   the encrypted vault.
 - Restrict which tools can reach customer systems, and prefer `read-only` or
   `workspace-write` sandbox profiles.
@@ -345,5 +345,5 @@ Public issues are not an appropriate disclosure channel.
 ## Compliance
 
 ISO 42001 and NIST AI RMF material in this project is **reporting support, not
-certification**. Commander does not claim a SOC 2 report, and the OWASP and MITRE
+certification**. Praetor does not claim a SOC 2 report, and the OWASP and MITRE
 ATLAS mappings are defensive telemetry rather than an audited control set.
