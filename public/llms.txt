@@ -1,10 +1,10 @@
-# Commander
+# Praetor
 
 Approval and recovery for Coding and DevOps agents, starting with GitHub pull requests.
-Commander preserves approved requests and execution state outside the agent, queries
+Praetor preserves approved requests and execution state outside the agent, queries
 outcomes after response loss, and governs external mutations through Architecture V2.
 
-Commander is alpha. Two evaluation paths are available: the GitHub Pilot for governed
+Praetor is alpha. Two evaluation paths are available: the GitHub Pilot for governed
 writes and response-loss recovery, and Shadow Phase A for customer-operated historical
 evaluation. Live Kubernetes rollback is frozen.
 
@@ -12,44 +12,44 @@ evaluation. Live Kubernetes rollback is frozen.
 
 ### Get started
 
-- Overview: https://pstarh.github.io/commander-docs/index.html
-- Quick start: https://pstarh.github.io/commander-docs/getting-started.html
+- Overview: https://pstarh.github.io/praetor-docs/index.html
+- Quick start: https://pstarh.github.io/praetor-docs/getting-started.html
 
 ### Reference
 
-- CLI reference: https://pstarh.github.io/commander-docs/cli.html
-- HTTP API: https://pstarh.github.io/commander-docs/api.html
-- Configuration: https://pstarh.github.io/commander-docs/configuration.html
-- Tools: https://pstarh.github.io/commander-docs/tools.html
-- Providers: https://pstarh.github.io/commander-docs/providers.html
-- MCP: https://pstarh.github.io/commander-docs/mcp.html
-- Web console: https://pstarh.github.io/commander-docs/web-console.html
-- Packages and SDKs: https://pstarh.github.io/commander-docs/packages.html
-- SDK and API overview: https://pstarh.github.io/commander-docs/sdk.html
+- CLI reference: https://pstarh.github.io/praetor-docs/cli.html
+- HTTP API: https://pstarh.github.io/praetor-docs/api.html
+- Configuration: https://pstarh.github.io/praetor-docs/configuration.html
+- Tools: https://pstarh.github.io/praetor-docs/tools.html
+- Providers: https://pstarh.github.io/praetor-docs/providers.html
+- MCP: https://pstarh.github.io/praetor-docs/mcp.html
+- Web console: https://pstarh.github.io/praetor-docs/web-console.html
+- Packages and SDKs: https://pstarh.github.io/praetor-docs/packages.html
+- SDK and API overview: https://pstarh.github.io/praetor-docs/sdk.html
 
 ### Concepts
 
-- Architecture: https://pstarh.github.io/commander-docs/architecture.html
-- Workflows and automation: https://pstarh.github.io/commander-docs/workflows.html
+- Architecture: https://pstarh.github.io/praetor-docs/architecture.html
+- Workflows and automation: https://pstarh.github.io/praetor-docs/workflows.html
 
 ### Run it
 
-- Deployment: https://pstarh.github.io/commander-docs/deployment.html
-- Operations and rollback: https://pstarh.github.io/commander-docs/operations.html
-- Troubleshooting: https://pstarh.github.io/commander-docs/troubleshooting.html
+- Deployment: https://pstarh.github.io/praetor-docs/deployment.html
+- Operations and rollback: https://pstarh.github.io/praetor-docs/operations.html
+- Troubleshooting: https://pstarh.github.io/praetor-docs/troubleshooting.html
 
 ### Trust
 
-- Security and privacy: https://pstarh.github.io/commander-docs/security.html
-- Benchmarks: https://pstarh.github.io/commander-docs/benchmarks.html
-- Support and limits: https://pstarh.github.io/commander-docs/support.html
+- Security and privacy: https://pstarh.github.io/praetor-docs/security.html
+- Benchmarks: https://pstarh.github.io/praetor-docs/benchmarks.html
+- Support and limits: https://pstarh.github.io/praetor-docs/support.html
 
 ### Enterprise evaluation & pilots
 
-- GitHub action pilot: https://github.com/PStarH/Commander/blob/master/docs/pilot/github/README.md
-- Enterprise Shadow Phase A: https://github.com/PStarH/Commander/blob/shadow-phase-a-0.1.0-alpha.20260910/docs/pilot/shadow/README.md
-- Shadow Phase A release package: https://github.com/PStarH/Commander/releases/tag/shadow-phase-a-0.1.0-alpha.20260910
-- Enterprise readiness checklist: https://github.com/PStarH/Commander/blob/master/ENTERPRISE_READINESS.md
+- GitHub action pilot: https://github.com/PStarH/Praetor/blob/master/docs/pilot/github/README.md
+- Enterprise Shadow Phase A: https://github.com/PStarH/Praetor/blob/shadow-phase-a-0.1.0-alpha.20260910/docs/pilot/shadow/README.md
+- Shadow Phase A release package: https://github.com/PStarH/Praetor/releases/tag/shadow-phase-a-0.1.0-alpha.20260910
+- Enterprise readiness checklist: https://github.com/PStarH/Praetor/blob/master/ENTERPRISE_READINESS.md
 
 ## Product boundary
 

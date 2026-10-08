@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://pstarh.github.io/commander-docs/sitemap.xml
+Sitemap: https://pstarh.github.io/praetor-docs/sitemap.xml

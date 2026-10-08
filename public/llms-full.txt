@@ -1,15 +1,15 @@
-# Commander documentation
+# Praetor documentation
 
-Source: https://github.com/PStarH/Commander
-Documentation: https://pstarh.github.io/commander-docs/
-Machine-readable index: https://pstarh.github.io/commander-docs/llms.txt
+Source: https://github.com/PStarH/Praetor
+Documentation: https://pstarh.github.io/praetor-docs/
+Machine-readable index: https://pstarh.github.io/praetor-docs/llms.txt
 
-Commander is alpha. Two enterprise evaluation paths are available:
-- GitHub Pilot (governed actions & recovery): https://github.com/PStarH/Commander/blob/master/docs/pilot/github/README.md
-- Historical Shadow Phase A: https://github.com/PStarH/Commander/blob/shadow-phase-a-0.1.0-alpha.20260910/docs/pilot/shadow/README.md
-- Enterprise readiness checklist: https://github.com/PStarH/Commander/blob/master/ENTERPRISE_READINESS.md
+Praetor is alpha. Two enterprise evaluation paths are available:
+- GitHub Pilot (governed actions & recovery): https://github.com/PStarH/Praetor/blob/master/docs/pilot/github/README.md
+- Historical Shadow Phase A: https://github.com/PStarH/Praetor/blob/shadow-phase-a-0.1.0-alpha.20260910/docs/pilot/shadow/README.md
+- Enterprise readiness checklist: https://github.com/PStarH/Praetor/blob/master/ENTERPRISE_READINESS.md
 
-What Commander does: approval and recovery for Coding and DevOps agents, starting with
+What Praetor does: approval and recovery for Coding and DevOps agents, starting with
 GitHub pull requests. Deliberation classifies each task and selects one of five
 canonical topologies (SINGLE, CHAIN, DISPATCH, ORCHESTRATOR, REVIEW); 25 LLM
 providers with a configurable auto-failover chain; 18 built-in tools plus
