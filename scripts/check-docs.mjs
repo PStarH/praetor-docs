@@ -6,6 +6,7 @@ const root = process.cwd()
 const locales = ['zh', 'ja', 'ko', 'es', 'fr']
 const pages = [
   'index.md',
+  'films.md',
   'getting-started.md',
   'cli.md',
   'api.md',

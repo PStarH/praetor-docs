@@ -6,6 +6,7 @@ import shutil
 ROOT = Path(__file__).resolve().parents[1]
 PAGES = [
     "index.md",
+    "films.md",
     "getting-started.md",
     "cli.md",
     "api.md",
@@ -40,6 +41,11 @@ for locale, label in LOCALES.items():
     target.mkdir()
     for page in PAGES:
         source = (ROOT / page).read_text()
-        title = source.splitlines()[0].removeprefix("# ")
         notice = f"> This page is synchronized from the canonical English documentation. {label} navigation is available; commands and product limits are identical in every locale.\n\n"
-        (target / page).write_text(f"# {title}\n\n{notice}" + "\n".join(source.splitlines()[2:]))
+        if source.startswith("---\n"):
+            end = source.index("\n---\n", 4) + len("\n---\n")
+            localized = source[:end] + "\n" + notice + source[end:].lstrip("\n")
+        else:
+            title = source.splitlines()[0].removeprefix("# ")
+            localized = f"# {title}\n\n{notice}" + "\n".join(source.splitlines()[2:])
+        (target / page).write_text(localized)

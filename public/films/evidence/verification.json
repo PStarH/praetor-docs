@@ -1,0 +1,70 @@
+{
+  "recordedAt": "2026-10-12T14:07:02.256152+00:00",
+  "sourceSha": "1799a15c961a48097a4c87ffdda17cd6131ebb6a",
+  "scope": "Selected component tests, not an end-to-end production validation",
+  "suites": {
+    "authority": {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "--test-concurrency=1",
+        "--test-name-pattern=limits approve and reject|registered Kubernetes rollback only behind exact approval|supplied action digest differs|same key is reused with different args",
+        "apps/api/test/actionGatewayEndpoints.test.ts"
+      ],
+      "exitCode": 0,
+      "tests": 4,
+      "pass": 4,
+      "fail": 0,
+      "skipped": 0
+    },
+    "fencing": {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "--test-concurrency=1",
+        "packages/core/tests/architecture/v2-cross-node-fencing.test.ts"
+      ],
+      "exitCode": 0,
+      "tests": 12,
+      "pass": 12,
+      "fail": 0,
+      "skipped": 0
+    },
+    "outcomes": {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "--test-concurrency=1",
+        "packages/action-adapters/src/kubernetes/deploymentRollback.test.ts",
+        "packages/adapter-ops/src/reconciliationDaemon.test.ts"
+      ],
+      "exitCode": 0,
+      "tests": 28,
+      "pass": 28,
+      "fail": 0,
+      "skipped": 0
+    },
+    "evidence": {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "--test-concurrency=1",
+        "packages/effect-broker/src/evidenceBundle.test.ts",
+        "packages/effect-broker/src/evidenceSigner.test.ts"
+      ],
+      "exitCode": 0,
+      "tests": 37,
+      "pass": 37,
+      "fail": 0,
+      "skipped": 0
+    }
+  }
+}

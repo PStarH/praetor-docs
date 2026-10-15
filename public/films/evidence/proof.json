@@ -1,0 +1,117 @@
+{
+  "scope": "Illustrative request and fixture evidence; actual repository hash/policy/signature functions. No external action executed.",
+  "digest": "7bf37c88d4b5c0c898207e4622c2ea9e66a4e82a73f5a1322d5fb451a21d7d05",
+  "changedDigest": "bc06ee991ae6685cc6a2d43f622af28f2ac1affb1ec38d04a3ed7bfe7df0e5ce",
+  "policy": {
+    "effect": "require_approval",
+    "decisionId": "action-gateway-manifest-require_approval",
+    "reasonCode": "REGISTERED_ADAPTER_POLICY",
+    "reason": "Registered adapter policy requires 'require_approval' for this exact action.",
+    "policySnapshotId": "action-gateway-mvp-v1"
+  },
+  "original": {
+    "ok": true
+  },
+  "structuralOnly": {
+    "ok": true
+  },
+  "signedCheck": {
+    "ok": false,
+    "reason": "evidence signature verification failed",
+    "brokenAt": "signature"
+  },
+  "publicKey": {
+    "keys": [
+      {
+        "crv": "Ed25519",
+        "x": "HuFSdvBocfb6eWxsgrPINR8q7J0-q0Ox9_N4CUhaZSg",
+        "kty": "OKP",
+        "kid": "film-v2-ephemeral",
+        "alg": "EdDSA",
+        "use": "sig"
+      }
+    ]
+  },
+  "bundle": {
+    "schemaVersion": "l3-11.v0",
+    "bodyVersion": "commander.evidence-body/v1",
+    "bundleId": "film-evidence",
+    "exportedAt": "2026-10-12T00:00:02.000Z",
+    "actionDigest": "7bf37c88d4b5c0c898207e4622c2ea9e66a4e82a73f5a1322d5fb451a21d7d05",
+    "terminalDisposition": "SUCCEEDED",
+    "scope": {
+      "tenantId": "tenant-demo",
+      "runId": "film-fixture"
+    },
+    "identity": {},
+    "versions": {
+      "policySnapshotId": "film-policy"
+    },
+    "effects": [
+      {
+        "effectId": "film-effect",
+        "stepId": "film-step",
+        "type": "connector.kubernetes.deployment.rollback",
+        "state": "COMPLETED",
+        "policyDecisionId": "film-policy",
+        "requestHash": "7bf37c88d4b5c0c898207e4622c2ea9e66a4e82a73f5a1322d5fb451a21d7d05",
+        "responseSummary": {
+          "status": "APPLIED"
+        },
+        "createdAt": "2026-10-12T00:00:00.000Z",
+        "completedAt": "2026-10-12T00:00:01.000Z",
+        "prevEntryHash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "entryHash": "57658cdd993a84c7501959e165c4e75d2db237f78fca7b1dbad18990a3511d9d"
+      }
+    ],
+    "auditEvents": [],
+    "contentHash": "825f67fe031ba28872fc5f9a8da8847b718d58d88b4bb1cd1b270f00af573298",
+    "signature": {
+      "algorithm": "Ed25519",
+      "keyId": "film-v2-ephemeral",
+      "signedAt": "2026-10-12T14:10:53.206Z",
+      "value": "KQfmUXQ9maujsslLQj34JjYFqIwHBbsOi8XnQ7TKUpNC28W6o01B6oJTNTS0DZxt8Ql9yAr589dgBokads9oAQ"
+    }
+  },
+  "forged": {
+    "schemaVersion": "l3-11.v0",
+    "bodyVersion": "commander.evidence-body/v1",
+    "bundleId": "film-evidence",
+    "exportedAt": "2026-10-12T00:00:02.000Z",
+    "actionDigest": "7bf37c88d4b5c0c898207e4622c2ea9e66a4e82a73f5a1322d5fb451a21d7d05",
+    "terminalDisposition": "SUCCEEDED",
+    "scope": {
+      "tenantId": "tenant-demo",
+      "runId": "film-fixture"
+    },
+    "identity": {},
+    "versions": {
+      "policySnapshotId": "film-policy"
+    },
+    "effects": [
+      {
+        "effectId": "film-effect",
+        "stepId": "film-step",
+        "type": "connector.kubernetes.deployment.rollback",
+        "state": "COMPLETED",
+        "policyDecisionId": "film-policy",
+        "requestHash": "7bf37c88d4b5c0c898207e4622c2ea9e66a4e82a73f5a1322d5fb451a21d7d05",
+        "responseSummary": {
+          "status": "FORGED"
+        },
+        "createdAt": "2026-10-12T00:00:00.000Z",
+        "completedAt": "2026-10-12T00:00:01.000Z",
+        "prevEntryHash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "entryHash": "567a78086d4b4ae0c20f7300eaa060e1dae3ed9f2de362c343db127ddd720ed4"
+      }
+    ],
+    "auditEvents": [],
+    "contentHash": "98eb4abc8c34b4af2dbc255c0df1edf558c72a6e3d9ef192ba37d87fc6506f7a",
+    "signature": {
+      "algorithm": "Ed25519",
+      "keyId": "film-v2-ephemeral",
+      "signedAt": "2026-10-12T14:10:53.206Z",
+      "value": "KQfmUXQ9maujsslLQj34JjYFqIwHBbsOi8XnQ7TKUpNC28W6o01B6oJTNTS0DZxt8Ql9yAr589dgBokads9oAQ"
+    }
+  }
+}

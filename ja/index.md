@@ -4,13 +4,17 @@
 
 Approval and Recovery Plane for Coding & DevOps AI Agents
 
-*Prevent duplicate mutations · Recover from dropped network responses · Cryptographically signed evidence*
+*Exact request approval · Query uncertain outcomes · Verify signed evidence*
+
+> **Alpha.** Making agents worthy of enterprise trust is our long-term mission. The first pilot is limited to GitHub pull-request creation; no universal exactly-once or production-readiness guarantee is implied.
+
+<FilmGallery compact />
 
 Autonomous agents are rapidly taking on mission-critical workflows: modifying codebases, opening pull requests, running database migrations, and provisioning cloud infrastructure. But when an agent makes an external write, **a network timeout, dropped socket, or worker restart leaves the system in an ambiguous state: did the write happen, how many times, and with what payload?**
 
 Blindly retrying creates duplicate PRs, double transactions, and corrupted state. Simply giving up leaves orphaned mutations.
 
-Praetor solves this fundamental distributed systems problem. It records the approved request and its execution state outside the agent, performs **preflight query-before-retry** to detect whether a mutation already took effect, and stops in an explicit `UNKNOWN` state when the evidence is ambiguous rather than making dangerous assumptions.
+Praetor builds execution controls around this problem. It records approved requests and execution state outside the agent, uses adapter-specific **outcome queries** to determine whether a write took effect, and preserves `UNKNOWN` when the evidence is ambiguous. Recovery depends on the adapter, remote query semantics, and deployment configuration.
 
 <p align="center">
   <img src="/commander-overview.png" alt="Praetor High-Level Architecture Overview" width="100%" />
@@ -34,10 +38,10 @@ Praetor solves this fundamental distributed systems problem. It records the appr
    │  └─────────────────────────┘ └──────────────────────┘  │
    │  ┌─────────────────────────┐ ┌──────────────────────┐  │
    │  │ Durable Postgres Kernel │ │ Tamper-Evident Audit │  │
-   │  │ (Crash-safe step lease) │ │ (Ed25519 Signed JWS) │  │
+   │  │ (Crash-safe step lease) │ │ (Ed25519 signatures) │  │
    │  └─────────────────────────┘ └──────────────────────┘  │
    └──────────────────────────┬─────────────────────────────┘
-                              │ 2. Governed Write & Auto-Compensation
+                              │ 2. Governed Write & Authorized Compensation
                               ▼
    ┌────────────────────────────────────────────────────────┐
    │       External Infrastructure & Version Control        │
@@ -54,10 +58,10 @@ Read the technical essay: [Why retrying an AI agent's external action is unsafe]
 | Challenge | Naive Agent Execution | Praetor Governed Action |
 | --- | --- | --- |
 | **Response Loss** (e.g. 504 Gateway Timeout during PR creation) | Re-plans or retries blindly → **Duplicate PRs & mutations** | **Preflight Query-Before-Retry**: Checks remote outcome by action identity before retry |
-| **Worker Crash Mid-Task** | State lost or restarted from zero with orphaned external side effects | **Durable PostgreSQL Kernel**: Step lease reclaims; new worker resumes safely |
-| **Credential Exposure** | Agent process directly holds write API keys / GitHub tokens | **Strict Boundary**: Agent only has *propose* authority; write tokens stay in worker plane |
+| **Worker Crash Mid-Task** | State lost or restarted from zero with orphaned external side effects | **Durable PostgreSQL Kernel**: Step lease reclaims; effect-bearing work waits for reconciliation |
+| **Credential Exposure** | Agent process directly holds write API keys / GitHub tokens | **Strict Boundary**: In the configured pilot, agents propose; adapter credentials stay worker-side |
 | **Human Sign-Off** | Text-based prompt or unverified button | **Cryptographic Binding**: Approval locks immutable request digest & policy snapshot |
-| **Audit & Forensics** | Ephemeral console text | **Ed25519 Evidence**: JWS signed receipts for independent verification |
+| **Audit & Forensics** | Ephemeral console text | **Ed25519 Evidence**: Signed evidence verifiable with the trusted public key |
 | **Rollback / Undo** | Ad-hoc scripts or impossible | **Governed Compensation**: Requires separate authorization binding and dedicated receipt |
 
 <p align="center">

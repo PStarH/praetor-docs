@@ -1,0 +1,184 @@
+WEBVTT
+
+NOTE
+English transcription of on-screen narrative and explanatory labels.
+These films contain synthesized music and sound design, with no spoken narration.
+
+1
+00:00:00.000 --> 00:00:01.300
+The engineering.
+Before an agent acts, what must hold?
+
+2
+00:00:01.300 --> 00:00:04.800
+Exact authority. Current ownership.
+Honest uncertainty. Verifiable records.
+
+3
+00:00:04.800 --> 00:00:08.000
+Animated mechanisms. Selected repository checks.
+Evidence levels are identified throughout.
+
+4
+00:00:08.000 --> 00:00:11.000
+Bind authority to the exact request.
+A proposal is not permission to execute.
+
+5
+00:00:11.000 --> 00:00:14.000
+Separate scopes: actions:propose / actions:approve.
+The approval is bound to the approved digest.
+
+6
+00:00:14.000 --> 00:00:17.000
+EXACT REQUEST.
+The request digest matches the approved digest.
+
+7
+00:00:17.000 --> 00:00:20.000
+Schematic: separate gateway fixture tests and real hash computation;
+in-memory repository.
+
+8
+00:00:20.000 --> 00:00:24.000
+Change one parameter. The approval no longer fits.
+409 · ACTION_DIGEST_MISMATCH
+
+9
+00:00:24.000 --> 00:00:30.000
+Same idempotency key + different args: conflict.
+409 · IDEMPOTENCY_KEY_CONFLICT, not a second action.
+
+10
+00:00:30.000 --> 00:00:34.000
+A stale worker loses the right to commit.
+Ownership advances. Old leases do not.
+
+11
+00:00:34.000 --> 00:00:37.700
+Current epoch: 3.
+The kernel checks lease, epoch and version at commit.
+
+12
+00:00:37.700 --> 00:00:39.700
+Worker A, epoch 1: completeStep REJECTED.
+
+13
+00:00:39.700 --> 00:00:41.700
+Worker B, epoch 2: completeStep REJECTED.
+
+14
+00:00:41.700 --> 00:00:44.000
+Worker C, epoch 3: completeStep ACCEPTED.
+
+15
+00:00:44.000 --> 00:00:47.000
+This protects kernel state.
+It cannot recall a request already sent.
+
+16
+00:00:47.000 --> 00:00:50.000
+Schematic: in-memory lease tests.
+No live cluster or database durability claim.
+
+17
+00:00:50.000 --> 00:00:53.000
+A timeout is not an outcome.
+Request never arrived; applied, reply lost; or accepted, not converged.
+
+18
+00:00:53.000 --> 00:00:56.000
+Durable effect state: COMPLETION_UNKNOWN.
+Uncertainty is preserved.
+
+19
+00:00:56.000 --> 00:01:00.000
+Retry? Not from silence.
+Mocked HTTP and controlled repositories, not a production recording.
+
+20
+00:01:00.000 --> 00:01:04.000
+Read-only outcome query.
+Adapter-specific evidence determines the result.
+
+21
+00:01:04.000 --> 00:01:07.000
+APPLIED: complete without repeating the write.
+
+22
+00:01:07.000 --> 00:01:10.000
+NOT_APPLIED: record that it was not applied.
+
+23
+00:01:10.000 --> 00:01:13.000
+UNKNOWN: preserve UNKNOWN; reschedule query.
+
+24
+00:01:13.000 --> 00:01:19.000
+Remote query semantics define the recovery boundary.
+Verified: query-first outcome classification.
+
+25
+00:01:19.000 --> 00:01:23.000
+A hash is not a signature.
+Signed original: Ed25519, bound to canonical evidence bytes.
+
+26
+00:01:23.000 --> 00:01:26.000
+Altered copy: status changed from APPLIED to FORGED.
+
+27
+00:01:26.000 --> 00:01:28.000
+Entry and content hashes recomputed.
+
+28
+00:01:28.000 --> 00:01:30.000
+Structure-only check: PASS.
+
+29
+00:01:30.000 --> 00:01:32.000
+Signature check: FAIL.
+The rehashed forgery fails signature verification.
+
+30
+00:01:32.000 --> 00:01:35.000
+Verify with the trusted public key.
+
+31
+00:01:35.000 --> 00:01:38.000
+Integrity and signing origin,
+not proof of remote truth.
+
+32
+00:01:38.000 --> 00:01:41.000
+Real evidence-bundle and Ed25519 functions.
+Synthetic fixture; temporary signing key.
+
+33
+00:01:41.000 --> 00:01:44.000
+Four constraints. One execution path.
+Trust needs enforceable rules.
+
+34
+00:01:44.000 --> 00:01:46.000
+Exact authority: changed request? Approval no longer matches.
+Current ownership: expired lease? Stale commit is rejected.
+
+35
+00:01:46.000 --> 00:01:49.000
+Honest uncertainty: outcome unclear? Keep it UNKNOWN.
+Record integrity: evidence altered? Signature verification fails.
+
+36
+00:01:49.000 --> 00:01:52.000
+Alpha. Working mechanisms. Explicit limits. Further validation ahead.
+Selected component checks do not establish production readiness.
+
+37
+00:01:52.000 --> 00:01:55.000
+Praetor. Engineering the right to act.
+
+38
+00:01:55.000 --> 00:01:58.000
+Open source / Alpha
+github.com/PStarH/Praetor

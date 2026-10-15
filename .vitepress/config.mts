@@ -9,6 +9,7 @@ function theme(locale: string): DefaultTheme.Config {
   return {
     nav: [
       { text: 'Overview', link: link('/') },
+      { text: 'Films', link: link('/films') },
       { text: 'Quick start', link: link('/getting-started') },
       { text: 'CLI', link: link('/cli') },
       { text: 'API', link: link('/api') },
@@ -21,6 +22,7 @@ function theme(locale: string): DefaultTheme.Config {
         items: [
           { text: 'Overview', link: link('/') },
           { text: 'Quick start', link: link('/getting-started') },
+          { text: 'Films: mission, engineering, evidence', link: link('/films') },
         ],
       },
       {
@@ -78,6 +80,7 @@ function themeZh(): DefaultTheme.Config {
   return {
     nav: [
       { text: '概览', link: link('/') },
+      { text: '影片', link: link('/films') },
       { text: '快速入门', link: link('/getting-started') },
       { text: '命令行 (CLI)', link: link('/cli') },
       { text: 'HTTP API', link: link('/api') },
@@ -90,6 +93,7 @@ function themeZh(): DefaultTheme.Config {
         items: [
           { text: '产品全貌概览', link: link('/') },
           { text: '快速入门指南', link: link('/getting-started') },
+          { text: '影片：使命、原理与实证', link: link('/films') },
         ],
       },
       {
@@ -162,12 +166,12 @@ export default defineConfig({
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:site_name', content: 'Praetor Documentation' }],
     ['meta', { property: 'og:title', content: 'Praetor — Autonomous Agent Control Plane & Recovery Runtime' }],
-    ['meta', { property: 'og:description', content: 'Approval, preflight idempotency, Ed25519 capability tokens, and sub-5s crash recovery for Coding and DevOps agents.' }],
-    ['meta', { property: 'og:image', content: 'https://pstarh.github.io/praetor-docs/commander-preflight-protocol.png' }],
+    ['meta', { property: 'og:description', content: 'Building trust in agent actions through exact approval, query-first recovery, and verifiable evidence. Open source, alpha.' }],
+    ['meta', { property: 'og:image', content: 'https://pstarh.github.io/praetor-docs/films/share-card.jpg' }],
     ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
     ['meta', { name: 'twitter:title', content: 'Praetor — Control Plane & Resilience Runtime for AI Agents' }],
-    ['meta', { name: 'twitter:description', content: 'Stop AI agents from wrecking production: preflight idempotency, capability tokens, and crash recovery.' }],
-    ['meta', { name: 'twitter:image', content: 'https://pstarh.github.io/praetor-docs/commander-preflight-protocol.png' }],
+    ['meta', { name: 'twitter:description', content: 'Our mission: make agents worthy of enterprise trust. Explore the mechanisms and a bounded GitHub API experiment. Alpha.' }],
+    ['meta', { name: 'twitter:image', content: 'https://pstarh.github.io/praetor-docs/films/share-card.jpg' }],
   ],
   themeConfig: theme('en'),
   locales: {

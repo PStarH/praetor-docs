@@ -639,3 +639,11 @@ kbd,
     grid-template-columns: repeat(2, 1fr) !important;
   }
 }
+
+/* Give the films room for readable technical frames beside their context. */
+@media (min-width: 960px) {
+  .film-page .VPDoc:not(.has-sidebar) .container,
+  .film-page .VPDoc:not(.has-sidebar) .content {
+    max-width: 1200px;
+  }
+}

@@ -1,0 +1,192 @@
+TAP version 13
+# Subtest: Kubernetes deployment rollback adapter
+    # Subtest: rejects forward arguments outside the approved descriptor keys
+    ok 1 - rejects forward arguments outside the approved descriptor keys
+      ---
+      duration_ms: 0.854792
+      type: 'test'
+      ...
+    # Subtest: uses ReplicaSet history and strategic merge PATCH for an apps/v1 rollback
+    ok 2 - uses ReplicaSet history and strategic merge PATCH for an apps/v1 rollback
+      ---
+      duration_ms: 18.127167
+      type: 'test'
+      ...
+    # Subtest: recovers timeout-after-accept by query and never writes twice
+    ok 3 - recovers timeout-after-accept by query and never writes twice
+      ---
+      duration_ms: 1.864875
+      type: 'test'
+      ...
+    # Subtest: keeps an accepted but unconverged rollout UNKNOWN for query-first recovery
+    ok 4 - keeps an accepted but unconverged rollout UNKNOWN for query-first recovery
+      ---
+      duration_ms: 1.387334
+      type: 'test'
+      ...
+    # Subtest: reports UNKNOWN when a 200 deployment list omits items (AA-05)
+    ok 5 - reports UNKNOWN when a 200 deployment list omits items (AA-05)
+      ---
+      duration_ms: 0.175041
+      type: 'test'
+      ...
+    # Subtest: preserves NOT_APPLIED and UNKNOWN remote classifications
+    ok 6 - preserves NOT_APPLIED and UNKNOWN remote classifications
+      ---
+      duration_ms: 0.420333
+      type: 'test'
+      ...
+    # Subtest: maps unavailable collection queries to UNKNOWN
+    ok 7 - maps unavailable collection queries to UNKNOWN
+      ---
+      duration_ms: 0.413583
+      type: 'test'
+      ...
+    # Subtest: uses the original revision and a separate marker for governed compensation
+    ok 8 - uses the original revision and a separate marker for governed compensation
+      ---
+      duration_ms: 0.630625
+      type: 'test'
+      ...
+    # Subtest: denies missing original revision and mutated compensation patches
+    ok 9 - denies missing original revision and mutated compensation patches
+      ---
+      duration_ms: 0.279625
+      type: 'test'
+      ...
+    # Subtest: queries uncertain compensation before any second write
+    ok 10 - queries uncertain compensation before any second write
+      ---
+      duration_ms: 0.875833
+      type: 'test'
+      ...
+    # Subtest: returns UNKNOWN when a compensation marker is absent
+    ok 11 - returns UNKNOWN when a compensation marker is absent
+      ---
+      duration_ms: 0.145583
+      type: 'test'
+      ...
+    1..11
+ok 1 - Kubernetes deployment rollback adapter
+  ---
+  duration_ms: 25.872166
+  type: 'suite'
+  ...
+# Subtest: ReconciliationDaemon
+    # Subtest: binds evidence context reads to the current reconcile claim token
+    ok 1 - binds evidence context reads to the current reconcile claim token
+      ---
+      duration_ms: 4.260625
+      type: 'test'
+      ...
+    # Subtest: maps APPLIED and NOT_APPLIED to exactly one fenced terminal mutation
+    ok 2 - maps APPLIED and NOT_APPLIED to exactly one fenced terminal mutation
+      ---
+      duration_ms: 2.438792
+      type: 'test'
+      ...
+    # Subtest: passes UNKNOWN to the repository without calculating attempts, backoff, or deadline
+    ok 3 - passes UNKNOWN to the repository without calculating attempts, backoff, or deadline
+      ---
+      duration_ms: 0.780958
+      type: 'test'
+      ...
+    # Subtest: normalizes thrown queries without persisting thrown content and treats reschedule as success
+    ok 4 - normalizes thrown queries without persisting thrown content and treats reschedule as success
+      ---
+      duration_ms: 0.692125
+      type: 'test'
+      ...
+    # Subtest: does not consume an attempt when broker construction fails before the query
+    ok 5 - does not consume an attempt when broker construction fails before the query
+      ---
+      duration_ms: 0.335125
+      type: 'test'
+      ...
+    # Subtest: uses stable safe summaries for every thrown-value kind and caps them at 512 code points
+    ok 6 - uses stable safe summaries for every thrown-value kind and caps them at 512 code points
+      ---
+      duration_ms: 0.501792
+      type: 'test'
+      ...
+    # Subtest: escalates missing adapters before querying and preserves fenced claim auth
+    ok 7 - escalates missing adapters before querying and preserves fenced claim auth
+      ---
+      duration_ms: 0.8725
+      type: 'test'
+      ...
+    # Subtest: escalates a registered adapter without query support before invoking the broker
+    ok 8 - escalates a registered adapter without query support before invoking the broker
+      ---
+      duration_ms: 0.855833
+      type: 'test'
+      ...
+    # Subtest: uses the compensation-specific escalation when compensation query support is missing
+    ok 9 - uses the compensation-specific escalation when compensation query support is missing
+      ---
+      duration_ms: 0.780417
+      type: 'test'
+      ...
+    # Subtest: turns a malformed UNKNOWN into a typed adapter failure
+    ok 10 - turns a malformed UNKNOWN into a typed adapter failure
+      ---
+      duration_ms: 0.992333
+      type: 'test'
+      ...
+    # Subtest: does not retry or fall back to another write after a fenced mutation is rejected
+    ok 11 - does not retry or fall back to another write after a fenced mutation is rejected
+      ---
+      duration_ms: 0.578292
+      type: 'test'
+      ...
+    # Subtest: passes durable worker identity to claims and records database failures
+    ok 12 - passes durable worker identity to claims and records database failures
+      ---
+      duration_ms: 0.148708
+      type: 'test'
+      ...
+    # Subtest: starts an immediate non-overlapping tick and drains after in-flight work
+    ok 13 - starts an immediate non-overlapping tick and drains after in-flight work
+      ---
+      duration_ms: 3.52325
+      type: 'test'
+      ...
+    # Subtest: turns an over-budget outcome query into a reschedule instead of blocking the tick
+    ok 14 - turns an over-budget outcome query into a reschedule instead of blocking the tick
+      ---
+      duration_ms: 26.886708
+      type: 'test'
+      ...
+    # Subtest: aborts the adapter through the real broker and keeps a timeout ahead of an abort-time APPLIED result
+    ok 15 - aborts the adapter through the real broker and keeps a timeout ahead of an abort-time APPLIED result
+      ---
+      duration_ms: 26.598542
+      type: 'test'
+      ...
+    # Subtest: does not commit a late APPLIED result from an adapter that ignores cancellation
+    ok 16 - does not commit a late APPLIED result from an adapter that ignores cancellation
+      ---
+      duration_ms: 26.904625
+      type: 'test'
+      ...
+    # Subtest: refuses a query budget that is not a positive integer below the claim lease
+    ok 17 - refuses a query budget that is not a positive integer below the claim lease
+      ---
+      duration_ms: 0.252667
+      type: 'test'
+      ...
+    1..17
+ok 2 - ReconciliationDaemon
+  ---
+  duration_ms: 98.208792
+  type: 'suite'
+  ...
+1..2
+# tests 28
+# suites 2
+# pass 28
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4919.54575

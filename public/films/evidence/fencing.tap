@@ -1,0 +1,89 @@
+TAP version 13
+# Subtest: V2 Cross-Node Fencing — In-Memory Lease Transfer & Zombie Rejection
+    # Subtest: should strictly increase fencing epoch across 3 consecutive crash→reclaim cycles
+    ok 1 - should strictly increase fencing epoch across 3 consecutive crash→reclaim cycles
+      ---
+      duration_ms: 263.917458
+      type: 'test'
+      ...
+    # Subtest: should reject zombie worker completeStep after double reclaim (two stale leases)
+    ok 2 - should reject zombie worker completeStep after double reclaim (two stale leases)
+      ---
+      duration_ms: 163.880625
+      type: 'test'
+      ...
+    # Subtest: should reject zombie worker heartbeatStep after lease expired
+    ok 3 - should reject zombie worker heartbeatStep after lease expired
+      ---
+      duration_ms: 81.727541
+      type: 'test'
+      ...
+    # Subtest: should reject zombie worker admitEffect after lease expired
+    ok 4 - should reject zombie worker admitEffect after lease expired
+      ---
+      duration_ms: 81.780417
+      type: 'test'
+      ...
+    # Subtest: should reject zombie worker failStep after lease expired and new worker claimed
+    ok 5 - should reject zombie worker failStep after lease expired and new worker claimed
+      ---
+      duration_ms: 81.038
+      type: 'test'
+      ...
+    # Subtest: should reject zombie worker after pause→resume→reclaim cycle
+    ok 6 - should reject zombie worker after pause→resume→reclaim cycle
+      ---
+      duration_ms: 82.05025
+      type: 'test'
+      ...
+    # Subtest: should track fencing epoch per-step, not per-run (independent step leases)
+    ok 7 - should track fencing epoch per-step, not per-run (independent step leases)
+      ---
+      duration_ms: 102.259458
+      type: 'test'
+      ...
+    # Subtest: should allow only one winner when two workers race to claim the same step
+    ok 8 - should allow only one winner when two workers race to claim the same step
+      ---
+      duration_ms: 0.297834
+      type: 'test'
+      ...
+    # Subtest: should reject duplicate completeStep with stale version (version check, not fencing)
+    ok 9 - should reject duplicate completeStep with stale version (version check, not fencing)
+      ---
+      duration_ms: 0.288
+      type: 'test'
+      ...
+    # Subtest: should reject zombie admitEffect, replay same-key admission idempotently, and park an effect-bearing step for reconciliation
+    ok 10 - should reject zombie admitEffect, replay same-key admission idempotently, and park an effect-bearing step for reconciliation
+      ---
+      duration_ms: 81.724959
+      type: 'test'
+      ...
+    # Subtest: should support cross-worker handoff: worker A completes step-0, worker B picks step-1
+    ok 11 - should support cross-worker handoff: worker A completes step-0, worker B picks step-1
+      ---
+      duration_ms: 0.289833
+      type: 'test'
+      ...
+    # Subtest: should never reset fencing epoch to 0 after multiple claim/reclaim cycles (verified via events)
+    ok 12 - should never reset fencing epoch to 0 after multiple claim/reclaim cycles (verified via events)
+      ---
+      duration_ms: 163.299541
+      type: 'test'
+      ...
+    1..12
+ok 1 - V2 Cross-Node Fencing — In-Memory Lease Transfer & Zombie Rejection
+  ---
+  duration_ms: 1103.470959
+  type: 'suite'
+  ...
+1..1
+# tests 12
+# suites 1
+# pass 12
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 29697.70325

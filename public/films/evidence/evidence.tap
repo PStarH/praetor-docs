@@ -1,0 +1,260 @@
+TAP version 13
+# Subtest: EB03 canonical evidence JSON persistence
+    # Subtest: preserves canonical bytes and hashes for ordinary JSON objects
+    ok 1 - preserves canonical bytes and hashes for ordinary JSON objects
+      ---
+      duration_ms: 0.656917
+      type: 'test'
+      ...
+    # Subtest: omits nested undefined object members without mutating the input
+    ok 2 - omits nested undefined object members without mutating the input
+      ---
+      duration_ms: 0.502584
+      type: 'test'
+      ...
+    # Subtest: serializes undefined and sparse array holes as null at every depth
+    ok 3 - serializes undefined and sparse array holes as null at every depth
+      ---
+      duration_ms: 0.110959
+      type: 'test'
+      ...
+    # Subtest: rejects top-level function instead of returning a non-string
+    ok 4 - rejects top-level function instead of returning a non-string
+      ---
+      duration_ms: 0.18325
+      type: 'test'
+      ...
+    # Subtest: rejects top-level symbol instead of returning a non-string
+    ok 5 - rejects top-level symbol instead of returning a non-string
+      ---
+      duration_ms: 0.039042
+      type: 'test'
+      ...
+    # Subtest: renders a top-level undefined as the JSON literal null
+    ok 6 - renders a top-level undefined as the JSON literal null
+      ---
+      duration_ms: 0.041458
+      type: 'test'
+      ...
+    # Subtest: uses native JSON persistence semantics for non-JSON members and toJSON
+    ok 7 - uses native JSON persistence semantics for non-JSON members and toJSON
+      ---
+      duration_ms: 0.886958
+      type: 'test'
+      ...
+    # Subtest: rejects BigInt and cycles but allows shared acyclic objects
+    ok 8 - rejects BigInt and cycles but allows shared acyclic objects
+      ---
+      duration_ms: 0.165042
+      type: 'test'
+      ...
+    # Subtest: keeps nested audit hashes and a real Ed25519 signature valid after JSON round-trip
+    ok 9 - keeps nested audit hashes and a real Ed25519 signature valid after JSON round-trip
+      ---
+      duration_ms: 3.364083
+      type: 'test'
+      ...
+    # Subtest: rejects historical invalid-JSON audit hashes without rewriting the evidence
+    ok 10 - rejects historical invalid-JSON audit hashes without rewriting the evidence
+      ---
+      duration_ms: 0.730042
+      type: 'test'
+      ...
+    1..10
+ok 1 - EB03 canonical evidence JSON persistence
+  ---
+  duration_ms: 7.394291
+  type: 'suite'
+  ...
+# Subtest: L3-11 evidence bundle v0
+    # Subtest: binds the exact action digest and terminal disposition into the canonical body
+    ok 1 - binds the exact action digest and terminal disposition into the canonical body
+      ---
+      duration_ms: 0.457875
+      type: 'test'
+      ...
+    # Subtest: rejects a terminal receipt with an unresolved consequential effect
+    ok 2 - rejects a terminal receipt with an unresolved consequential effect
+      ---
+      duration_ms: 0.14025
+      type: 'test'
+      ...
+    # Subtest: accepts an unresolved effect only with an explicit escalation event
+    ok 3 - accepts an unresolved effect only with an explicit escalation event
+      ---
+      duration_ms: 0.168292
+      type: 'test'
+      ...
+    # Subtest: buildRunEvidenceBundle includes identity, policy, effect summary, versions
+    ok 4 - buildRunEvidenceBundle includes identity, policy, effect summary, versions
+      ---
+      duration_ms: 0.42775
+      type: 'test'
+      ...
+    # Subtest: default sanitization strips CoT / prompt / gen_ai fields
+    ok 5 - default sanitization strips CoT / prompt / gen_ai fields
+      ---
+      duration_ms: 0.382875
+      type: 'test'
+      ...
+    # Subtest: responseSummary is allowlisted and secret field names are stripped
+    ok 6 - responseSummary is allowlisted and secret field names are stripped
+      ---
+      duration_ms: 0.584417
+      type: 'test'
+      ...
+    # Subtest: drops secret-like values smuggled through allowlisted response keys
+    ok 7 - drops secret-like values smuggled through allowlisted response keys
+      ---
+      duration_ms: 0.188584
+      type: 'test'
+      ...
+    # Subtest: verifyEvidenceBundle rejects nested responseSummary values
+    ok 8 - verifyEvidenceBundle rejects nested responseSummary values
+      ---
+      duration_ms: 0.182708
+      type: 'test'
+      ...
+    # Subtest: verifyEvidenceBundle detects tampered contentHash
+    ok 9 - verifyEvidenceBundle detects tampered contentHash
+      ---
+      duration_ms: 0.151833
+      type: 'test'
+      ...
+    # Subtest: verifyEvidenceBundle detects broken effect entry chain
+    ok 10 - verifyEvidenceBundle detects broken effect entry chain
+      ---
+      duration_ms: 0.175125
+      type: 'test'
+      ...
+    # Subtest: effect entry chain starts at GENESIS
+    ok 11 - effect entry chain starts at GENESIS
+      ---
+      duration_ms: 0.071
+      type: 'test'
+      ...
+    # Subtest: buildEffectEvidenceBundle scopes to one effect
+    ok 12 - buildEffectEvidenceBundle scopes to one effect
+      ---
+      duration_ms: 0.128083
+      type: 'test'
+      ...
+    # Subtest: buildRunEvidenceBundle drops cross-tenant effects, audits, and grants
+    ok 13 - buildRunEvidenceBundle drops cross-tenant effects, audits, and grants
+      ---
+      duration_ms: 0.200333
+      type: 'test'
+      ...
+    # Subtest: verifyEvidenceBundle rejects unredacted secret fields and non-allowlisted responseSummary
+    ok 14 - verifyEvidenceBundle rejects unredacted secret fields and non-allowlisted responseSummary
+      ---
+      duration_ms: 0.275208
+      type: 'test'
+      ...
+    # Subtest: verifyEvidenceBundle detects tampered effect field and deleted audit row
+    ok 15 - verifyEvidenceBundle detects tampered effect field and deleted audit row
+      ---
+      duration_ms: 0.245459
+      type: 'test'
+      ...
+    # Subtest: verifyEvidenceBundle detects broken audit entry chain
+    ok 16 - verifyEvidenceBundle detects broken audit entry chain
+      ---
+      duration_ms: 0.161792
+      type: 'test'
+      ...
+    # Subtest: verifyEvidenceBundle rejects residual DLP keys
+    ok 17 - verifyEvidenceBundle rejects residual DLP keys
+      ---
+      duration_ms: 0.426042
+      type: 'test'
+      ...
+    # Subtest: approvalInteractionId is optional
+    ok 18 - approvalInteractionId is optional
+      ---
+      duration_ms: 0.17775
+      type: 'test'
+      ...
+    # Subtest: verifyEvidenceBundle survives JSON round-trip when optional fields are absent
+    ok 19 - verifyEvidenceBundle survives JSON round-trip when optional fields are absent
+      ---
+      duration_ms: 0.217167
+      type: 'test'
+      ...
+    1..19
+ok 2 - L3-11 evidence bundle v0
+  ---
+  duration_ms: 4.966834
+  type: 'suite'
+  ...
+# Subtest: EB-02 evidence bundle signature verification
+    # Subtest: accepts a bundle whose signature verifies
+    ok 1 - accepts a bundle whose signature verifies
+      ---
+      duration_ms: 0.66025
+      type: 'test'
+      ...
+    # Subtest: rejects an unsigned bundle when a verifier is supplied
+    ok 2 - rejects an unsigned bundle when a verifier is supplied
+      ---
+      duration_ms: 0.128
+      type: 'test'
+      ...
+    # Subtest: rejects a forged body that reuses an honest signature
+    ok 3 - rejects a forged body that reuses an honest signature
+      ---
+      duration_ms: 0.623917
+      type: 'test'
+      ...
+    # Subtest: rejects a tampered signature value and a signature from another key
+    ok 4 - rejects a tampered signature value and a signature from another key
+      ---
+      duration_ms: 0.386
+      type: 'test'
+      ...
+    # Subtest: fails closed when a signature is required but no verifier was supplied
+    ok 5 - fails closed when a signature is required but no verifier was supplied
+      ---
+      duration_ms: 0.183166
+      type: 'test'
+      ...
+    # Subtest: documents that structural-only verification proves no authenticity
+    ok 6 - documents that structural-only verification proves no authenticity
+      ---
+      duration_ms: 0.114291
+      type: 'test'
+      ...
+    1..6
+ok 3 - EB-02 evidence bundle signature verification
+  ---
+  duration_ms: 2.161709
+  type: 'suite'
+  ...
+# Subtest: signed evidence Ed25519 authority
+    # Subtest: uses the configured key id and private key across signer recreation
+    ok 1 - uses the configured key id and private key across signer recreation
+      ---
+      duration_ms: 12.7565
+      type: 'test'
+      ...
+    # Subtest: rejects missing or non-Ed25519 signing material
+    ok 2 - rejects missing or non-Ed25519 signing material
+      ---
+      duration_ms: 0.2695
+      type: 'test'
+      ...
+    1..2
+ok 4 - signed evidence Ed25519 authority
+  ---
+  duration_ms: 13.740167
+  type: 'suite'
+  ...
+1..4
+# tests 37
+# suites 4
+# pass 37
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2952.707833

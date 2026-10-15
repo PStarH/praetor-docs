@@ -1,0 +1,88 @@
+WEBVTT
+
+NOTE
+English transcription of on-screen narrative and explanatory labels.
+These films contain synthesized music and sound design, with no spoken narration.
+
+1
+00:00:00.500 --> 00:00:04.350
+01 · PROPOSE
+An AI agent asks to open a pull request.
+
+2
+00:00:04.550 --> 00:00:07.400
+02 · BOUNDARY
+It holds no GitHub token. It can't approve itself.
+403 ACTION_APPROVAL_FORBIDDEN: agent key lacks actions:approve.
+
+3
+00:00:07.600 --> 00:00:10.600
+03 · APPROVE
+A person approves the exact request.
+
+4
+00:00:11.400 --> 00:00:12.600
+04 · EXECUTE
+GitHub creates it. 201 Created.
+
+5
+00:00:12.600 --> 00:00:13.500
+The reply is lost.
+
+6
+00:00:13.500 --> 00:00:14.250
+The worker dies. SIGKILL.
+
+7
+00:00:14.450 --> 00:00:15.900
+COMPLETION_UNKNOWN.
+Did it happen?
+
+8
+00:00:15.900 --> 00:00:19.050
+A blind retry could open a second PR.
+
+9
+00:00:19.300 --> 00:00:21.600
+05 · RECONCILE
+Praetor doesn't retry. It checks GitHub first.
+Read-only lookup by the persisted action marker.
+
+10
+00:00:21.600 --> 00:00:23.650
+Recovery recorded in CI run 36653246066 against a live GitHub sandbox.
+The lost reply and worker kill are injected by the test harness.
+
+11
+00:00:23.900 --> 00:00:25.950
+COMPLETED. It finds the PR that already exists.
+1 create call · same run · same request hash.
+
+12
+00:00:25.950 --> 00:00:28.550
+Evidence: Ed25519 signed.
+Verified against the gateway key.
+
+13
+00:00:28.800 --> 00:00:31.250
+06 · THE RULE
+No exact match? It stays unknown, then escalates.
+0 or 2+ matches: re-checked with backoff, then escalated; no new create.
+
+14
+00:00:31.500 --> 00:00:33.950
+07 · NEXT
+Today: GitHub pull requests. Next: the rest of production.
+
+15
+00:00:34.200 --> 00:00:35.000
+Praetor.
+
+16b
+00:00:35.000 --> 00:00:36.000
+The verified action boundary for AI agents.
+
+16
+00:00:36.000 --> 00:00:38.400
+Alpha. GitHub pull-request creation is the first governed action.
+Recovery replayed from CI run 36653246066. Fault injected by test harness.

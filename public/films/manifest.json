@@ -1,0 +1,162 @@
+{
+  "version": 1,
+  "source_repository": "https://github.com/PStarH/Praetor",
+  "caption_description": "English timed transcription of on-screen narrative and explanatory labels; no spoken narration. Music and sound design only. Not an audio-description track.",
+  "films": {
+    "brand": {
+      "file": "brand.mp4",
+      "bytes": 3174713,
+      "sha256": "fa9a40b9227c8c19bb2e7123ef8691c4eb6e881be87d21256ed415c752a26163",
+      "duration_seconds": 29.0,
+      "video": {
+        "codec": "h264",
+        "width": 1920,
+        "height": 1080,
+        "fps": "30/1",
+        "frames": 870,
+        "pixel_format": "yuv420p",
+        "faststart": true
+      },
+      "audio": {
+        "codec": "aac",
+        "sample_rate": 48000,
+        "channels": 2,
+        "integrated_lufs": -14.01,
+        "true_peak_dbtp": -1.76
+      },
+      "source": {
+        "path": "media/v2/praetor-brand-v2.mp4",
+        "sha256": "fa9a40b9227c8c19bb2e7123ef8691c4eb6e881be87d21256ed415c752a26163"
+      },
+      "poster": {
+        "file": "brand.jpg",
+        "bytes": 44515,
+        "sha256": "c0fadcd2fefc8bbfa0598767412403346ab140d667611e02cfe8b69f34bc8d61",
+        "width": 1280,
+        "height": 720,
+        "source_frame_seconds": 28
+      },
+      "captions": {
+        "file": "brand.vtt",
+        "bytes": 683,
+        "sha256": "d7c2d2ec58f12b1698d0ee9ab28f959a9fb98a9ba10aa4c0a12e5f70e103a81d",
+        "language": "en",
+        "cue_count": 8
+      },
+      "encoding": "Original verified v2 MP4 copied without re-encoding.",
+      "opening_revision": "2026-10-13: direct trust question; drawn question mark with amber dot handing off into the action orb."
+    },
+    "explainer": {
+      "file": "explainer.mp4",
+      "bytes": 8539179,
+      "sha256": "6485ee71869b5eb61bd1e07031332c14448ca24e33330dc4481b4e61133941e6",
+      "duration_seconds": 118.0,
+      "video": {
+        "codec": "h264",
+        "width": 1920,
+        "height": 1080,
+        "fps": "30/1",
+        "frames": 3540,
+        "pixel_format": "yuv420p",
+        "faststart": true
+      },
+      "audio": {
+        "codec": "aac",
+        "sample_rate": 48000,
+        "channels": 2,
+        "integrated_lufs": -14.01,
+        "true_peak_dbtp": -1.8
+      },
+      "source": {
+        "path": "media/v2/praetor-explainer-v2.mp4",
+        "sha256": "6485ee71869b5eb61bd1e07031332c14448ca24e33330dc4481b4e61133941e6"
+      },
+      "poster": {
+        "file": "explainer.jpg",
+        "bytes": 107920,
+        "sha256": "46927e9f31c7767dd97d947dfb75f05717ebdc6f8f65f764d0a26ca6e2de33b7",
+        "width": 1280,
+        "height": 720,
+        "source_frame_seconds": 96
+      },
+      "captions": {
+        "file": "explainer.vtt",
+        "bytes": 4175,
+        "sha256": "1e160ea0b18867435e2c950e7e7f70b5dfd2797fdb5c3064c31ade613b0076e1",
+        "language": "en",
+        "cue_count": 38
+      },
+      "encoding": "Original verified v2 MP4 copied without re-encoding."
+    },
+    "case-study": {
+      "file": "case-study.mp4",
+      "bytes": 13339596,
+      "sha256": "dca81e804c37808a5c3c18e300de420d0963d9db659654b0b419552405e9108c",
+      "duration_seconds": 38.4,
+      "video": {
+        "codec": "h264",
+        "width": 1920,
+        "height": 1080,
+        "fps": "30/1",
+        "frames": 1152,
+        "pixel_format": "yuv420p",
+        "faststart": true
+      },
+      "audio": {
+        "codec": "aac",
+        "sample_rate": 48000,
+        "channels": 2,
+        "integrated_lufs": -14,
+        "true_peak_dbtp": -1.74
+      },
+      "source": {
+        "path": "media/praetor-film/out/praetor-film.mp4",
+        "sha256": "49de00f992f4a32d87daef797c4ff1f0282de45625986867f6d0ebc7e5e27b69"
+      },
+      "poster": {
+        "file": "case-study.jpg",
+        "bytes": 122752,
+        "sha256": "e9c7edf912ce0d60cea3321d5ec33a3cd2bd6dd3f3a1ec197a0840f96dda7779",
+        "width": 1280,
+        "height": 720,
+        "source_frame_seconds": 24.7
+      },
+      "captions": {
+        "file": "case-study.vtt",
+        "bytes": 1940,
+        "sha256": "96f9c635d2827aee2be657749e4e7ffc198aaee8929b8a4217187671280d4c80",
+        "language": "en",
+        "cue_count": 17
+      },
+      "encoding": {
+        "video": "libx264, preset slow, CRF 22, High profile",
+        "audio": "original AAC stream copied",
+        "ssim_against_source": {
+          "all": 0.990079,
+          "y": 0.986242,
+          "u": 0.99728,
+          "v": 0.998225
+        },
+        "original_bytes": 58934750
+      }
+    }
+  },
+  "share_card": {
+    "file": "share-card.jpg",
+    "bytes": 38664,
+    "sha256": "a592755839e5fd0cd19ec1a0852ef65401dc88478fa71ffe5ef4c8706a7e20d8",
+    "width": 1200,
+    "height": 630,
+    "source_film": "brand",
+    "source_frame_seconds": 28,
+    "transform": "1120x630 full-frame resize, centered with 40px dark side padding; no crop or overlay."
+  },
+  "verification": [
+    "All video and audio streams fully decoded with ffmpeg.",
+    "MP4 moov precedes mdat in every export (faststart).",
+    "All VTT cues parsed by ffprobe; chronological, nonoverlapping, within film duration.",
+    "Poster and share-card dimensions checked; all images visually inspected.",
+    "README posters match docs-site posters byte-for-byte.",
+    "Case-study decoded detail inspected; full-film SSIM measured against source."
+  ]
+}
